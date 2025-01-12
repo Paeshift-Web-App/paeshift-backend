@@ -1,0 +1,11 @@
+# render.yaml
+version: 1
+services:
+  - type: web
+    name: paeshift-backend
+    env: python
+    plan: free  # You can choose a different plan if needed
+    buildCommand: ./build.sh  # This will run your custom build script during deployment
+    startCommand: gunicorn main.wsgi:application --bind 0.0.0.0:$PORT  # Start the app with gunicorn
+    autoDeploy: true  # Automatically deploy on every push to the main branch
+    prPreview: true  # Deploy preview environments for each pull request
