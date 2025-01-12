@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-44afb38xx*axsoymn_2u4hgq)r#12()*xp&ngc#2h6&0!okxw=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1','localhost','ffe3-102-89-22-44.ngrok-free.app']
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -42,6 +42,7 @@ DJANGO_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    
 ]
 
 CUSTOM_APPS = ["authUser"]
@@ -58,6 +59,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddlware'
 ]
 
 ROOT_URLCONF = 'main.urls'
@@ -321,7 +323,7 @@ SIMPLE_JWT = {
 
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:5173',  # Frontend origin
+    '*',  # Frontend origin
 ]
 
 
@@ -351,7 +353,7 @@ CORS_ALLOW_HEADERS = [
 # Define the base URL of your site
 SITE_URL = 'http://127.0.0.1:8000'  # For local development
 # In settings.py, add the ngrok URL to trusted origins for CORS
-ORIGIN = ['https://ffe3-102-89-22-44.ngrok-free.app']
+ORIGIN = ['https://c04e-102-89-22-99.ngrok-free.app']
 CORS_ALLOWED_ORIGINS = ORIGIN
 
 # Allow ngrok URL for CSRF checks
