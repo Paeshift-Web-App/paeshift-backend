@@ -325,7 +325,7 @@ SIMPLE_JWT = {
 
 
 CORS_ALLOWED_ORIGINS = [
-    '*',  # Frontend origin
+    'http://localhost:5173' # Frontend origin
 ]
 
 
@@ -353,10 +353,10 @@ CORS_ALLOW_HEADERS = [
 # settings.py
 
 # Define the base URL of your site
-SITE_URL = 'http://127.0.0.1:8000'  # For local development
+SITE_URL = 'https://paeshift-backend.onrender.com'  # For local development
 # In settings.py, add the ngrok URL to trusted origins for CORS
-ORIGIN = ['https://c04e-102-89-22-99.ngrok-free.app']
-CORS_ALLOWED_ORIGINS = ORIGIN
+ORIGIN = ['https://paeshift-backend.onrender.com', 'http://localhost:5173']
+#CORS_ALLOWED_ORIGINS = ORIGIN
 
 # Allow ngrok URL for CSRF checks
 CSRF_TRUSTED_ORIGINS = ORIGIN
