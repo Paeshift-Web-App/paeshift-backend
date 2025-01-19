@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "./Main.css";
+import "./Jobs.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faServer, faUser, faUserGroup, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { faBell, faBookmark } from "@fortawesome/free-regular-svg-icons";
@@ -157,7 +157,6 @@ const Main = () => {
               {
                 filterButton.map((item, key) => {
                   return (
-                    // <button type="button" key={key} onClick={()=> setFilterState(item.value)} className= {item.current ? "filter-btn active" : "filter-btn"}>{item.title}</button>
                     <button type="button" key={key} value={item.value} onClick={filterFunction} className={item.title === "All" ? "filter-btn active" : "filter-btn"}>{item.title}</button>
                   )
                 })
@@ -167,7 +166,7 @@ const Main = () => {
           </div>
         </div>
         <div className="row mt-3">
-          <div className="cards">
+          <div className="cards jobs">
 
 
             {JobsData &&
@@ -195,7 +194,7 @@ const Main = () => {
                     </div>
                     <div className="row">
                       <div className="col-3 pe-0"><p>Location:</p></div>
-                      <div className="col-9"><h4>{item.location}</h4></div>
+                      <div className="col-9"><h4 className="text-truncate">{item.location}</h4></div>
                     </div>
                     <div className="row">
                       <div className="col-4 pe-0"><p>Date:</p></div>
@@ -262,65 +261,7 @@ const Main = () => {
 
           </div>
         </div>
-
-
-
-        <div className="row">
           <Walletmodal />
-          {/* <div className="col-12 chart">
-            <Line
-              data={{
-                labels: ChartData.map((item) => item.states),
-                datasets: [
-                  {
-                    label: "Agro Products",
-                    data: ChartData.map((item) => item.quantity),
-                    backgroundColor: "#00800bcc",
-                    borderColor: "#00800bcc",
-                  },
-                ],
-              }}
-              options={{
-                elements: {
-                  line: {
-                    tension: 0.4,
-                  },
-                },
-                plugins: {
-                  title: {
-                    text: "Quantity of Products in States",
-                  },
-                },
-              }}
-            />
-          </div>
-          <div className="col-12 chart">
-            <Bar
-              data={{
-                labels: ChartData.map((item) => item.states),
-                datasets: [
-                  {
-                    label: "Agro Products",
-                    data: ChartData.map((item) => item.quantity),
-                    backgroundColor: [
-                      "rgba(0, 128, 11, 0.8)",
-                      "rgba(250, 192, 19, 0.8)",
-                      "rgba(253, 135, 135, 0.8)",
-                    ],
-                    borderRadius: 5,
-                  },
-                ],
-              }}
-              options={{
-                plugins: {
-                  title: {
-                    text: "Revenue Source",
-                  },
-                },
-              }}
-            />
-          </div> */}
-        </div>
       </section>
     </main >
   )

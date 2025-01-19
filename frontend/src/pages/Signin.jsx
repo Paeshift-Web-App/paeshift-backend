@@ -35,9 +35,9 @@ const Signin = () => {
                     </div> */}
                     <div className="row">
                         <div className="col-3">
-                            <a href="/select" className='text-dark'>
+                            <Link to="/select" className='text-dark'>
                                 <FontAwesomeIcon icon={faChevronLeft} />
-                            </a>
+                            </Link>
                         </div>
                         <div className="col-6 text-center">
                             <img src={brandLogo} className="brand-logo ms-2" alt="Paeshift logo" />

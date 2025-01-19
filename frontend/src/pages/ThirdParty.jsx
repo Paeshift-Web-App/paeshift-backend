@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react'
-import { useNavigate } from "react-router-dom";
+import {Link, useNavigate } from "react-router-dom";
 import brandLogo from "../assets/images/logo-sm.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck, faChevronLeft, faCircle, faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
@@ -85,9 +85,9 @@ const ThirdParty = () => {
                 <div className="bg-card">
                     <div className="row">
                         <div className="col-3">
-                            <a href="/select" className='text-dark'>
+                            <Link to="/select" className='text-dark'>
                                 <FontAwesomeIcon icon={faChevronLeft} />
-                            </a>
+                            </Link>
                         </div>
                         <div className="col-6 text-center">
                             <img src={brandLogo} className="brand-logo ms-2" alt="Paeshift logo" />
@@ -101,7 +101,7 @@ const ThirdParty = () => {
                                 <p>Kindly choose your sign up option to create new account</p>
                             </div>
                             <div className="body">
-                                <a href="/signup" className="btn primary-btn-outline mb-2 btn-signup"> <img src={iemail} alt="Email" className="me-2" /> Sign up with Email </a>
+                                <Link to="/signup" className="btn primary-btn-outline mb-2 btn-signup"> <img src={iemail} alt="Email" className="me-2" /> Sign up with Email </Link>
                                 <button className="btn primary-btn-outline mb-2 btn-signup" onClick={() => login()} > <img src={igoogle} alt="Google" className="me-2" /> Sign up with Google </button>
                                 {/* <LoginSocialGoogle
                                     isOnlyGetToken
@@ -152,7 +152,7 @@ const ThirdParty = () => {
                                     <button className="btn primary-btn-outline mb-2 btn-signup"> <img src={iapple} alt="Apple" className="me-2" /> Sign up with Apple </button>
                                 </LoginSocialApple>
 
-                                <p className="mt-4">Already have an account? <a href="#" >Sign In to my account</a></p>
+                                <p className="mt-4">Already have an account? <Link href="#" >Sign In to my account</Link></p>
                             </div>
                         </div>
                     </div>

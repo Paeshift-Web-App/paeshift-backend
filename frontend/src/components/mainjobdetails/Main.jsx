@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from "react";
-import "./Main.css";
+import "./Jobdetails.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faServer, faUser, faChevronLeft, faUserGroup, faSearch } from "@fortawesome/free-solid-svg-icons";
-import { faBell, faBookmark } from "@fortawesome/free-regular-svg-icons";
+import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
+import { faBookmark } from "@fortawesome/free-regular-svg-icons";
 
 
 
 import Stars from "../../assets/images/stars.png";
-import iconWallet from "../../assets/images/wallet.png";
-import iconLogo from "../../assets/images/icon-logo.png";
 import Axios from "axios";
-import { faBarsProgress } from "@fortawesome/free-solid-svg-icons";
 import { faBars } from "@fortawesome/free-solid-svg-icons";
 import ProfileImage from "../../assets/images/profile.png";
 import MapImage from "../../assets/images/map.png";
@@ -32,6 +29,10 @@ const Main = () => {
   const [users, setUsers] = useState();
 
 
+
+  function applyJob() {
+    alert("Application successful");
+  }
 
   // useEffect(() => {
 
@@ -61,7 +62,6 @@ const Main = () => {
 
   return (
     <main className="col-12 col-md-12 col-lg-9 col-xl-10 ms-sm-auto main__job-details px-md-4">
-      {/* <div className="d-flex justify-content-between align-items-center flex-wrap flex-md-nowrap align-items-center pb-2"> */}
       <div className="row page_title">
         <div className="col-1 pt-lg-2">
           <a href="/jobs" className='text-dark'>
@@ -79,8 +79,6 @@ const Main = () => {
           </button>
         </div>
       </div>
-
-      {/* </div> */}
       <section className="container container__data">
         <div className="row m-0 p-0 map_wrapper">
           <div className="col-12 m-0 p-0">
@@ -138,7 +136,7 @@ const Main = () => {
         </section>
         <section className="buttons">
           <button className="btn saved">Saved &nbsp; <FontAwesomeIcon icon={faBookmark} className="icon-saved" /> </button>
-          <button className="btn apply-btn">Apply Now</button>
+          <button className="btn apply-btn" onClick={()=>applyJob()}>Apply Now</button>
         </section>
       </section>
       <div className="row">

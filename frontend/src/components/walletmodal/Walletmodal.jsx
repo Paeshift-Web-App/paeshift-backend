@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import "./Walletmodal.css";
 import Stars from "../../assets/images/stars.png";
 import iconWallet from "../../assets/images/wallet.png";
 import iconLogo from "../../assets/images/icon-logo.png";

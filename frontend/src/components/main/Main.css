@@ -464,7 +464,7 @@ select.filter-btn option:hover {
   font-family: var(--font-family-text);
 }
 
-.container__data .card .price button {
+.container__data .card .price a {
   padding: 0.75rem 1.5rem;
   background-color: var(--primary-purple);
   color: var(--color-text-white);
@@ -474,7 +474,7 @@ select.filter-btn option:hover {
   font-weight: 700;
   font-family: var(--font-family-body);
 }
-.container__data .card .price button:hover {
+.container__data .card .price a:hover {
   background-color: var(--color-bg-light);
   color: var(--primary-purple);
   border: 1px solid var(--primary-purple);

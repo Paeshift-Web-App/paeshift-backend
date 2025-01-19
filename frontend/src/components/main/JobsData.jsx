@@ -10,6 +10,8 @@ export const JobsData = [
 		amount:'5000',
 		image: 'profile.png',
 		location: '4517 Washington Ave. Manchester, Kentucky 39495, Ilorin Nigeria',
+        date_posted: '2 days ago',
+        no_of_application: '7'
 	},
 	{
         name: 'Sanni Lawal',
@@ -22,6 +24,8 @@ export const JobsData = [
 		amount:'4000',
 		image: 'profile.png',
 		location: '4517 Washington Ave. Manchester, Kentucky 39495, Ilorin Nigeria',
+        date_posted: '2 days ago',
+        no_of_application: '1'
 	},
 	{
         name: 'Ahmed Musa',
@@ -34,6 +38,8 @@ export const JobsData = [
 		amount:'4000',
 		image: 'profile.png',
 		location: '4517 Washington Ave. Manchester, Kentucky 39495, Ilorin Nigeria',
+        date_posted: '2 days ago',
+        no_of_application: '3'
 	},
 	{
         name: 'John Mathew',
@@ -46,6 +52,8 @@ export const JobsData = [
 		amount:'4000',
 		image: 'profile.png',
 		location: '4517 Washington Ave. Manchester, Kentucky 39495, Ilorin Nigeria',
+        date_posted: '2 days ago',
+        no_of_application: '2'
 	},
 
 

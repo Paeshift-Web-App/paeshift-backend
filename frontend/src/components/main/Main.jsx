@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import "./Main.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faServer, faUser, faUserGroup, faSearch } from "@fortawesome/free-solid-svg-icons";
@@ -13,6 +14,8 @@ import { faBars } from "@fortawesome/free-solid-svg-icons";
 import ProfileImage from "../../assets/images/profile.png";
 import Walletmodal from "../walletmodal/Walletmodal";
 
+
+import { JobsData } from "./JobsData";
 // import { defaults } from "chart.js/auto";
 // import { Bar, Line } from "react-chartjs-2";
 // import { ChartData } from "./Chartdata";
@@ -115,268 +118,51 @@ const Main = () => {
         </div>
         <div className="row mt-3">
           <div className="cards">
-            <div className="card">
-              <div className="card_top">
-                <span className="profile_info">
-                  <span>
-                    <img className="prof" src={ProfileImage} alt="profile" />
+
+            {JobsData && JobsData.map((item, key) => {
+
+              return (
+                <div className="card" key={key}>
+                  <div className="card_top">
+                    <span className="profile_info">
+                      <span>
+                        <img className="prof" src={ProfileImage} alt="profile" />
+                      </span>
+                      <span>
+                        <h4>{item.name}</h4>
+                        <img src={Stars} alt="profile" /> <span className="rate_score">4.98</span>
+                      </span>
+                    </span>
+                    <span className="top_cta">
+                      <button className="btn active">Saved &nbsp; <FontAwesomeIcon icon={faBookmark} className="icon-saved" /> </button>
+                    </span>
+                  </div>
+                  <div className="duration">
+                    <h3>{item.duration} Contract </h3> <span className="time_post">{item.date_posted}</span>
+                  </div>
+                  <span className="title">
+                    <h3>{item.title}</h3>
                   </span>
-                  <span>
-                    <h4>Eniola Lucas</h4>
-                    <img src={Stars} alt="profile" /> <span className="rate_score">4.98</span>
-                  </span>
-                </span>
-                <span className="top_cta">
-                  <button className="btn active">Saved &nbsp; <FontAwesomeIcon icon={faBookmark} className="icon-saved" /> </button>
-                </span>
-              </div>
-              <div className="duration">
-                <h3>2hrs Contract </h3> <span className="time_post">2 days ago</span>
-              </div>
-              <span className="title">
-                <h3>Professional Grass Cutter</h3>
-              </span>
-              <h4>Monday 2nd March, 2024. 09:00 AM.</h4>
-              <span className="address">4517 Washington Ave. Manchester, Kentucky 39495..,</span>
-              {/* <span className="address">4517 Washington Ave. Manchester, Kentucky 39495, Ilorin Nigeria</span> */}
-              <div className="price">
-                <span>
-                  <h6>₦2,000/hr</h6>
-                  <p>1 applicant needed</p>
-                </span>
-                <span>
-                  <button className="btn shadow">Apply Now</button>
-                </span>
-              </div>
-            </div>
-            <div className="card">
-              <div className="card_top">
-                <span className="profile_info">
-                  <span>
-                    <img className="prof" src={ProfileImage} alt="profile" />
-                  </span>
-                  <span>
-                    <h4>Eniola Lucas</h4>
-                    <img src={Stars} alt="profile" /> <span className="rate_score">4.98</span>
-                  </span>
-                </span>
-                <span className="top_cta">
-                  <button className="btn">Saved &nbsp; <FontAwesomeIcon icon={faBookmark} className="icon-saved" /> </button>
-                </span>
-              </div>
-              <div className="duration">
-                <h3>2hrs Contract </h3> <span className="time_post">2 days ago</span>
-              </div>
-              <span className="title">
-                <h3>Professional Grass Cutter</h3>
-              </span>
-              <h4>Monday 2nd March, 2024. 09:00 AM.</h4>
-              <span className="address">4517 Washington Ave. Manchester, Kentucky 39495..,</span>
-              {/* <span className="address">4517 Washington Ave. Manchester, Kentucky 39495, Ilorin Nigeria</span> */}
-              <div className="price">
-                <span>
-                  <h6>₦2,000/hr</h6>
-                  <p>1 applicant needed</p>
-                </span>
-                <span>
-                  <button className="btn shadow">Apply Now</button>
-                </span>
-              </div>
-            </div>
-            <div className="card">
-              <div className="card_top">
-                <span className="profile_info">
-                  <span>
-                    <img className="prof" src={ProfileImage} alt="profile" />
-                  </span>
-                  <span>
-                    <h4>Eniola Lucas</h4>
-                    <img src={Stars} alt="profile" /> <span className="rate_score">4.98</span>
-                  </span>
-                </span>
-                <span className="top_cta">
-                  <button className="btn">Saved &nbsp; <FontAwesomeIcon icon={faBookmark} className="icon-saved" /> </button>
-                </span>
-              </div>
-              <div className="duration">
-                <h3>2hrs Contract </h3> <span className="time_post">2 days ago</span>
-              </div>
-              <span className="title">
-                <h3>Professional Grass Cutter</h3>
-              </span>
-              <h4>Monday 2nd March, 2024. 09:00 AM.</h4>
-              <span className="address">4517 Washington Ave. Manchester, Kentucky 39495..,</span>
-              {/* <span className="address">4517 Washington Ave. Manchester, Kentucky 39495, Ilorin Nigeria</span> */}
-              <div className="price">
-                <span>
-                  <h6>₦2,000/hr</h6>
-                  <p>1 applicant needed</p>
-                </span>
-                <span>
-                  <button className="btn shadow">Apply Now</button>
-                </span>
-              </div>
-            </div>
-            <div className="card">
-              <div className="card_top">
-                <span className="profile_info">
-                  <span>
-                    <img className="prof" src={ProfileImage} alt="profile" />
-                  </span>
-                  <span>
-                    <h4>Eniola Lucas</h4>
-                    <img src={Stars} alt="profile" /> <span className="rate_score">4.98</span>
-                  </span>
-                </span>
-                <span className="top_cta">
-                  <button className="btn">Saved &nbsp; <FontAwesomeIcon icon={faBookmark} className="icon-saved" /> </button>
-                </span>
-              </div>
-              <div className="duration">
-                <h3>2hrs Contract </h3> <span className="time_post">2 days ago</span>
-              </div>
-              <span className="title">
-                <h3>Professional Grass Cutter</h3>
-              </span>
-              <h4>Monday 2nd March, 2024. 09:00 AM.</h4>
-              <span className="address">4517 Washington Ave. Manchester, Kentucky 39495..,</span>
-              {/* <span className="address">4517 Washington Ave. Manchester, Kentucky 39495, Ilorin Nigeria</span> */}
-              <div className="price">
-                <span>
-                  <h6>₦2,000/hr</h6>
-                  <p>1 applicant needed</p>
-                </span>
-                <span>
-                  <button className="btn shadow">Apply Now</button>
-                </span>
-              </div>
-            </div>
-            <div className="card">
-              <div className="card_top">
-                <span className="profile_info">
-                  <span>
-                    <img className="prof" src={ProfileImage} alt="profile" />
-                  </span>
-                  <span>
-                    <h4>Eniola Lucas</h4>
-                    <img src={Stars} alt="profile" /> <span className="rate_score">4.98</span>
-                  </span>
-                </span>
-                <span className="top_cta">
-                  <button className="btn">Saved &nbsp; <FontAwesomeIcon icon={faBookmark} className="icon-saved" /> </button>
-                </span>
-              </div>
-              <div className="duration">
-                <h3>2hrs Contract </h3> <span className="time_post">2 days ago</span>
-              </div>
-              <span className="title">
-                <h3>Professional Grass Cutter</h3>
-              </span>
-              <h4>Monday 2nd March, 2024. 09:00 AM.</h4>
-              <span className="address">4517 Washington Ave. Manchester, Kentucky 39495..,</span>
-              {/* <span className="address">4517 Washington Ave. Manchester, Kentucky 39495, Ilorin Nigeria</span> */}
-              <div className="price">
-                <span>
-                  <h6>₦2,000/hr</h6>
-                  <p>1 applicant needed</p>
-                </span>
-                <span>
-                  <button className="btn shadow">Apply Now</button>
-                </span>
-              </div>
-            </div>
-            <div className="card">
-              <div className="card_top">
-                <span className="profile_info">
-                  <span>
-                    <img className="prof" src={ProfileImage} alt="profile" />
-                  </span>
-                  <span>
-                    <h4>Eniola Lucas</h4>
-                    <img src={Stars} alt="profile" /> <span className="rate_score">4.98</span>
-                  </span>
-                </span>
-                <span className="top_cta">
-                  <button className="btn">Saved &nbsp; <FontAwesomeIcon icon={faBookmark} className="icon-saved" /> </button>
-                </span>
-              </div>
-              <div className="duration">
-                <h3>2hrs Contract </h3> <span className="time_post">2 days ago</span>
-              </div>
-              <span className="title">
-                <h3>Professional Grass Cutter</h3>
-              </span>
-              <h4>Monday 2nd March, 2024. 09:00 AM.</h4>
-              <span className="address">4517 Washington Ave. Manchester, Kentucky 39495..,</span>
-              {/* <span className="address">4517 Washington Ave. Manchester, Kentucky 39495, Ilorin Nigeria</span> */}
-              <div className="price">
-                <span>
-                  <h6>₦2,000/hr</h6>
-                  <p>1 applicant needed</p>
-                </span>
-                <span>
-                  <button className="btn shadow">Apply Now</button>
-                </span>
-              </div>
-            </div>
+                  <h4>{item.date}. {item.time}</h4>
+                  <span className="address text-truncate">{item.location}</span>
+                  <div className="price">
+                    <span>
+                      <h6>₦{item.amount}/hr</h6>
+                      <p>{item.no_of_application} applicant needed</p>
+                    </span>
+                    <span>
+                      <Link to="../jobdetails" className="btn shadow">View Job Details</Link>
+                    </span>
+                  </div>
+                </div>
+              )
+            })
+
+            }
+
           </div>
         </div>
-        <div className="row">
-          <Walletmodal />
-          {/* <div className="col-12 chart">
-            <Line
-              data={{
-                labels: ChartData.map((item) => item.states),
-                datasets: [
-                  {
-                    label: "Agro Products",
-                    data: ChartData.map((item) => item.quantity),
-                    backgroundColor: "#00800bcc",
-                    borderColor: "#00800bcc",
-                  },
-                ],
-              }}
-              options={{
-                elements: {
-                  line: {
-                    tension: 0.4,
-                  },
-                },
-                plugins: {
-                  title: {
-                    text: "Quantity of Products in States",
-                  },
-                },
-              }}
-            />
-          </div>
-          <div className="col-12 chart">
-            <Bar
-              data={{
-                labels: ChartData.map((item) => item.states),
-                datasets: [
-                  {
-                    label: "Agro Products",
-                    data: ChartData.map((item) => item.quantity),
-                    backgroundColor: [
-                      "rgba(0, 128, 11, 0.8)",
-                      "rgba(250, 192, 19, 0.8)",
-                      "rgba(253, 135, 135, 0.8)",
-                    ],
-                    borderRadius: 5,
-                  },
-                ],
-              }}
-              options={{
-                plugins: {
-                  title: {
-                    text: "Revenue Source",
-                  },
-                },
-              }}
-            />
-          </div> */}
-        </div>
+        <Walletmodal />
       </section>
     </main >
   )

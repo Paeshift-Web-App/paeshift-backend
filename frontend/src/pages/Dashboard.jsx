@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
-import "./Dashboard.css";
 import Sidebar from "../components/sidebar/SideBar";
 import Main from "../components/main/Main";
 import { useNavigate } from "react-router-dom";
+import "./Dashboard.css";
 // import { useRecoilValue } from "recoil";
 // import { userInfo } from "../atoms/User";
 

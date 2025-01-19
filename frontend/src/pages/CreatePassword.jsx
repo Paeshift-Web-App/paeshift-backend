@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useNavigate } from "react-router-dom";
+import {Link, useNavigate } from "react-router-dom";
 import brandLogo from "../assets/images/logo-sm.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck, faChevronLeft, faCircle, faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
@@ -122,9 +122,9 @@ const CreatePassword = () => {
                     </div>
                     <div className="row">
                         <div className="col-3">
-                            <a href="/signin" className='text-dark'>
+                            <Link to="/signin" className='text-dark'>
                                 <FontAwesomeIcon icon={faChevronLeft} />
-                            </a>
+                            </Link>
                         </div>
                         <div className="col-6 text-center">
                             <img src={brandLogo} className="brand-logo ms-2" alt="Paeshift logo" />

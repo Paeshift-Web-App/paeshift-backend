@@ -1,0 +1,330 @@
+/* #profileModal.come-from-modal.right .modal-header {} */
+
+#profileModal.come-from-modal.right .btn-close {
+    border: 1px solid var(--color-text-ash);
+    border-radius: 50%;
+    font-size: 0.625rem;
+}
+
+/* #profileModal.come-from-modal.right .profile_section {} */
+
+#profileModal.come-from-modal.right .profile_section .profile_wrapper {
+    width: 6rem;
+    height: 6rem;
+    border-radius: 50%;
+    opacity: 0px;
+    background-color: black;
+    margin: 0 auto;
+    text-align: center;
+}
+
+#profileModal.come-from-modal.right .profile_section .profile_wrapper img {
+    width: 100%;
+}
+
+#profileModal.come-from-modal.right .profile_section {
+    width: 100%;
+}
+
+#profileModal.come-from-modal.right .profile_details h4 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-top: 0.5rem;
+}
+
+#profileModal.come-from-modal.right .client_data h4 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    line-height: 1.5rem;
+    text-align: center;
+    margin-top: 0.5rem;
+}
+
+#profileModal.come-from-modal.right .client_data p {
+    color: var(--color-text-ash);
+    font-size: 0.5rem;
+    line-height: 0.9rem;
+    text-align: center;
+    font-weight: 500;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+#profileModal.come-from-modal.right .cards {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    width: 100%;
+    padding: 0.5rem;
+    height: 20rem;
+    overflow-y: scroll;
+}
+
+#profileModal.come-from-modal.right .card {
+    width: 100%;
+    background: var(--color-text-white);
+    border: 1px solid var(--color-text-ash);
+    margin-bottom: 0.2rem;
+    padding: 1rem;
+    border-radius: 1.5rem;
+}
+
+#profileModal.come-from-modal.right .card .card_top {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+#profileModal.come-from-modal.right .card .card_top .profile_info {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+#profileModal.come-from-modal.right .card .card_top .profile_info>span:nth-child(2) {
+    margin-top: 0.2rem;
+}
+
+#profileModal.come-from-modal.right .card .card_top .profile_info img.prof {
+    width: 3rem;
+}
+
+#profileModal.come-from-modal.right .card .card_top .profile_info h4 {
+    font-size: 0.875rem;
+    line-height: 1.05rem;
+    margin-bottom: 0;
+    color: var(--primary-purple);
+    font-weight: 700;
+}
+
+#profileModal.come-from-modal.right .card .card_top .profile_info .rate_score {
+    color: var(--color-text-ash);
+    font-size: 0.6rem;
+}
+
+#profileModal.come-from-modal.right .card .card_top .profile_info .rate_score {
+    color: var(--color-text-ash);
+    font-size: 0.625rem;
+}
+
+#profileModal.come-from-modal.right .card .card_top .top_cta button {
+    border-radius: 0.5rem;
+    color: var(--color-text-ash);
+    border: none;
+    padding: 0.625rem 1rem;
+    font-size: 0.625rem;
+    border: 1px solid #a7a7a727;
+}
+
+#profileModal.come-from-modal.right .card .duration {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+#profileModal.come-from-modal.right .card .duration h3 {
+    font-size: 1rem;
+    margin: 0;
+}
+
+#profileModal.come-from-modal.right .card .duration .time_post {
+    color: var(--color-text-ash);
+    font-size: 0.625rem;
+    margin: 0;
+    margin-left: -0.625rem;
+}
+
+
+
+#profileModal.come-from-modal.right .card h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 2.4rem;
+}
+
+#profileModal.come-from-modal.right .card>h4 {
+    font-size: 0.875rem;
+    font-weight: 700;
+    line-height: 1.05rem;
+}
+
+#profileModal.come-from-modal.right .card span.address {
+    background-color: var(--color-bg);
+    font-size: 0.58rem;
+    font-weight: 500;
+    line-height: 0.75rem;
+    text-align: center;
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    color: var(--color-text-ash);
+}
+
+
+#profileModal.come-from-modal.right .card .price {
+    border-top: 1px solid var(--color-text-ash);
+    padding-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 1.5rem;
+    font-family: var(--font-family-text);
+}
+
+#profileModal.come-from-modal.right .card .price a {
+    padding: 0.75rem;
+    background-color: var(--primary-purple);
+    color: var(--color-text-white);
+    border-radius: 0.5rem;
+    border: none;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: var(--font-family-body);
+}
+
+#profileModal.come-from-modal.right .card .price a:hover {
+    background-color: var(--color-bg-light);
+    color: var(--primary-purple);
+    border: 1px solid var(--primary-purple);
+}
+
+#profileModal.come-from-modal.right .card .price span h6 {
+    font-size: 0.75rem;
+    font-family: var(--font-family-text);
+    font-weight: 700;
+}
+
+#profileModal.come-from-modal.right .card .price span p {
+    font-size: 0.5rem;
+    color: var(--color-text-ash);
+    font-weight: 500;
+}
+
+
+
+
+
+
+#profileModal.come-from-modal.right .reviews {
+    height: 18rem;
+    overflow-y: scroll;
+    padding-top: 1rem;
+}
+
+#profileModal.come-from-modal.right .reviews .review {
+    padding: 1rem;
+    border-radius: 1.5rem;
+    margin-bottom: 0.5rem;
+    border: 1px solid var(--color-text-ash);
+}
+
+#profileModal.come-from-modal.right .reviews .review .comment p {
+    font-size: 0.625rem;
+    color: var(--color-text-ash);
+}
+
+#profileModal.come-from-modal.right .reviews .review .ratings {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+#profileModal.come-from-modal.right .reviews .review .worker_profile {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+
+#profileModal.come-from-modal.right .reviews .review .worker_profile img.prof {
+    width: 3rem;
+}
+
+#profileModal.come-from-modal.right .reviews .review .worker_profile h4 {
+    font-size: 0.875rem;
+    line-height: 1.5rem;
+    margin-bottom: 0;
+    color: var(--primary-purple);
+    font-weight: 700;
+}
+
+#profileModal.come-from-modal.right .reviews .review .worker_profile .rate_score {
+    color: var(--color-text-ash);
+    font-size: 0.875rem;
+}
+
+#profileModal.come-from-modal.right .reviews .review .worker_profile .rate_score {
+    color: var(--color-text-ash);
+    font-size: 0.625rem;
+}
+
+#profileModal.come-from-modal.right .reviews .review .star_ratings {
+    color: var(--primary-purple);
+}
+
+#profileModal.come-from-modal.right .reviews .review .star_ratings .rate-icon {
+    font-size: 0.75rem;
+}
+
+#profileModal.come-from-modal.right .reviews .review .star_ratings .unrated {
+    color: var(--color-text-ash);
+}
+
+
+
+
+
+
+/* Tab features */
+
+#profileModal.come-from-modal.right .tabs {
+    padding: 0.5rem 0.8rem;
+}
+
+#profileModal.come-from-modal.right .tabs ul {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    margin: 0;
+    padding: 0;
+}
+
+
+#profileModal.come-from-modal.right .tabs ul li {
+    list-style: none;
+    padding: 1rem;
+    width: 50%;
+    text-align: center;
+}
+
+#profileModal.come-from-modal.right .tabs ul li:hover {
+    background-color: var(--color-bg);
+    cursor: pointer;
+}
+
+#profileModal.come-from-modal.right .tabs ul li.active {
+    background-color: var(--color-bg-light);
+    color: var(--primary-purple);
+    border-bottom: 2px solid var(--primary-purple);
+}
+
+#profileModal.come-from-modal.right .tab-content {
+    display: none;
+}
+
+#profileModal.come-from-modal.right .active-content {
+    display: flex;
+    flex-direction: column;
+}

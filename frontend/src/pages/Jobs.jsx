@@ -1,8 +1,8 @@
 import React from 'react'
-import "./Dashboard.css";
 import Sidebar from "../components/sidebar/SideBar";
 import Main from "../components/mainjob/Main";
 import { useNavigate } from "react-router-dom";
+// import "./Dashboard.css";
 
 
 const Jobs = () => {

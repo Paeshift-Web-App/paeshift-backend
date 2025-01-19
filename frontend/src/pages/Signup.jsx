@@ -51,9 +51,9 @@ const Signup = () => {
           </div>
           <div className="row">
             <div className="col-3">
-              <a href="/select" className='text-dark'>
+              <Link to="/select" className='text-dark'>
                 <FontAwesomeIcon icon={faChevronLeft} />
-              </a>
+              </Link>
             </div>
             <div className="col-6 text-center">
               <img src={brandLogo} className="brand-logo ms-2" alt="Paeshift logo" />
@@ -119,7 +119,7 @@ const Signup = () => {
                           "Access-Control-Allow-Headers": "Content-Type",
                           "Access-Control-Allow-Origin": "https://paeshift-backend.onrender.com",
                           'Content-Type': 'application/json',
-                          "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PATCH"
+                          "Access-Control-Allow-Methods": "OPTIONS,POST"
                         }
                       })
                         .then((response) => {
