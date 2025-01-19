@@ -14,6 +14,10 @@ import MapImage from "../../assets/images/map.png";
 import Walletmodal from "../walletmodal/Walletmodal";
 import Profilemodal from "../profile/Profilemodal";
 
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+
+const MySwal = withReactContent(Swal);
 
 // import { userInfo } from "../../atoms/User.jsx";
 // import { useRecoilValue } from "recoil";
@@ -31,7 +35,17 @@ const Main = () => {
 
 
   function applyJob() {
-    alert("Application successful");
+    // swal("Application Successful!", "Your application has been successfully submitted. The client will review your details and get back to you shortly.", "success", { button: true, timer: 1500 })
+
+    MySwal.fire({
+      title: <p>Hello World</p>,
+      didOpen: () => {
+        // `MySwal` is a subclass of `Swal` with all the same instance & static methods
+        MySwal.showLoading()
+      },
+    }).then(() => {
+      return MySwal.fire(<p>Shorthand works too</p>)
+    })
   }
 
   // useEffect(() => {

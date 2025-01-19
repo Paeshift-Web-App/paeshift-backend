@@ -125,7 +125,7 @@ const Signup = () => {
                         .then((response) => {
 
                           console.log(response);
-                          swal("Registeration Successful!", " ", "success", { button: false, timer: 1500 })
+                          swal("Registeration Successful!", " ", "success", { button: false, timer: 1500 });
                           redir("../signin");
                           // setTimeout(() => {
                           // redir("../signin");
