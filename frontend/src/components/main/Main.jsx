@@ -34,9 +34,8 @@ import { JobsData } from "./JobsData";
 
 const Main = () => {
   // let user = useRecoilValue(userInfo);
-
-  const [prods, setProduct] = useState();
-  const [admins, setAdmins] = useState();
+  const [searchWork, setSearchWork] = useState("");
+  
   const [users, setUsers] = useState();
 
 
@@ -83,7 +82,7 @@ const Main = () => {
         <div className="searchbar-section">
           <div className="serachbar-notify">
             <div className="me-2 searchbar">
-              <input className="form-control searchbar-input" type="text" placeholder="Search" aria-label="Search" />
+              <input className="form-control searchbar-input" onChange={(e)=> setSearchWork(e.target.value)} type="text" placeholder="Search" aria-label="Search" />
               <FontAwesomeIcon className="search-icon" icon={faSearch} />
             </div>
             <button type="button" className="notification-icon px-3">
@@ -102,12 +101,12 @@ const Main = () => {
               <button type="button" className="filter-btn active">All</button>
               {/* <button type="button" className="btn filter-btn">Day Shift</button>
               <button type="button" className="btn filter-btn">Night Shift</button> */}
-              <select name="shiftType" id="" className="filter-btn">
+              <select name="shiftType" id="" >
                 <option value="">Type of Shift</option>
                 <option value="1">Day Shift</option>
                 <option value="2">Night Shift</option>
               </select>
-              <select name="jobType" id="" className="filter-btn">
+              <select name="jobType" id="">
                 <option value="">Sort Jobs By</option>
                 <option value="1">General Handyman</option>
                 <option value="2">Electrician</option>
@@ -119,7 +118,9 @@ const Main = () => {
         <div className="row mt-3">
           <div className="cards">
 
-            {JobsData && JobsData.map((item, key) => {
+            {JobsData && JobsData.filter((item) => {
+                return searchWork.toLowerCase() === "" ? item : item.title.toLowerCase().includes(searchWork.toLowerCase());
+              }).map((item, key) => {
 
               return (
                 <div className="card" key={key}>

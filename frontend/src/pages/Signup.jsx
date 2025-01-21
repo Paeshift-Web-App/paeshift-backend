@@ -12,6 +12,11 @@ import Axios from "axios";
 // import { faChevronLeft, faEye, faEyeSlash } from "@fortawesome/free-regular-svg-icons";
 import swal from 'sweetalert';
 
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+
+
+const AppSwal = withReactContent(Swal);
 
 const Schema = Yup.object().shape({
   firstName: Yup.string().required("Required").min(2, "Too short!").required("Required"),
@@ -75,7 +80,7 @@ const Signup = () => {
                   }}
 
                   validationSchema={Schema}
-                  onSubmit={(values) => {
+                  onSubmit={async (values) => {
                     // same shape as initial values
                     /**
                      * Steps to create a new user
@@ -91,7 +96,7 @@ const Signup = () => {
                       password2: values.confirmPassword,
                     };
 
-                    console.log(userdata);
+                    // console.log(userdata);
 
                     // swal(<p className="mb-2">Registeration Successful!</p>, 'success', false, 1500)
                     // Endpoint needs to be updated
@@ -106,25 +111,20 @@ const Signup = () => {
                       //   }
                       // });
 
-                      // use the typed email to check if the email already exist
 
+                      // setInterval(() => {
+                      //   AppSwal.showLoading()
+                      // }, 1000);
+
+                      // use the typed email to check if the email already exist
                       // if (!isUnique) {
-                      Axios({
+                      await Axios({
                         method: 'post',
-                        // url: `${baseURL}`,
-                        url: "https://paeshift-backend.onrender.com/userApi/v1/user/register/",
-                        data: userdata,
-                        headers: {
-                          // 'Access-Control-Allow-Origin': '*',
-                          // 'Content-Type': 'application/json',
-                          "Access-Control-Allow-Headers": "Content-Type",
-                          "Access-Control-Allow-Origin": "https://paeshift-backend.onrender.com",
-                          'Content-Type': 'application/json',
-                          "Access-Control-Allow-Methods": "OPTIONS,POST"
-                        }
+                        url: `${baseURL}`,
+                        // url: "https://paeshift-backend.onrender.com/userApi/v1/user/register/",
+                        data: userdata
                       })
                         .then((response) => {
-
                           console.log(response);
                           swal("Registeration Successful!", " ", "success", { button: false, timer: 1500 });
                           redir("../signin");
@@ -134,7 +134,7 @@ const Signup = () => {
                         })
                         .catch((error) => {
                           swal("Registeration Failed!", " ", "error", { button: false, timer: 1500 })
-                          console.error(error);
+                          console.error(error.message);
                         });
 
                       // if unique email allow to signup else dont

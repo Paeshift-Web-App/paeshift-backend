@@ -112,12 +112,12 @@ const Signup = () => {
 
 
 
-          // swal({
-                    //   title: 'Registeration Successful!',
-                    //   icon: 'success',
-                    //   button: false,
-                    //   timer: 1500
-                    // })
+      // swal({
+      //   title: 'Registeration Successful!',
+      //   icon: 'success',
+      //   button: false,
+      //   timer: 1500
+      // })
       // Endpoint needs to be updated
       // let baseURL = "http://localhost:8000/Users";
       // try {
@@ -168,6 +168,14 @@ const Signup = () => {
       //   headers: {
       //     "Access-Control-Allow-Origin": "*",
       //     'Content-Type': 'application/json',
+      // headers: {
+      // 'Access-Control-Allow-Origin': '*',
+      // 'Content-Type': 'application/json',
+      // "Access-Control-Allow-Headers": "Content-Type",
+      // "Access-Control-Allow-Origin": "https://paeshift-backend.onrender.com",
+      // 'Content-Type': 'application/json',
+      // "Access-Control-Allow-Methods": "OPTIONS,POST"
+      // }
       //   }
 
       // })
@@ -175,7 +183,45 @@ const Signup = () => {
 
     }
 
+    // try {
+    //   // let allUser = await Axios.get(`${baseURL}`);
 
+    //   // let isUnique = false;
+    //   // allUser.data.forEach((each) => {
+    //   //   if (each.email === values.email) {
+    //   //     isUnique = true;
+    //   //   }
+    //   // });
+
+    //   // use the typed email to check if the email already exist
+
+    //   // if (!isUnique) {
+    //   let result = fetch("https://paeshift-backend.onrender.com/userApi/v1/user/register/",
+
+    //     {
+    //       method: 'POST',
+    //       body: JSON.stringify(userdata),
+    //       headers: {
+    //         'Access-Control-Allow-Origin': '*',
+    //         'Content-Type': 'application/json',
+    //         "Accept": 'application/json'
+
+    //       }
+    //     })
+    //     .then((res) => {
+    //       console.log(res.json());
+    //       swal("Registeration Successful!", " ", "success", { button: false, timer: 1500 });
+    //       redir("../signin");
+    //     })
+    //     .then((data) => {
+    //       console.log(data);
+    //     })
+
+    //   // if unique email allow to signup else dont
+    // } catch (error) {
+    //   swal("Registeration Failed!", " ", "error", { button: false, timer: 1500 })
+    //   console.error(error);
+    // }
 
 
   }
@@ -243,7 +289,7 @@ const Signup = () => {
           </div>
         </div>
       </div>
-     
+
     </div>
   )
 }

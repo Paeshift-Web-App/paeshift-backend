@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import "./Settings.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faServer, faUser, faUserGroup, faSearch, faBars, faKey, faBarsProgress, faChevronRight, faUserPen, faWallet, faClipboard, faStar, faCamera, faClose } from "@fortawesome/free-solid-svg-icons";
-import { faBell, faBookmark } from "@fortawesome/free-regular-svg-icons";
+import { faBell, faBookmark, faCircleXmark } from "@fortawesome/free-regular-svg-icons";
 
 import Stars from "../../assets/images/stars.png";
 import iconWallet from "../../assets/images/wallet.png";
@@ -265,9 +265,9 @@ const Main = () => {
                     <button className="btn-filter active">All</button>
                     <button className="btn-filter">Today</button>
                     <button className="btn-filter">Yesterday</button>
-                    <button className="btn-filter">This Week</button>
-                    <button className="btn-filter">Last Week</button>
-                    <button className="btn-filter">This Month</button>
+                    <button className="btn-filter">This_Week</button>
+                    <button className="btn-filter">Last_Week</button>
+                    <button className="btn-filter">This_Month</button>
                   </div>
                 </div>
                 <div className="bottom_section">
@@ -327,54 +327,54 @@ const Main = () => {
 
 
             {/* SAVED JOBS TAB CONTENT  */}
-            <div className={activeTab === 3 ? "tab-content display" : "tab-content"}>
+            <div className={activeTab === 3 ? "tab-content display" : "tab-content"} id="saved_jobs">
               <h3>Saved Jobs</h3>
-            <div className="row">
-              <div className="cards">
+              <div className="row">
+                <div className="cards">
 
-                {JobsData && JobsData.map((item, key) => {
+                  {JobsData && JobsData.map((item, key) => {
 
-                  return (
-                    <div className="card" key={key}>
-                      <div className="card_top">
-                        <span className="profile_info">
+                    return (
+                      <div className="card" key={key}>
+                        <div className="card_top">
+                          <span className="profile_info">
+                            <span>
+                              <img className="prof" src={ProfileImage} alt="profile" />
+                            </span>
+                            <span>
+                              <h4>{item.name}</h4>
+                              <img src={Stars} alt="profile" /> <span className="rate_score">4.98</span>
+                            </span>
+                          </span>
+                          <span className="top_cta">
+                            <button className="btn active">Remove &nbsp; <FontAwesomeIcon icon={faCircleXmark} className="icon-saved" /> </button>
+                          </span>
+                        </div>
+                        <div className="duration">
+                          <h3>{item.duration} Contract </h3> <span className="time_post">{item.date_posted}</span>
+                        </div>
+                        <span className="title">
+                          <h3>{item.title}</h3>
+                        </span>
+                        <h4>{item.date}. {item.time}</h4>
+                        <span className="address text-truncate">{item.location}</span>
+                        <div className="price">
                           <span>
-                            <img className="prof" src={ProfileImage} alt="profile" />
+                            <h6>₦{item.amount}/hr</h6>
+                            <p>{item.no_of_application} applicant needed</p>
                           </span>
                           <span>
-                            <h4>{item.name}</h4>
-                            <img src={Stars} alt="profile" /> <span className="rate_score">4.98</span>
+                            <Link to="../jobdetails" className="btn">View Job Details</Link>
                           </span>
-                        </span>
-                        <span className="top_cta">
-                          <button className="btn active">Saved &nbsp; <FontAwesomeIcon icon={faBookmark} className="icon-saved" /> </button>
-                        </span>
+                        </div>
                       </div>
-                      <div className="duration">
-                        <h3>{item.duration} Contract </h3> <span className="time_post">{item.date_posted}</span>
-                      </div>
-                      <span className="title">
-                        <h3>{item.title}</h3>
-                      </span>
-                      <h4>{item.date}. {item.time}</h4>
-                      <span className="address text-truncate">{item.location}</span>
-                      <div className="price">
-                        <span>
-                          <h6>₦{item.amount}/hr</h6>
-                          <p>{item.no_of_application} applicant needed</p>
-                        </span>
-                        <span>
-                          <Link to="../jobdetails" className="btn">View Job Details</Link>
-                        </span>
-                      </div>
-                    </div>
-                  )
-                })
+                    )
+                  })
 
-                }
+                  }
 
+                </div>
               </div>
-            </div>
             </div>
 
 

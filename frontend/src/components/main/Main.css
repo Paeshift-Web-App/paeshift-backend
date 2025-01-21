@@ -163,7 +163,7 @@
 
 
 
-.come-from-modal.right .transactions .bottom_section  {
+.come-from-modal.right .transactions .bottom_section {
   height: 250px;
   overflow-y: scroll;
 }
@@ -300,21 +300,31 @@
   color: var(--color-primary-dark);
 }
 
-select.filter-btn {
+select {
   /* appearance: none; */
   padding: 0.625rem 0.4rem;
-}
-
-select.filter-btn option {
+  border-radius: 0.6rem;
+  color: var(--primary-purple);
+  padding: 0.625rem 0.8rem;
+  font-weight: bold;
   font-size: 0.7rem;
+  /* box-shadow: var(--box-shadow); */
+  border: none;
+  outline: none;
 }
 
-select.filter-btn option:last-child {
-  border-bottom-right-radius: 1rem !important;
-  border-bottom-left-radius: 1rem !important;
+select > option {
+  font-size: 0.7rem;
+  /* background-color: red; */
+  border-radius: 1rem;
 }
 
-select.filter-btn option:hover {
+select > option:last-child {
+  border-bottom-right-radius: 1rem;
+  border-bottom-left-radius: 1rem;
+}
+
+select > option:hover {
   background-color: var(--primary-purple);
   color: var(--color-text-white);
 }
@@ -405,6 +415,7 @@ select.filter-btn option:hover {
   background-color: var(--color-primary-dark);
   color: var(--color-text-white);
 }
+
 .container__data .card .card_top .top_cta button:hover {
   background-color: var(--color-bg-light);
   color: var(--primary-purple);
@@ -474,6 +485,7 @@ select.filter-btn option:hover {
   font-weight: 700;
   font-family: var(--font-family-body);
 }
+
 .container__data .card .price a:hover {
   background-color: var(--color-bg-light);
   color: var(--primary-purple);
@@ -490,8 +502,6 @@ select.filter-btn option:hover {
   font-size: 0.5rem;
   color: var(--color-text-ash);
   font-weight: 500;
-
-
 }
 
 

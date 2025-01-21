@@ -529,28 +529,24 @@
 }
 
 
-
 #wallet_section .transactions .top_section .btns-filter {
   display: flex;
-  /* width: 700px; */
   gap: 0.5rem;
   overflow-x: scroll;
   padding: 0.4rem;
   scrollbar-width: none;
-  background-color: black;
 }
 
-#wallet_section .transactions .top_section .btns-filter button.btn-filter {
-  display: block;
+#wallet_section .transactions .top_section .btns-filter .btn-filter {
   background-color: var(--color-text-white);
   border-radius: 0.6rem;
   color: var(--primary-purple);
-  padding: 0.625rem;
+  padding: 0.625rem 1rem;
   font-weight: bold;
   font-size: 0.7rem;
+  box-shadow: var(--box-shadow);
   border: none;
   outline: none;
-  width: 7rem !important;
 }
 
 #wallet_section .transactions .top_section .btn-filter.active {
@@ -657,7 +653,170 @@
 
 
 /* SAVED JOBS CSS  */
+#saved_jobs.tab-content {
+  height: 80vh;
+  overflow-y: scroll;
+}
 
+#saved_jobs.tab-content .cards {
+  display: flex;
+  flex-flow: row wrap;
+  gap: 0.2rem;
+  width: 100%;
+  padding: 0.5rem;
+}
+
+#saved_jobs.tab-content .card {
+  width: 100% !important;
+  background: var(--color-text-white);
+  /* box-shadow: var(--box-shadow); */
+  margin-bottom: 0.2rem;
+  padding: 1rem;
+  border-radius: 1.5rem;
+}
+
+#saved_jobs.tab-content .card .card_top {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+#saved_jobs.tab-content .card .card_top .profile_info {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+#saved_jobs.tab-content .card .card_top .profile_info>span:nth-child(2) {
+  margin-top: 0.2rem;
+}
+
+#saved_jobs.tab-content .card .card_top .profile_info img.prof {
+  width: 3rem;
+}
+
+#saved_jobs.tab-content .card .card_top .profile_info h4 {
+  font-size: 0.875rem;
+  line-height: 1.05rem;
+  margin-bottom: 0;
+  color: var(--primary-purple);
+  font-weight: 700;
+}
+
+#saved_jobs.tab-content .card .card_top .profile_info .rate_score {
+  color: var(--color-text-ash);
+  font-size: 0.6rem;
+}
+
+#saved_jobs.tab-content .card .card_top .profile_info .rate_score {
+  color: var(--color-text-ash);
+  font-size: 0.625rem;
+}
+
+#saved_jobs.tab-content .card .card_top .top_cta button {
+  border-radius: 0.5rem;
+  color: var(--color-text-ash);
+  border: 1px solid var(--color-text-ash);
+  padding: 0.625rem 1rem;
+  font-size: 0.625rem;
+}
+
+#saved_jobs.tab-content .card .card_top .top_cta button .icon-saved {
+  font-size: 0.625rem;
+}
+
+#saved_jobs.tab-content .card .card_top .top_cta button.active {
+  border-radius: 0.7rem;
+  background-color: var(--color-primary-dark);
+  color: var(--color-text-white);
+}
+#saved_jobs.tab-content .card .card_top .top_cta button:hover {
+  background-color: var(--color-bg-light);
+  color: var(--primary-purple);
+}
+
+
+
+#saved_jobs.tab-content .card .duration {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+#saved_jobs.tab-content .card .duration h3 {
+  font-size: 1rem;
+  margin: 0;
+}
+
+#saved_jobs.tab-content .card .duration .time_post {
+  color: var(--color-text-ash);
+  font-size: 0.625rem;
+  margin: 0;
+  margin-left: -0.625rem;
+}
+
+#saved_jobs.tab-content .card h3 {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 2.4rem;
+}
+
+#saved_jobs.tab-content .card>h4 {
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.05rem;
+}
+
+#saved_jobs.tab-content .card span.address {
+  background-color: var(--color-bg);
+  font-size: 0.58rem;
+  font-weight: 500;
+  line-height: 0.75rem;
+  text-align: left;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  color: var(--color-text-ash);
+}
+
+
+#saved_jobs.tab-content .card .price {
+  border-top: 1px solid var(--color-text-ash);
+  padding-top: 1rem;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 1.5rem;
+  font-family: var(--font-family-text);
+}
+
+#saved_jobs.tab-content .card .price a {
+  padding: 0.75rem 1.5rem;
+  background-color: var(--primary-purple);
+  color: var(--color-text-white);
+  border-radius: 0.5rem;
+  border: none;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--font-family-body);
+}
+#saved_jobs.tab-content .card .price a:hover {
+  background-color: var(--color-bg-light);
+  color: var(--primary-purple);
+  border: 1px solid var(--primary-purple);
+}
+
+#saved_jobs.tab-content .card .price span h6 {
+  font-size: 0.75rem;
+  font-family: var(--font-family-text);
+  font-weight: 700;
+}
+
+#saved_jobs.tab-content .card .price span p {
+  font-size: 0.5rem;
+  color: var(--color-text-ash);
+  font-weight: 500;
+}
 
 
 
