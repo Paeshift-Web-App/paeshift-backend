@@ -78,6 +78,9 @@ const Main = () => {
   // const [prods, setProduct] = useState();
   // const [admins, setAdmins] = useState();
   // const [users, setUsers] = useState();
+
+  const [searchWork, setSearchWork] = useState("");
+
   const [filterState, setFilterState] = useState("");
   const [jobs, setJobs] = useState("")
 
@@ -138,7 +141,7 @@ const Main = () => {
         <div className="searchbar-section">
           <div className="serachbar-notify">
             <div className="me-2 searchbar">
-              <input className="form-control searchbar-input" type="text" placeholder="Search" aria-label="Search" />
+              <input className="form-control searchbar-input" onChange={(e) => setSearchWork(e.target.value)} type="text" placeholder="Search" aria-label="Search" />
               <FontAwesomeIcon className="search-icon" icon={faSearch} />
             </div>
             <button type="button" className="notification-icon px-3">
@@ -171,7 +174,7 @@ const Main = () => {
 
             {JobsData &&
               JobsData.filter((item) => {
-                return filterState.toLowerCase() === "" ? item : item.status.includes(filterState.toLowerCase());
+                return searchWork.toLowerCase() === "" ? item : item.title.toLowerCase().includes(searchWork.toLowerCase());
               }).map((item, key) => {
                 return (
                   <div className="card" key={key}>
@@ -261,7 +264,7 @@ const Main = () => {
 
           </div>
         </div>
-          <Walletmodal />
+        <Walletmodal />
       </section>
     </main >
   )
