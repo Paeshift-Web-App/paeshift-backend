@@ -40,7 +40,7 @@
  	color: var(--color-text-white);
  	background: var(--primary-purple);
  	border-radius: 0.8rem;
- 	box-shadow: var(--box-shadow);
+ 	/* box-shadow: var(--box-shadow); */
  	/* transition: var(--transition); */
 }
 

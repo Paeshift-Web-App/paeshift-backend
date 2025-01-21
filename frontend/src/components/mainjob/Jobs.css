@@ -28,7 +28,7 @@
 
 .serachbar-notify {
   display: flex;
-  box-shadow: var(--box-shadow);
+  /* box-shadow: var(--box-shadow); */
   background-color: var(--color-text-white);
   border-radius: 0.6rem;
 }
@@ -71,7 +71,7 @@
 
 .btn-wallet {
   border-radius: 0.6rem;
-  box-shadow: var(--box-shadow);
+  /* box-shadow: var(--box-shadow); */
   background-color: var(--color-bg-light);
   border: 0.5px solid var(--primary-purple);
   /* font-size: 0.8rem; */
@@ -293,7 +293,7 @@
   padding: 0.625rem 0.8rem;
   font-weight: bold;
   font-size: 0.7rem;
-  box-shadow: var(--box-shadow);
+  /* box-shadow: var(--box-shadow); */
   border: none;
   outline: none;
 }
@@ -333,7 +333,7 @@ select.filter-btn {
 .container__data .card {
   width: 100%;
   background: var(--color-text-white);
-  box-shadow: var(--box-shadow);
+  /* box-shadow: var(--box-shadow); */
   margin-bottom: 0.2rem;
   padding: 1rem;
   border-radius: 1.5rem;

@@ -1,19 +1,16 @@
 import React from 'react'
 import Sidebar from "../components/sidebar/SideBar";
-import Main from "../components/mainjob/Main";
+import Main from "../components/settings/Main";
 import { useNavigate } from "react-router-dom";
-
-
-
-const Jobs = () => {
+const Settings = () => {
   return (
     <div className="container-fluid dashboard_container">
-      <div className="row p-0">
-        <Sidebar />
-        <Main />
-      </div>
+    <div className="row p-0">
+      <Sidebar />
+      <Main />
     </div>
+  </div>
   )
 }
 
-export default Jobs
+export default Settings

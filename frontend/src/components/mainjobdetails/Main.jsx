@@ -14,10 +14,7 @@ import MapImage from "../../assets/images/map.png";
 import Walletmodal from "../walletmodal/Walletmodal";
 import Profilemodal from "../profile/Profilemodal";
 
-import Swal from 'sweetalert2'
-import withReactContent from 'sweetalert2-react-content'
 
-const MySwal = withReactContent(Swal);
 
 // import { userInfo } from "../../atoms/User.jsx";
 // import { useRecoilValue } from "recoil";

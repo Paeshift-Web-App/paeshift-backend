@@ -3,7 +3,13 @@ import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './assets/css/style.css';
-import App from './App.jsx'
+
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+
+const MySwal = withReactContent(Swal);
+
+
 import Flashscreen from './pages/Flashscreen.jsx';
 import Usertypescreen from './pages/Usertypescreen.jsx';
 import Signup from './pages/Signup.jsx';
@@ -17,6 +23,7 @@ import Dashboard from './pages/Dashboard.jsx';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import Jobs from './pages/Jobs.jsx';
 import JobDetails from './pages/JobDetails.jsx';
+import Settings from './pages/Settings.jsx';
 // import { RecoilRoot } from "recoil";
 
 
@@ -40,8 +47,8 @@ const router = createBrowserRouter([
       element:  <Dashboard />
     },
   {
-    path: "/app",
-    element: <App />
+    path: "/settings",
+    element: <Settings />
 
   },
   {

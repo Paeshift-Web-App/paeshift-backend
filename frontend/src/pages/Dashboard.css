@@ -6,7 +6,8 @@
   --color-primary-dark: #071830;
   --color-primary-light: #ba5af2;
   --color-bg-light: #ece5ff;
-  --color-bg: #f2f1f8;
+  /* --color-bg: #f2f1f8; */
+  --color-bg: #F2F1F8;
 
 
   --color-primary-blue: #1A69AF;
@@ -299,8 +300,8 @@ body {
   }
 
   .page_header {
-    width: 18% !important;
-    /* justify-content: ; */
+    width: 22% !important;
+    flex-direction: row-reverse;
   }
 
   /* .page_title {
@@ -406,6 +407,36 @@ body {
     padding: 0.8rem 12rem !important;
   }
 
+
+
+
+  #settings.container__data .profile_data {
+    border-right: 1px solid var(--color-text-ash);
+    /* padding: 1rem; */
+    margin: 1rem;
+    position: relative !important;
+    display: block !important;
+  }
+
+  #settings.container__data .tab-content h3 {
+    font-size: 1.5rem !important;
+  }
+
+  #settings.container__data .tab-content h4 {
+    font-size: 1rem !important;
+  }
+
+  #settings.container__data .profile_form .open_btn,
+  #settings.container__data .profile_data .close_btn {
+    display: none;
+  }
+
+  /* WALLET CSS  */
+#wallet_section.tab-content {
+  padding: 1rem !important;
+}
+ 
+
 }
 
 @media (min-width: 1024px) {
@@ -423,9 +454,7 @@ body {
     bottom: -10.5rem !important;
   }
 
-  .page_header {
-    width: auto !important;
-  }
+ 
 
   .page_header {
     width: auto !important;
@@ -449,6 +478,12 @@ body {
 
   .container__data .buttons button.apply-btn {
     padding: 0.8rem 12.5rem !important;
+  }
+
+
+  #settings.container__data form input.email {
+    margin-bottom: 4rem !important;
+  
   }
 }
 
