@@ -15,7 +15,7 @@ import ProfileImage from "../../assets/images/profile.png";
 import Walletmodal from "../walletmodal/Walletmodal";
 
 
-import { JobsData } from "./JobsData";
+import { JobsData } from "../JobsData";
 // import { defaults } from "chart.js/auto";
 // import { Bar, Line } from "react-chartjs-2";
 // import { ChartData } from "./Chartdata";

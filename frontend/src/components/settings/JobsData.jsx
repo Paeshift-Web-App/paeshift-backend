@@ -10,6 +10,7 @@ export const JobsData = [
 		amount:'5000',
 		image: 'profile.png',
 		location: '4517 Washington Ave. Manchester, Kentucky 39495, Ilorin Nigeria',
+        review: 'Adipiscing elit, sed do eiusmod tempor incididunt ut labore et. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et ',
 	},
 	{
         name: 'Sanni Lawal',
@@ -22,6 +23,7 @@ export const JobsData = [
 		amount:'4000',
 		image: 'profile.png',
 		location: '4517 Washington Ave. Manchester, Kentucky 39495, Ilorin Nigeria',
+        review: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et '
 	},
 	{
         name: 'Ahmed Musa',
@@ -34,6 +36,7 @@ export const JobsData = [
 		amount:'4000',
 		image: 'profile.png',
 		location: '4517 Washington Ave. Manchester, Kentucky 39495, Ilorin Nigeria',
+        review: 'Amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et '
 	},
 	{
         name: 'John Mathew',
@@ -46,6 +49,7 @@ export const JobsData = [
 		amount:'4000',
 		image: 'profile.png',
 		location: '4517 Washington Ave. Manchester, Kentucky 39495, Ilorin Nigeria',
+        review: 'Consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et '
 	},
 
 

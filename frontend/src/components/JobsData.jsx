@@ -45,7 +45,7 @@ export const JobsData = [
         name: 'John Mathew',
         role: 'Applicant',
         status: 'canceled',
-        title: 'Professional Furniture Work',
+        title: 'Professional Painter',
         date: 'Monday 2nd March, 2024',
         time:'9:00 AM.',
         duration:'2hrs',

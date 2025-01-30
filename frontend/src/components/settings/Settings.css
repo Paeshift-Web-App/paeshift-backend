@@ -276,15 +276,12 @@
   border-right: 1px solid var(--color-text-ash);
   /* padding: 1rem; */
   margin: 1rem;
-  position: absolute;
-  display: none;
   background-color: var(--color-text-white);
 }
 
-#settings.container__data .profile_data.show {
+/* #settings.container__data .profile_data.show {
   display: block;
-  z-index: 99;
-}
+} */
 
 
 #settings.container__data .profile_info {
@@ -295,46 +292,38 @@
 }
 
 #settings.container__data .profile_form {
-  position: relative;
-}
-
-#settings.container__data .profile_form .open_btn:hover {
-  background-color: var(--primary-purple);
-}
-
-#settings.container__data .profile_data .close_btn {
-  width: 3rem;
-  height: 3rem;
-  border-radius: 50% 0 0 50%;
   position: absolute;
-  right: 3px;
-  background-color: #5f0096c7;
-  color: var(--color-text-white);
-  z-index: 99;
+  background-color: var(--color-text-white);
+  min-height: 100vh;
 }
 
-#settings.container__data .profile_form .open_btn {
-  width: 3rem;
-  height: 3rem;
-  border-radius: 50% 0 0 50%;
-  position: absolute;
-  right: -11px;
-  background-color: #5f0096c7;
-  color: var(--color-text-white);
-  z-index: 99;
-}
-
-#settings.container__data .profile_form .open_btn.hide {
+#settings.container__data .profile_form.hide {
   display: none;
+  transition: display 2s linear 1s;
 }
+
+
+#settings.container__data .profile_form .close_btn {
+  background-color: transparent;
+  position: relative;
+  right: -16.5rem;
+}
+
+
+#settings.container__data .profile_form .close_btn .close_icon {
+  font-size: 1.4rem;
+}
+
 
 #settings.container__data .profile_info>span:nth-child(2) {
   margin-top: 0.2rem;
 }
 
+
 #settings.container__data .profile_info img.prof {
   width: 4rem;
 }
+
 
 #settings.container__data .profile_info h4 {
   font-size: 1rem;
@@ -344,16 +333,19 @@
   font-weight: 700;
 }
 
+
 #settings.container__data .profile_info .rate_score {
   color: var(--color-text-ash);
   font-size: 0.875rem;
   font-weight: 400;
 }
 
+
 #settings.container__data .profile_data .tabs {
   margin: 0;
   padding: 0;
 }
+
 
 #settings.container__data .profile_data .tabs li {
   padding: 1rem 1.5rem;
@@ -366,11 +358,12 @@
   font-size: 0.625rem;
 }
 
+
 #settings.container__data .profile_data .tabs li .label {
   display: flex;
   gap: 1rem;
-  /* color: #4F5E6E; */
 }
+
 
 #settings.container__data .profile_data .tabs li .label span {
   /* font-size: 0.875rem; */
@@ -391,19 +384,25 @@
 }
 
 
-.container__data .tab-content {
+#settings.container__data .tab-content {
   display: none;
   padding: 1rem;
+  padding-top: 0rem;
+  background-color: var(--color-text-white);
+  border-radius: 3rem;
 }
 
 #settings.container__data .tab-content.display {
   display: block;
+  /* position: absolute; */
+  /* position: relative; */
+  /* z-index: 999; */
 }
 
 
 
 #settings.container__data .tab-content h3 {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 700;
   line-height: 2.4rem;
 }
@@ -471,6 +470,7 @@
 
 
 /* WALLET CSS  */
+#invoice_section.tab-content,
 #wallet_section.tab-content {
   padding: 0;
 }
@@ -505,6 +505,7 @@
 }
 
 
+#invoice_section .transactions,
 #wallet_section .transactions {
   padding: 1rem 0.5rem;
   border-radius: 1.5rem;
@@ -513,6 +514,7 @@
 }
 
 
+#invoice_section .transactions .top_section,
 #wallet_section .transactions .top_section {
   padding: 0.5rem;
   border-radius: 1.5rem;
@@ -529,6 +531,7 @@
 }
 
 
+#invoice_section .transactions .top_section .btns-filter,
 #wallet_section .transactions .top_section .btns-filter {
   display: flex;
   gap: 0.5rem;
@@ -537,6 +540,7 @@
   scrollbar-width: none;
 }
 
+#invoice_section .transactions .top_section .btns-filter .btn-filter,
 #wallet_section .transactions .top_section .btns-filter .btn-filter {
   background-color: var(--color-text-white);
   border-radius: 0.6rem;
@@ -549,17 +553,23 @@
   outline: none;
 }
 
+#invoice_section .transactions .top_section .btn-filter.active,
 #wallet_section .transactions .top_section .btn-filter.active {
   background-color: var(--primary-purple);
   color: var(--color-text-white);
 }
 
 
+#invoice_section .transactions .bottom_section{
+  height: 450px;
+  overflow-y: scroll;
+}
 #wallet_section .transactions .bottom_section {
   height: 250px;
   overflow-y: scroll;
 }
 
+#invoice_section .transactions .bottom_section .transaction,
 #wallet_section .transactions .bottom_section .transaction {
   display: flex;
   width: 100%;
@@ -572,16 +582,19 @@
   margin-bottom: 0.6rem;
 }
 
+#invoice_section .transactions .bottom_section .transaction .profile_info,
 #wallet_section .transactions .bottom_section .transaction .profile_info {
   display: flex;
   gap: 0.5rem;
   align-items: center;
 }
 
+#invoice_section .transactions .bottom_section .transaction .profile_info .date,
 #wallet_section .transactions .bottom_section .transaction .profile_info .date {
   margin-bottom: 0;
 }
 
+#invoice_section .transactions .bottom_section .transaction h3.credit-amount,
 #wallet_section .transactions .bottom_section .transaction h3.credit-amount {
   margin-bottom: 0;
   padding-top: 0.6rem;
@@ -605,6 +618,7 @@
   text-align: right;
 }
 
+#invoice_section .transactions .bottom_section .transaction .profile_info .profileWrapper,
 #wallet_section .transactions .bottom_section .transaction .profile_info .profileWrapper {
   width: 3rem;
   /* height: 3rem; */
@@ -613,10 +627,12 @@
   padding: 0.2rem;
 }
 
+#invoice_section .transactions .bottom_section .transaction .profile_info .profileWrapper img.prof,
 #wallet_section .transactions .bottom_section .transaction .profile_info .profileWrapper img.prof {
   width: 100%;
 }
 
+#invoice_section .transactions .bottom_section .transaction .profile_info h4,
 #wallet_section .transactions .bottom_section .transaction .profile_info h4 {
   /* font-size: 0.875rem; */
   font-size: 0.85rem;
@@ -629,6 +645,7 @@
 }
 
 
+#invoice_section .transactions .bottom_section .transaction .profile_info p,
 #wallet_section .transactions .bottom_section .transaction .profile_info p {
   color: var(--color-text-ash);
   font-size: 0.6rem;
@@ -731,6 +748,7 @@
   background-color: var(--color-primary-dark);
   color: var(--color-text-white);
 }
+
 #saved_jobs.tab-content .card .card_top .top_cta button:hover {
   background-color: var(--color-bg-light);
   color: var(--primary-purple);
@@ -800,6 +818,7 @@
   font-weight: 700;
   font-family: var(--font-family-body);
 }
+
 #saved_jobs.tab-content .card .price a:hover {
   background-color: var(--color-bg-light);
   color: var(--primary-purple);
@@ -817,6 +836,327 @@
   color: var(--color-text-ash);
   font-weight: 500;
 }
+
+
+#settings.container__data .tab-content>h4 {
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.05rem;
+  color: var(--color-text-ash);
+  margin-bottom: 0.5rem;
+}
+
+#settings.container__data .tab-content .notifications {
+  padding: 0.625rem;
+}
+
+#settings.container__data .tab-content .notification {
+  display: flex;
+  justify-content: space-between;
+  border: 0.5px solid var(--color-text-ash);
+  padding: 20px;
+  border-radius: 1rem;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+#settings.container__data .tab-content .notification span h4 {
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.05rem;
+}
+
+#settings.container__data .tab-content .notification span label {
+  font-size: 0.625rem;
+  font-weight: 500;
+  line-height: 0.75rem;
+  color: var(--color-text-ash);
+}
+
+#settings.container__data .tab-content .form-check-input:checked {
+  background-color: #33FF33;
+  outline: none;
+}
+
+#settings.container__data .tab-content .btn-save {
+  padding: 0.625rem 1rem;
+  border-radius: 0.5rem;
+  background-color: var(--primary-purple);
+  color: var(--color-text-white);
+}
+
+
+
+/* RATINGS & REVIEWS SETTINGS  */
+#reviews.tab-content .filter-section button {
+  border: 0.5px solid var(--color-text-ash);
+
+}
+
+
+/* SAVED JOBS CSS  */
+#reviews.tab-content {
+  height: 80vh;
+  overflow-y: scroll;
+}
+
+#reviews.tab-content .cards {
+  /* display: flex; */
+  flex-flow: row wrap;
+  gap: 0.2rem;
+  width: 100%;
+  padding: 0.5rem;
+}
+
+#reviews.tab-content .card {
+  width: 100% !important;
+  background: var(--color-text-white);
+  /* box-shadow: var(--box-shadow); */
+  margin-bottom: 0.2rem;
+  padding: 1rem;
+  border-radius: 1.5rem;
+}
+
+#reviews.tab-content .card .card_top {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 0;
+}
+
+#reviews.tab-content .card .card_top .profile_info {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+#reviews.tab-content .card .card_top .profile_info>span:nth-child(2) {
+  margin-top: 0.2rem;
+}
+
+#reviews.tab-content .card .card_top .profile_info img.prof {
+  width: 3rem;
+}
+
+#reviews.tab-content .card .card_top .profile_info h4 {
+  font-size: 0.875rem;
+  line-height: 1.05rem;
+  margin-bottom: 0;
+  color: var(--primary-purple);
+  font-weight: 700;
+}
+
+#reviews.tab-content .card .card_top .profile_info .rate_score {
+  color: var(--color-text-ash);
+  font-size: 0.6rem;
+}
+
+/* #reviews.tab-content .card .card_top .profile_info .rate_score {
+  color: var(--color-text-ash);
+  font-size: 0.625rem;
+} */
+
+/* #reviews.tab-content .card .card_top .top_cta button {
+  border-radius: 0.5rem;
+  color: var(--color-text-ash);
+  border: 1px solid var(--color-text-ash);
+  padding: 0.625rem 1rem;
+  font-size: 0.625rem;
+} */
+
+#reviews.tab-content .card .card_top .top_cta .icon-saved {
+  font-size: 0.625rem;
+}
+
+
+
+
+
+
+#reviews.tab-content .card .duration .time_post {
+  color: var(--color-text-ash);
+  font-size: 0.625rem;
+  margin: 0;
+  margin-left: -0.625rem;
+}
+
+#reviews.tab-content .card h3 {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 2.4rem;
+}
+
+#reviews.tab-content .card>h4 {
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.05rem;
+}
+
+#reviews.tab-content .card span.review {
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.5rem;
+  text-align: left;
+  color: var(--color-text-ash);
+}
+
+
+#reviews.tab-content .card .button {
+  padding-top: 1rem;
+  width: 100%;
+  font-family: var(--font-family-text);
+}
+
+#reviews.tab-content .card .button a {
+  padding: 0.75rem 1.5rem;
+  background-color: var(--primary-purple);
+  color: var(--color-text-white);
+  border-radius: 0.5rem;
+  border: none;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--font-family-body);
+}
+
+#reviews.tab-content .card .button a:hover {
+  background-color: var(--color-bg-light);
+  color: var(--primary-purple);
+  border: 1px solid var(--primary-purple);
+}
+
+#reviews.tab-content .card .price span h6 {
+  font-size: 0.75rem;
+  font-family: var(--font-family-text);
+  font-weight: 700;
+}
+
+#reviews.tab-content .card .price span p {
+  font-size: 0.5rem;
+  color: var(--color-text-ash);
+  font-weight: 500;
+}
+
+
+
+
+#login_settings  .accordion-item {
+  border: none;
+}
+
+#login_settings  .accordion-button {
+  background-color: var(--color-bg);
+  border-radius: 1rem;
+  margin-bottom: 0.5rem;
+  box-shadow: none;
+}
+#login_settings  .accordion-button h4 {
+  font-size: 0.85rem !important; 
+}
+
+#login_settings  .accordion-button:focus {
+  background-color: var(--color-bg-light);
+}
+
+#login_settings .accordion-body {
+  border: 0.5px solid var(--color-text-ash);
+  border-radius: 1rem;
+  font-size: 0.75rem; 
+  margin-bottom: 1rem;
+  padding: 1.5rem !important;
+}
+
+
+
+#login_settings .form_settings input {
+  font-size: 1rem;
+  padding: 0.625rem;
+  border-color: var(--color-text-ash) !important;
+}
+
+
+#login_settings .form_settings input:focus {
+  color: var(--primary-purple);
+  border-color: var(--color-text-ash);
+  box-shadow: none;
+}
+
+
+#login_settings .form_settings .visibility {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+#login_settings .form_settings button {
+  font-size: 1rem;
+
+}
+
+
+#login_settings .form_settings .visibility .eye-icon {
+  position: absolute;
+  right: 1rem;
+  cursor: pointer;
+}
+
+
+
+
+
+
+
+/* FEEDBACK CSS  */
+#feedback .brand_stamp {
+  width: 12rem;
+}
+
+#feedback h2 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.35rem;
+  margin: 1rem 0;
+}
+
+#feedback textarea {
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 14.4px;
+  height: 10rem;
+  color: var(--color-text-ash);
+}
+
+#feedback button {
+  font-size: 1rem;
+}
+
+#about_paeshift  .accordion-item {
+  border: none;
+}
+
+#about_paeshift  .accordion-button {
+  background-color: var(--color-bg);
+  border-radius: 1rem;
+  margin-bottom: 0.5rem;
+  box-shadow: none;
+}
+#about_paeshift  .accordion-button h4 {
+  font-size: 0.85rem !important; 
+}
+
+#about_paeshift  .accordion-button:focus {
+  background-color: var(--color-bg-light);
+}
+
+#about_paeshift .accordion-body {
+  border: 0.5px solid var(--color-text-ash);
+  border-radius: 1rem;
+  font-size: 0.75rem; 
+  margin-bottom: 1rem;
+  padding: 1.5rem !important;
+}
+
+
+
 
 
 

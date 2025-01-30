@@ -170,6 +170,17 @@ body {
     line-height: 1.2rem !important;
   }
 
+  #settings.container__data .profile_form .close_btn {
+    right: -20rem !important;
+  }
+
+
+
+
+  #reviews.tab-content .card .card_top .top_cta .icon-saved {
+    font-size: 0.85rem !important;
+  }
+
 }
 
 @media (min-width: 425px) {
@@ -183,7 +194,7 @@ body {
   }
 
   .page_header {
-    width: 97% !important;
+    width: 94% !important;
   }
 
   .filter-btn {
@@ -254,6 +265,10 @@ body {
 
   #profileModal.come-from-modal.right .tabs ul li {
     padding: 0rem;
+}
+
+#settings.container__data .profile_form .close_btn {
+  right: -23.5rem !important;
 }
 
 }
@@ -426,12 +441,20 @@ body {
     font-size: 1rem !important;
   }
 
-  #settings.container__data .profile_form .open_btn,
-  #settings.container__data .profile_data .close_btn {
+  #settings.container__data .profile_form {
+    position: relative !important;
+    background-color: var(--color-text-white);
+  }
+  
+  #settings.container__data .profile_form.hide {
+    display: block !important;
+  }
+  #settings.container__data .profile_form .close_btn {
     display: none;
   }
 
   /* WALLET CSS  */
+#invoice_section.tab-content ,
 #wallet_section.tab-content {
   padding: 1rem !important;
 }

@@ -3,7 +3,7 @@ export const JobsData = [
         name: 'Eniola Lucas',
         role: 'Applicant',
         status: 'upcoming',
-        title: 'Professional Furniture Work',
+        title: 'Professional Painter',
         date: 'Tuesday 3rd March, 2024',
         time:'9:00 AM.',
         duration:'2hrs',
