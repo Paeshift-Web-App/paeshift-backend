@@ -10,7 +10,7 @@ class CustomUser(AbstractUser):
     refresh_token=models.CharField(unique=True, null=True, max_length=100)
     
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
+    REQUIRED_FIELDS = []
     
     
     # class Meta:
@@ -37,6 +37,7 @@ class Profile(models.Model):
     lastName=models.CharField(max_length=100, null=True, blank=True)
     location=models.CharField(max_length=100, blank=True, null=True)
     bio = models.TextField(max_length=400, null=True, blank=True)
+    rating= models.FloatField(default=0.0)
     date=models.DateTimeField(auto_now_add=True)
     
     

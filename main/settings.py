@@ -45,7 +45,7 @@ DJANGO_APPS = [
     
 ]
 
-CUSTOM_APPS = ["authUser"]
+CUSTOM_APPS = ["authUser", "JobListingPage"]
 
 THIRD_PARTY_APPS = ["rest_framework", "corsheaders", "rest_framework_simplejwt.token_blacklist", "anymail", "drf_yasg"]
 

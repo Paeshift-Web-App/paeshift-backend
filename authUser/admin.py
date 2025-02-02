@@ -11,8 +11,8 @@ class CustomUserAdmin(admin.ModelAdmin):
    # ordering=["fullName", -"date"]
 
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ["user", "lastName", "location"]
-    list_filter = ["user", "lastName", "location"]
+    list_display = ["user", "lastName", "location", "rating"]
+    list_filter = ["user", "lastName", "location", "rating"]
    # search_fields = ["user", "fullName", "country"]
     list_per_page = 20
     readonly_fields = ["bio"]

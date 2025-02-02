@@ -36,6 +36,7 @@ urlpatterns = [
     
     path("admin/", admin.site.urls),
     path("userApi/v1/", include("authUser.urls")),
+    path("jobListing/v1/", include("JobListingPage.urls")),
    
 ]
 
