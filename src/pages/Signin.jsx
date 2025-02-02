@@ -9,6 +9,8 @@ import Axios from "axios";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import swal from 'sweetalert';
+import { useRecoilState, useRecoilValue } from "recoil";
+import { userInfo } from "../atoms/User";
 
 
 const Schema = Yup.object().shape({
@@ -17,6 +19,7 @@ const Schema = Yup.object().shape({
 });
 
 const Signin = () => {
+    let [user, setUser] = useRecoilState(userInfo);
     let redir = useNavigate();
 
     let [show, setShow] = useState('password');
@@ -35,7 +38,7 @@ const Signin = () => {
                     </div> */}
                     <div className="row">
                         <div className="col-3">
-                            <Link to="/select" className='text-dark'>
+                            <Link to="/welcome" className='text-dark'>
                                 <FontAwesomeIcon icon={faChevronLeft} />
                             </Link>
                         </div>
@@ -53,11 +56,8 @@ const Signin = () => {
 
                             <Formik
                                 initialValues={{
-                                    firstName: "",
-                                    lastName: "",
                                     email: "",
                                     password: "",
-                                    confirmPassword: "",
                                 }}
 
                                 validationSchema={Schema}
@@ -72,14 +72,39 @@ const Signin = () => {
                                     let userdata = {
                                         email: values.email,
                                         password: values.password,
-                                       
                                     };
 
+
                                     console.log(userdata);
-                                    swal("Login Successfully!", " ", "success", { button: false, timer: 1500 });
-                                    setInterval(()=>{
-                                        redir("../dashboard");
-                                    }, 1500)
+
+                                    let baseURL = "http://localhost:8000/Users";
+                                    try {
+                                        let getUser = await Axios.get(`${baseURL}/${values.email}`);
+
+                                        if (getUser.data.password === values.password) {
+                                            swal("account logged in successfully", " ", "success", { button: false, timer: 1500 });
+
+                                            setUser({ isLoggedIn: true, data: getUser.data });
+                                            setTimeout(() => {
+                                                redir("../dashboard");
+                                            }, 1500)
+                                        } else {
+                                            swal("Invalid login details!", " ", "error", { button: false, timer: 1500 })
+                                        }
+                                    } catch (error) {
+                                        console.error(error);
+                                        if (error.response.status === 404) {
+                                            swal("User does not exist!", " ", "error", { button: false, timer: 1500 })
+                                        }
+                                    }
+
+
+
+
+                                    // swal("Login Successfully!", " ", "success", { button: false, timer: 1500 });
+                                    // setInterval(() => {
+                                    //     redir("../dashboard");
+                                    // }, 1500)
                                     // Endpoint needs to be updated
                                     // const token = '..your token..';
                                     // const headers = {
@@ -130,7 +155,7 @@ const Signin = () => {
                                         <p className="mt-3"><Link to="/forgotpassword" >Forgot Password?</Link></p>
 
                                         <button type="submit" name='submit' className="btn primary-btn w-100 mt-2">Login</button>
-                                        <p className="mt-3">Don't have an account? <Link to="/select">Create Account</Link></p>
+                                        <p className="mt-3">Don't have an account? <Link to="/welcome">Create Account</Link></p>
                                     </Form>
                                 )}
                             </Formik>

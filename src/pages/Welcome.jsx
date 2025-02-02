@@ -28,9 +28,9 @@ const Usertypescreen = () => {
                 <p>Please select the type of user you want to register as</p>
               </div>
               <div className="body">
-                  <a href="./signup" className="btn primary-btn"> Job Seeker/Applicant </a>
+                  <a href="./asignup" className="btn primary-btn"> Job Seeker/Applicant </a>
                   <img src={arrowdivder} alt="Divider" className="my-3" />
-                  <a href="./signup" className="btn primary-btn"> Job Poster/Client </a>
+                  <a href="./csignup" className="btn primary-btn"> Job Poster/Client </a>
                   <p className="mt-4">Already have an account? <a href="./signin" >Sign In to my account</a></p>
               </div>
             </div>

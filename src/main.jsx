@@ -11,8 +11,9 @@ const MySwal = withReactContent(Swal);
 
 
 import Flashscreen from './pages/Flashscreen.jsx';
-import Usertypescreen from './pages/Usertypescreen.jsx';
-import Signup from './pages/Signup.jsx';
+import Welcome from './pages/Welcome.jsx';
+import AppSignup from './pages/AppSignup.jsx';
+import ClientSignup from './pages/ClientSignup.jsx';
 import Signin from './pages/Signin.jsx';
 import ForgotPassword from './pages/ForgotPassword.jsx';
 import CreatePassword from './pages/CreatePassword.jsx';
@@ -24,31 +25,29 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import Jobs from './pages/Jobs.jsx';
 import JobDetails from './pages/JobDetails.jsx';
 import Settings from './pages/Settings.jsx';
-// import { RecoilRoot } from "recoil";
+import { RecoilRoot } from "recoil";
 
 
 const router = createBrowserRouter([
   {
     // id:id++,
       path: "/jobdetails",
-      // element:  <RecoilRoot><Dashboard /></RecoilRoot>,
-      element:  <JobDetails />
+      element:  <RecoilRoot><JobDetails /></RecoilRoot>
     },
   {
     // id:id++,
       path: "/jobs",
-      // element:  <RecoilRoot><Dashboard /></RecoilRoot>,
-      element:  <Jobs />
+      element:  <RecoilRoot><Jobs /></RecoilRoot>
     },
   {
     // id:id++,
       path: "/dashboard",
-      // element:  <RecoilRoot><Dashboard /></RecoilRoot>,
-      element:  <Dashboard />
+      element:  <RecoilRoot><Dashboard /></RecoilRoot>,
+     
     },
   {
     path: "/settings",
-    element: <Settings />
+    element: <RecoilRoot><Settings /></RecoilRoot>
 
   },
   {
@@ -73,17 +72,22 @@ const router = createBrowserRouter([
   },
   {
     path: "/signin",
-    element: <Signin />
+    element:  <RecoilRoot><Signin /></RecoilRoot>
 
   },
   {
-    path: "/signup",
-    element: <Signup />
+    path: "/csignup",
+    element: <ClientSignup />
 
   },
   {
-    path: "/select",
-    element: <Usertypescreen />
+    path: "/asignup",
+    element: <AppSignup />
+
+  },
+  {
+    path: "/welcome",
+    element: <Welcome />
 
   },
   {

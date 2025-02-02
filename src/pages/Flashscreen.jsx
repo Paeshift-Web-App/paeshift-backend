@@ -14,7 +14,7 @@ const Flashscreen = () => {
         <img src={brandLogo} className="logo animate__animated animate__zoomIn " alt="Paeshift logo" />
         {
           setInterval(()=>{
-             redir("../select");
+             redir("../welcome");
           }, 2500)
         }
       </div>

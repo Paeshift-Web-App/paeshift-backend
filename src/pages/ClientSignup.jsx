@@ -16,6 +16,10 @@ import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 
 
+
+// import { userInfo } from '../atoms/User';
+// import { useRecoilState } from 'recoil';
+
 const AppSwal = withReactContent(Swal);
 
 const Schema = Yup.object().shape({
@@ -56,7 +60,7 @@ const Signup = () => {
           </div>
           <div className="row">
             <div className="col-3">
-              <Link to="/select" className='text-dark'>
+              <Link to="/welcome" className='text-dark'>
                 <FontAwesomeIcon icon={faChevronLeft} />
               </Link>
             </div>
@@ -92,55 +96,90 @@ const Signup = () => {
                       firstName: values.firstName,
                       lastName: values.lastName,
                       email: values.email,
-                      password: values.password,
-                      password2: values.confirmPassword,
+                      role: "client",
+                      password: values.confirmPassword,
                     };
 
-                    // console.log(userdata);
+                    console.log(userdata);
 
-                    // swal(<p className="mb-2">Registeration Successful!</p>, 'success', false, 1500)
-                    // Endpoint needs to be updated
-                    let baseURL = "https://paeshift-backend.onrender.com/userApi/v1/user/register/";
+
+                    let baseURL = "http://localhost:8000/Users";
                     try {
-                      // let allUser = await Axios.get(`${baseURL}`);
+                      let allUser = await Axios.get(`${baseURL}`);
 
-                      // let isUnique = false;
-                      // allUser.data.forEach((each) => {
-                      //   if (each.email === values.email) {
-                      //     isUnique = true;
-                      //   }
-                      // });
-
-
-                      // setInterval(() => {
-                      //   AppSwal.showLoading()
-                      // }, 1000);
+                      let isUnique = false;
+                      allUser.data.forEach((each) => {
+                        if (each.id === values.email) {
+                          isUnique = true;
+                        }
+                      });
 
                       // use the typed email to check if the email already exist
-                      // if (!isUnique) {
-                      await Axios({
-                        method: 'post',
-                        url: `${baseURL}`,
-                        // url: "https://paeshift-backend.onrender.com/userApi/v1/user/register/",
-                        data: userdata
-                      })
-                        .then((response) => {
-                          console.log(response);
-                          swal("Registeration Successful!", " ", "success", { button: false, timer: 1500 });
-                          redir("../signin");
-                          // setTimeout(() => {
-                          // redir("../signin");
-                          // }, 1500);
-                        })
-                        .catch((error) => {
-                          swal("Registeration Failed!", " ", "error", { button: false, timer: 1500 })
-                          console.error(error.message);
-                        });
+                      if (!isUnique) {
+                        Axios.post(`${baseURL}`, userdata)
+                          .then((response) => {
+                            //   setUser({isLoggedIn: true, data: response.data});
+                            swal("Registeration Successful!", " ", "success", { button: false, timer: 1500 });
+                            setTimeout(() => {
+                              redir("../signin");
 
+                            }, 1500);
+                          })
+                          .catch((error) => {
+                            console.error(error);
+                          });
+                      } else {
+                        swal("User already exit!", " ", "error", { button: false, timer: 1500 })
+                        // swal("Registeration Failed!", " ", "error", { button: false, timer: 1500 })
+                      }
                       // if unique email allow to signup else dont
                     } catch (error) {
                       console.error(error);
                     }
+
+                    // swal(<p className="mb-2">Registeration Successful!</p>, 'success', false, 1500)
+                    // Endpoint needs to be updated
+                    // let baseURL = "https://paeshift-backend.onrender.com/userApi/v1/user/register/";
+                    // try {
+                    //   // let allUser = await Axios.get(`${baseURL}`);
+
+                    //   // let isUnique = false;
+                    //   // allUser.data.forEach((each) => {
+                    //   //   if (each.email === values.email) {
+                    //   //     isUnique = true;
+                    //   //   }
+                    //   // });
+
+
+                    //   // setInterval(() => {
+                    //   //   AppSwal.showLoading()
+                    //   // }, 1000);
+
+                    //   // use the typed email to check if the email already exist
+                    //   // if (!isUnique) {
+                    //   await Axios({
+                    //     method: 'post',
+                    //     url: `${baseURL}`,
+                    //     // url: "https://paeshift-backend.onrender.com/userApi/v1/user/register/",
+                    //     data: userdata
+                    //   })
+                    //     .then((response) => {
+                    //       console.log(response);
+                    //       swal("Registeration Successful!", " ", "success", { button: false, timer: 1500 });
+                    //       redir("../signin");
+                    //       // setTimeout(() => {
+                    //       // redir("../signin");
+                    //       // }, 1500);
+                    //     })
+                    //     .catch((error) => {
+                    //       swal("Registeration Failed!", " ", "error", { button: false, timer: 1500 })
+                    //       console.error(error.message);
+                    //     });
+
+                    //   // if unique email allow to signup else dont
+                    // } catch (error) {
+                    //   console.error(error);
+                    // }
                   }
                   }
                 >

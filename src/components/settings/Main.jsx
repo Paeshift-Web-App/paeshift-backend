@@ -15,6 +15,9 @@ import Axios from "axios";
 import ProfileImage from "../../assets/images/profile.png";
 import Walletmodal from "../walletmodal/Walletmodal";
 
+import { userInfo } from "../../atoms/User.jsx";
+import { useRecoilValue, useRecoilState } from "recoil";
+
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 
@@ -58,7 +61,8 @@ const Schema = Yup.object().shape({
 });
 
 const Main = () => {
-  // let user = useRecoilValue(userInfo);
+  let user = useRecoilValue(userInfo);
+
   let [show, setShow] = useState('password');
   let [show1, setShow1] = useState('password');
   let [show2, setShow2] = useState('password');
@@ -66,11 +70,11 @@ const Main = () => {
   const [showSlide, setShowSlide] = useState("");
 
 
-
   function openTab(params) {
     setActiveTab(params);
     setShowSlide(0);
   }
+
   function closeTab() {
     setActiveTab(0);
     setShowSlide(1);
@@ -139,20 +143,26 @@ const Main = () => {
                 </span>
                 <FontAwesomeIcon icon={faChevronRight} />
               </li>
-              <li className={activeTab === 2 ? "active" : ""} onClick={() => openTab(2)}>
-                <span className="label">
-                  <FontAwesomeIcon icon={faWallet} />
-                  <span>Wallet</span>
-                </span>
-                <FontAwesomeIcon icon={faChevronRight} />
-              </li>
-              <li className={activeTab === 9 ? "active" : ""} onClick={() => openTab(9)}>
-                <span className="label">
-                  <FontAwesomeIcon icon={faBook} />
-                  <span>Invoice</span>
-                </span>
-                <FontAwesomeIcon icon={faChevronRight} />
-              </li>
+              {
+                user.data.role === "applicant" &&
+                <li className={activeTab === 2 ? "active" : ""} onClick={() => openTab(2)}>
+                  <span className="label">
+                    <FontAwesomeIcon icon={faWallet} />
+                    <span>Wallet</span>
+                  </span>
+                  <FontAwesomeIcon icon={faChevronRight} />
+                </li>
+              }
+              {
+                user.data.role === "client" &&
+                <li className={activeTab === 9 ? "active" : ""} onClick={() => openTab(9)}>
+                  <span className="label">
+                    <FontAwesomeIcon icon={faBook} />
+                    <span>Invoice</span>
+                  </span>
+                  <FontAwesomeIcon icon={faChevronRight} />
+                </li>
+              }
               <li className={activeTab === 3 ? "active" : ""} onClick={() => openTab(3)}>
                 <span className="label">
                   <FontAwesomeIcon icon={faBookmark} />
@@ -198,13 +208,13 @@ const Main = () => {
               </li>
             </ul>
           </div>
-          <div className={showSlide === 0 ? "animate__animated animate__fadeInRight col-12 col-md-8 col-xl-9 m-0  p-2 py-3 profile_form" : "col-12 col-md-8 col-xl-9 m-0 px-0 profile_form hide"}>
+          <div className={showSlide === 0 ? "animate__animated animate__fadeIn col-12 col-md-8 col-xl-9 m-0  p-2 py-3 profile_form" : "col-12 col-md-8 col-xl-9 m-0 px-0 profile_form hide"}>
             {/* <div className={"col-12 col-md-8 col-xl-9 m-0 px-0 profile_form"}> */}
             <button className="close_btn" onClick={closeTab}><FontAwesomeIcon icon={faCircleXmark} className="close_icon" /> </button>
 
 
             {/* EDIT PROFILE  */}
-            <div className={activeTab === 1 ? "tab-content display" : "tab-content"}>
+            <div className={activeTab === 1 ? "animate__animated animate__fadeInRight tab-content display" : "tab-content"}>
               <h3>Edit Profile</h3>
               <h4>Profile Picture Upload</h4>
               <div className="profile_wrapper">
@@ -317,7 +327,7 @@ const Main = () => {
 
 
             {/* WALLET TAB CONTENT  */}
-            <div className={activeTab === 2 ? "tab-content display" : "tab-content"} id="wallet_section">
+            <div className={activeTab === 2 ? "animate__animated animate__fadeInRight tab-content display" : "tab-content"} id="wallet_section">
               <h3>Wallet</h3>
               <div className="balance">
                 <h4>Wallet Balance</h4>
@@ -392,7 +402,7 @@ const Main = () => {
 
 
             {/* Invoice TAB CONTENT  */}
-            <div className={activeTab === 9 ? "tab-content display" : "tab-content"} id="invoice_section">
+            <div className={activeTab === 9 ? "animate__animated animate__fadeInRight tab-content display" : "tab-content"} id="invoice_section">
               <h3>Invoice</h3>
 
               <div className="transactions">
@@ -474,7 +484,7 @@ const Main = () => {
 
 
             {/* SAVED JOBS TAB CONTENT  */}
-            <div className={activeTab === 3 ? "tab-content display" : "tab-content"} id="saved_jobs">
+            <div className={activeTab === 3 ? "animate__animated animate__fadeInRight tab-content display" : "tab-content"} id="saved_jobs">
               <h3>Saved Jobs</h3>
               <div className="row">
                 <div className="cards">
@@ -526,7 +536,7 @@ const Main = () => {
 
 
             {/* NOTIFICATIONS TAB CONTENT  */}
-            <div className={activeTab === 4 ? "tab-content display" : "tab-content"} id="notification">
+            <div className={activeTab === 4 ? "animate__animated animate__fadeInRight tab-content display" : "tab-content"} id="notification">
               <h3>Notifications</h3>
               <h4>Set your push notification preferences</h4>
               <form action="">
@@ -613,7 +623,7 @@ const Main = () => {
 
 
             {/* RATINGS AND REVIEWS TAB CONTENTS  */}
-            <div className={activeTab === 5 ? "tab-content display" : "tab-content"} id="reviews">
+            <div className={activeTab === 5 ? "animate__animated animate__fadeInRight tab-content display" : "tab-content"} id="reviews">
               <h3>Rating & Reviews</h3>
               <div className="row m-0 p-0">
                 <div className="col-12 m-0 p-0">
@@ -669,7 +679,7 @@ const Main = () => {
 
 
             {/* LOGIN SETTINGS TAB CONTENTS  */}
-            <div className={activeTab === 6 ? "tab-content display" : "tab-content"} id="login_settings">
+            <div className={activeTab === 6 ? "animate__animated animate__fadeInRight tab-content display" : "tab-content"} id="login_settings">
               <h3>Login Settings</h3>
               <div className="row">
                 <div className="col-12">
@@ -880,7 +890,7 @@ const Main = () => {
 
 
             {/* FEEDBACK TAB CONTENTS  */}
-            <div className={activeTab === 7 ? "tab-content display" : "tab-content"} id="feedback">
+            <div className={activeTab === 7 ? "animate__animated animate__fadeInRight tab-content display" : "tab-content"} id="feedback">
               <h3>Feedback</h3>
               <div className="row">
                 <div className="col-12">
@@ -980,7 +990,7 @@ const Main = () => {
 
 
             {/* ABOUT PAESHIFT TAB CONTENT  */}
-            <div className={activeTab === 8 ? "tab-content display" : "tab-content"} id="about_paeshift">
+            <div className={activeTab === 8 ? "animate__animated animate__fadeInRight tab-content display" : "tab-content"} id="about_paeshift">
               <h3>About Paeshift</h3>
               <div className="row">
                 <div className="col-12">

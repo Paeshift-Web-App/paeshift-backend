@@ -8,22 +8,22 @@ import brandLogo from "../../assets/images/logo-sm.png";
 import ProfileImage from "../../assets/images/profile.png";
 import { faArrowRightFromBracket } from "@fortawesome/free-solid-svg-icons";
 import { faClose } from "@fortawesome/free-solid-svg-icons/faClose";
-// import { userInfo } from "../../atoms/User.jsx";
-// import { useRecoilValue, useRecoilState } from "recoil";
+import { userInfo } from "../../atoms/User.jsx";
+import { useRecoilValue, useRecoilState } from "recoil";
 
 import "./Sidebar.css";
 
 
 
 const Sidebar = () => {
-  // let user = useRecoilValue(userInfo);
-  // let [signout, setSignout] =  useRecoilState(userInfo);
+  let user = useRecoilValue(userInfo);
+  let [signout, setSignout] =  useRecoilState(userInfo);
   let redir = useNavigate()
 
-  // const handleLogout = () => {
-  //   setSignout({isLoggedIn:false, data: {}})
-  //   redir("../")
-  // }
+  const handleLogout = () => {
+    setSignout({isLoggedIn:false, data: {}})
+    redir("../")
+  }
   // console.log(user);
   return (
     <section className="container_sidebar">

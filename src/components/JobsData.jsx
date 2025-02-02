@@ -55,6 +55,4 @@ export const JobsData = [
         date_posted: '2 days ago',
         no_of_application: '2'
 	},
-
-
 ]
