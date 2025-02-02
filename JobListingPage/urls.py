@@ -5,12 +5,9 @@ from .views import UserProfileViewSet, JobViewSet, JobApplicationViewSet, SavedJ
 
 
 
-router = DefaultRouter()
-router.register(r'user-profiles', UserProfileViewSet)
-router.register(r'jobs', JobViewSet)
-router.register(r'job-applications', JobApplicationViewSet)
-router.register(r'saved-jobs', SavedJobViewSet)
-
 urlpatterns = [
-    path('api/', include(router.urls)),
+    path("api/userProfile/", UserProfileViewSet.as_view()),
+    path("api/job/", JobViewSet.as_view()),
+    path("api/jobApplication/", JobApplicationViewSet.as_view()),
+    path("api/savedJob/", SavedJobViewSet.as_view()),
 ]
