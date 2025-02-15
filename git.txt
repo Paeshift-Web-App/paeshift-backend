@@ -12,10 +12,10 @@ git checkout master  #Switch to the Master Branch
 
 git init
 git add .
-git commit -m "Login sorted "
-git branch -M backend
-git remote add origin https://github.com/Paeshift-Web-App/paeshift-frontend.git
-git push -u origin backend
+git commit -m "Alert adjusted,"
+git branch -M main
+git remote add origin https://github.com/skillyboy/SanDiegoEcommerce.git
+git push -u origin main
 
 
 git remote add origin https://github.com/skillyboy/SanDiegoEcommerce.git
