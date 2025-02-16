@@ -2,8 +2,8 @@ from django.shortcuts import get_object_or_404
 from ninja import Router
 from ninja.security import HttpBearer
 
-from ..models import Job, SavedJob
-from ..schemas.jobs import SavedJobSchema
+from .models import Job, SavedJob
+from .schemas import SavedJobSchema
 
 router = Router()
 

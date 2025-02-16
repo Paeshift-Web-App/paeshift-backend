@@ -20,7 +20,7 @@ class SignupSchema(Schema):
 # -------------------------------------------------------
 # 2) Job Schemas
 # -------------------------------------------------------
-class JobSchema(Schema):
+class JobListSchema(Schema):
     id: int
     title: str
     description: str = None
@@ -35,7 +35,7 @@ class JobSchema(Schema):
     date_posted: str
     no_of_application: int
 
-class JobDetailSchema(JobSchema):
+class JobDetailSchema(JobListSchema):
     applicant_name: str = None
     payment_status: str
 
@@ -43,7 +43,7 @@ class JobDetailSchema(JobSchema):
 # -------------------------------------------------------
 # 3) Application Schemas
 # -------------------------------------------------------
-class ApplicationSchema(Schema):
+class ApplicationListSchema(Schema):
     id: int
     job_id: int
     applicant_name: str

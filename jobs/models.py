@@ -13,7 +13,7 @@ class Job(models.Model):
 
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
-    client = models.ForeignKey(User, on_delete=models.CASCADE, related_name="jobs")
+    client = models.ForeignKey(User, on_delete=models.CASCADE, related_name="jobs",blank=True, null=True)
     applicant = models.ForeignKey(User, on_delete=models.SET_NULL, related_name="applied_jobs", blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='upcoming')
     date = models.DateField(blank=True, null=True)

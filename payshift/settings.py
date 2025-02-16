@@ -85,13 +85,12 @@ TEMPLATES = [
 ]
 
 
+# payshift/settings.py
 STATIC_URL = '/static/'
-
-# 2) Static files
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'frontend', 'build', 'static'),  # the static folder from build
+    os.path.join(BASE_DIR, 'frontend/build/static'),  # Path to React static files
 ]
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # For collectstatic
 
 WSGI_APPLICATION = "payshift.wsgi.application"
 
