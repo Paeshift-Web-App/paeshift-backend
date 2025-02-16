@@ -1,3 +1,451 @@
+""
+// Lists all jobs the current user has saved.
+// GET /jobs/saved-jobs
+""
+
+// import React, { useState, useEffect } from "react";
+// import { Link } from "react-router-dom";
+// import "./Settings.css";
+// import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+// import {
+//   faSearch, faBars, faStar, faCamera, faCircleXmark,
+//   faUserPen, faBookmark, faBell, faChevronRight
+// } from "@fortawesome/free-solid-svg-icons";
+// import Axios from "axios";
+
+// import ProfileImage from "../../assets/images/profile.png";
+// import iconWallet from "../../assets/images/wallet.png";
+// import Stars from "../../assets/images/stars.png";
+// import Walletmodal from "../walletmodal/Walletmodal";
+
+// // Example filter buttons for “Ratings & Reviews”
+// let id = 0;
+// export const filterButton = [
+//   { id: id++, title: "All", value: "" },
+//   { id: id++, title: "Read", value: "read" },
+// ];
+
+// // (Optional) Validation schema if using Formik/Yup
+
+// const Main = () => {
+//   // Tab states
+//   const [activeTab, setActiveTab] = useState(1);
+//   const [showSlide, setShowSlide] = useState("");
+
+//   // 1) Profile states
+//   const [profileData, setProfileData] = useState({
+//     firstName: "",
+//     lastName: "",
+//     email: "",
+//     profilePicUrl: "", // if your backend returns a URL
+//   });
+//   const [selectedFile, setSelectedFile] = useState(null);
+
+//   // 2) “Saved Jobs” & “Reviews” data
+//   const [savedJobs, setSavedJobs] = useState([]);
+//   const [reviewsData, setReviewsData] = useState([]);
+
+//   // Fetch data on mount
+//   useEffect(() => {
+//     // A) Fetch user profile
+//     Axios.get("http://127.0.0.1:8000/jobs/profile", { withCredentials: true })
+//       .then((res) => {
+//         setProfileData(res.data);
+//       })
+//       .catch((err) => {
+//         console.error("Error fetching profile:", err);
+//       });
+
+//     // B) Fetch saved jobs
+//     Axios.get("http://127.0.0.1:8000/jobs/saved-jobs", { withCredentials: true })
+//       .then((response) => {
+//         setSavedJobs(response.data);
+//       })
+//       .catch((error) => {
+//         console.error("Error fetching saved jobs:", error);
+//       });
+
+//     // C) Fetch reviews data
+//     Axios.get("http://127.0.0.1:8000/jobs/list", { withCredentials: true })
+//       .then((response) => {
+//         setReviewsData(response.data);
+//       })
+//       .catch((error) => {
+//         console.error("Error fetching reviews data:", error);
+//       });
+//   }, []);
+
+//   // Tab open/close
+//   function openTab(tabIndex) {
+//     setActiveTab(tabIndex);
+//     setShowSlide(0);
+//   }
+//   function closeTab() {
+//     setActiveTab(0);
+//     setShowSlide(1);
+//   }
+
+//   // Handle text fields in “Edit Profile”
+//   const handleInputChange = (e) => {
+//     setProfileData({ ...profileData, [e.target.name]: e.target.value });
+//   };
+
+//   // Handle file input
+//   const handleFileChange = (e) => {
+//     if (e.target.files && e.target.files[0]) {
+//       setSelectedFile(e.target.files[0]);
+//     }
+//   };
+
+//   // Save profile changes => PUT /jobs/profile
+//   const handleSaveProfile = () => {
+//     const formData = new FormData();
+//     // Append text fields
+//     if (profileData.firstName) formData.append("firstName", profileData.firstName);
+//     if (profileData.lastName) formData.append("lastName", profileData.lastName);
+//     if (profileData.email) formData.append("email", profileData.email);
+//     // Append file if selected
+//     if (selectedFile) {
+//       formData.append("file", selectedFile);
+//     }
+
+//     Axios.put("http://127.0.0.1:8000/jobs/profile", formData, {
+//       withCredentials: true,
+//       headers: { "Content-Type": "multipart/form-data" },
+//     })
+//       .then((res) => {
+//         alert("Profile updated successfully!");
+//         // Optionally re-fetch or update local state
+//       })
+//       .catch((err) => {
+//         console.error("Error updating profile:", err);
+//       });
+//   };
+
+//   // Example filter function for “Ratings & Reviews”
+//   const filterFunction = (e) => {
+//     // ...
+//   };
+
+//   return (
+//     <main className="col-12 col-md-12 col-lg-9 col-xl-10 ms-sm-auto p-0 px-md-2">
+//       {/* Top bar */}
+//       <div className="d-flex justify-content-between align-items-center flex-wrap flex-md-nowrap pb-2">
+//         <div className="page_header">
+//           <h1 className="m-0 p-0">Settings</h1>
+//           <div>
+//             <button
+//               className="navbar-toggler position-absolute d-lg-none collapsed"
+//               type="button"
+//               data-bs-toggle="collapse"
+//               data-bs-target="#sidebarMenu"
+//               aria-controls="sidebarMenu"
+//               aria-expanded="false"
+//               aria-label="Toggle navigation"
+//             >
+//               <FontAwesomeIcon className="icon-bars" icon={faBars} />
+//             </button>
+//           </div>
+//         </div>
+//         <div className="searchbar-section">
+//           <div className="serachbar-notify">
+//             <div className="me-2 searchbar">
+//               <input
+//                 className="form-control searchbar-input"
+//                 type="text"
+//                 placeholder="Search"
+//                 aria-label="Search"
+//               />
+//               <FontAwesomeIcon className="search-icon" icon={faSearch} />
+//             </div>
+//             <button type="button" className="notification-icon px-3">
+//               <FontAwesomeIcon icon={faBell} />
+//             </button>
+//           </div>
+//           <button
+//             type="button"
+//             className="btn btn-wallet px-3"
+//             data-bs-toggle="modal"
+//             data-bs-target="#walletModal"
+//           >
+//             <img src={iconWallet} alt="" /> ₦0.00
+//           </button>
+//         </div>
+//       </div>
+
+//       {/* Container */}
+//       <section className="container container__data m-0" id="settings">
+//         <div className="row m-0 p-md-2 px-md-2">
+//           {/* Left side menu */}
+//           <div className="col-12 col-md-4 col-xl-3 m-0 py-3 profile_data">
+//             <div className="profile_info">
+//               <span>
+//                 {/* If your backend returns a pic URL, use that; else fallback to ProfileImage */}
+//                 <img
+//                   className="prof"
+//                   src={profileData.profilePicUrl || ProfileImage}
+//                   alt="profile"
+//                 />
+//               </span>
+//               <span>
+//                 <h4>{profileData.firstName || "Eniola"} {profileData.lastName || "Lucas"}</h4>
+//                 <h4 className="rate_score">Worker</h4>
+//               </span>
+//             </div>
+//             <ul className="tabs">
+//               <li
+//                 className={activeTab === 1 ? "active" : ""}
+//                 onClick={() => openTab(1)}
+//               >
+//                 <span className="label">
+//                   <FontAwesomeIcon icon={faUserPen} />
+//                   <span>Edit Profile</span>
+//                 </span>
+//                 <FontAwesomeIcon icon={faChevronRight} />
+//               </li>
+//               <li
+//                 className={activeTab === 3 ? "active" : ""}
+//                 onClick={() => openTab(3)}
+//               >
+//                 <span className="label">
+//                   <FontAwesomeIcon icon={faBookmark} />
+//                   <span>Saved Jobs</span>
+//                 </span>
+//                 <FontAwesomeIcon icon={faChevronRight} />
+//               </li>
+//               <li
+//                 className={activeTab === 5 ? "active" : ""}
+//                 onClick={() => openTab(5)}
+//               >
+//                 <span className="label">
+//                   <FontAwesomeIcon icon={faStar} />
+//                   <span>Ratings & Reviews</span>
+//                 </span>
+//                 <FontAwesomeIcon icon={faChevronRight} />
+//               </li>
+//             </ul>
+//           </div>
+
+//           {/* Right side: tab content */}
+//           <div
+//             className={
+//               showSlide === 0
+//                 ? "animate__animated animate__fadeIn col-12 col-md-8 col-xl-9 m-0 p-2 py-3 profile_form"
+//                 : "col-12 col-md-8 col-xl-9 m-0 px-0 profile_form hide"
+//             }
+//           >
+//             <button className="close_btn" onClick={closeTab}>
+//               <FontAwesomeIcon icon={faCircleXmark} className="close_icon" />
+//             </button>
+
+//             {/* 1) EDIT PROFILE TAB */}
+//             <div
+//               className={
+//                 activeTab === 1
+//                   ? "animate__animated animate__fadeInRight tab-content display"
+//                   : "tab-content"
+//               }
+//             >
+//               <h3>Edit Profile</h3>
+//               {/* Display existing pic */}
+//               <div className="profile_wrapper">
+//                 <img
+//                   className="prof"
+//                   src={profileData.profilePicUrl || ProfileImage}
+//                   alt="profile"
+//                   style={{ width: 120, height: 120, objectFit: "cover" }}
+//                 />
+//               </div>
+//               {/* File input */}
+//               <div className="my-2">
+//                 <label>Change Profile Picture:</label>
+//                 <input type="file" onChange={handleFileChange} />
+//               </div>
+
+//               {/* Basic text fields */}
+//               <div className="row form_row">
+//                 <div className="col-12 col-md-6 mb-2">
+//                   <label>First Name:</label>
+//                   <input
+//                     name="firstName"
+//                     className="form-control"
+//                     value={profileData.firstName}
+//                     onChange={handleInputChange}
+//                   />
+//                 </div>
+//                 <div className="col-12 col-md-6 mb-2">
+//                   <label>Last Name:</label>
+//                   <input
+//                     name="lastName"
+//                     className="form-control"
+//                     value={profileData.lastName}
+//                     onChange={handleInputChange}
+//                   />
+//                 </div>
+//                 <div className="col-12">
+//                   <label>Email:</label>
+//                   <input
+//                     name="email"
+//                     className="form-control"
+//                     value={profileData.email}
+//                     onChange={handleInputChange}
+//                   />
+//                 </div>
+//               </div>
+
+//               <button
+//                 type="button"
+//                 className="btn save-btn w-100 mt-2"
+//                 onClick={handleSaveProfile}
+//               >
+//                 Save Changes
+//               </button>
+//             </div>
+
+//             {/* 2) SAVED JOBS TAB CONTENT */}
+//             <div
+//               className={
+//                 activeTab === 3
+//                   ? "animate__animated animate__fadeInRight tab-content display"
+//                   : "tab-content"
+//               }
+//             >
+//               <h3>Saved Jobs</h3>
+//               <div className="row">
+//                 <div className="cards">
+//                   {savedJobs.map((item, key) => (
+//                     <div className="card" key={key}>
+//                       <div className="card_top">
+//                         <span className="profile_info">
+//                           <span>
+//                             <img className="prof" src={ProfileImage} alt="profile" />
+//                           </span>
+//                           <span>
+//                             <h4>{item.name}</h4>
+//                             <img src={Stars} alt="stars" />
+//                             <span className="rate_score">4.98</span>
+//                           </span>
+//                         </span>
+//                         <span className="top_cta">
+//                           <button className="btn active">
+//                             Remove &nbsp;
+//                             <FontAwesomeIcon icon={faCircleXmark} className="icon-saved" />
+//                           </button>
+//                         </span>
+//                       </div>
+//                       <div className="duration">
+//                         <h3>{item.duration} Contract</h3>
+//                         <span className="time_post">{item.date_posted}</span>
+//                       </div>
+//                       <span className="title">
+//                         <h3>{item.title}</h3>
+//                       </span>
+//                       <h4>
+//                         {item.date}. {item.time}
+//                       </h4>
+//                       <span className="address text-truncate">{item.location}</span>
+//                       <div className="price">
+//                         <span>
+//                           <h6>₦{item.amount}/hr</h6>
+//                           <p>{item.no_of_application} applicant needed</p>
+//                         </span>
+//                         <span>
+//                           <Link to="../jobdetails" className="btn">
+//                             View Job Details
+//                           </Link>
+//                         </span>
+//                       </div>
+//                     </div>
+//                   ))}
+//                 </div>
+//               </div>
+//             </div>
+
+//             {/* 3) RATINGS AND REVIEWS TAB CONTENT */}
+//             <div
+//               className={
+//                 activeTab === 5
+//                   ? "animate__animated animate__fadeInRight tab-content display"
+//                   : "tab-content"
+//               }
+//             >
+//               <h3>Rating & Reviews</h3>
+//               <div className="row m-0 p-0">
+//                 <div className="col-12 m-0 p-0">
+//                   <div className="filter-section">
+//                     {filterButton.map((item, key) => (
+//                       <button
+//                         type="button"
+//                         key={key}
+//                         value={item.value}
+//                         onClick={filterFunction}
+//                         className={item.title === "All" ? "filter-btn active" : "filter-btn"}
+//                       >
+//                         {item.title}
+//                       </button>
+//                     ))}
+//                   </div>
+//                 </div>
+//               </div>
+//               <div className="row">
+//                 <div className="cards">
+//                   {reviewsData.map((item, key) => (
+//                     <div className="card" key={key}>
+//                       <div className="card_top">
+//                         <span className="profile_info">
+//                           <span>
+//                             <img className="prof" src={ProfileImage} alt="profile" />
+//                           </span>
+//                           <span>
+//                             <h4>{item.name}</h4>
+//                             <span className="rate_score">{item.title}</span>
+//                           </span>
+//                         </span>
+//                         <span className="top_cta">
+//                           <FontAwesomeIcon icon={faStar} className="icon-saved" />
+//                           <FontAwesomeIcon icon={faStar} className="icon-saved" />
+//                           <FontAwesomeIcon icon={faStar} className="icon-saved" />
+//                           <FontAwesomeIcon icon={faStar} className="icon-saved light" />
+//                           <FontAwesomeIcon icon={faStar} className="icon-saved light" />
+//                         </span>
+//                       </div>
+//                       <span className="review">{item.review}</span>
+//                       <div className="button">
+//                         <Link to="../jobdetails" className="btn w-100">
+//                           Mark as Read
+//                         </Link>
+//                       </div>
+//                     </div>
+//                   ))}
+//                 </div>
+//               </div>
+//             </div>
+
+//             {/* ... other tabs if needed ... */}
+//           </div>
+//         </div>
+//         <Walletmodal />
+//       </section>
+//     </main>
+//   );
+// };
+
+// export default Main;
+
+
+
+
+
+// =================================================
+// ORIGINAL CODE:
+// =================================================
+// 
+
+
+
+
+
+
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Settings.css";

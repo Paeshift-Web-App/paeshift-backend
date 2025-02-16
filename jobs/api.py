@@ -10,6 +10,150 @@ from .models import *
 from .schemas import *  
 
 router = Router()
+# jobs/api.py (or profile.py if you prefer splitting files)
+from ninja import Router, File
+from ninja.files import UploadedFile
+from ninja.responses import Response
+from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404
+from .models import Profile  # If you use a separate Profile model
+
+router = Router()
+
+# jobs/api.py
+
+from django.shortcuts import get_object_or_404
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login
+from ninja import Router, File
+from ninja.files import UploadedFile
+from ninja.responses import Response
+
+from .models import Job, Application, SavedJob
+# If you have a separate Profile model to store the picture:
+# from .models import Profile
+
+router = Router()
+# jobs/api.py
+
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.hashers import check_password
+from django.contrib.auth.models import User
+from ninja import Router
+from ninja.responses import Response
+
+router = Router()
+
+@router.post("/change-password")
+def change_password(request, oldPassword: str, newPassword: str, confirmPassword: str):
+    """
+    POST /jobs/change-password
+    Allows the logged-in user to change their password if oldPassword is correct
+    and newPassword matches confirmPassword.
+    Expects JSON:
+      {
+        "oldPassword": "...",
+        "newPassword": "...",
+        "confirmPassword": "..."
+      }
+    Returns 200 on success, 400 on error, 401 if not logged in.
+    """
+    # 1) Check if user is authenticated
+    if not request.user.is_authenticated:
+        return Response({"error": "Not logged in"}, status=401)
+
+    user = request.user
+
+    # 2) Verify old password
+    if not check_password(oldPassword, user.password):
+        return Response({"error": "Incorrect old password"}, status=400)
+
+    # 3) Check newPassword vs confirmPassword
+    if newPassword != confirmPassword:
+        return Response({"error": "Passwords do not match"}, status=400)
+
+    # 4) Update the password
+    user.set_password(newPassword)
+    user.save()
+
+    # 5) Keep the user logged in after changing password
+    update_session_auth_hash(request, user)
+
+    return Response({"message": "Password changed successfully"}, status=200)
+
+@router.get("/profile")
+def get_profile(request):
+    """
+    GET /jobs/profile
+    Fetches current user's profile info (lo-fi).
+    Returns JSON like:
+      {
+        "firstName": "...",
+        "lastName": "...",
+        "email": "...",
+        "profilePicUrl": "..."
+      }
+    """
+    if not request.user.is_authenticated:
+        return Response({"error": "Not logged in"}, status=401)
+
+    user = request.user
+    # Example if you have a separate Profile model
+    # profile = getattr(user, "profile", None)
+    # pic_url = profile.profile_pic.url if (profile and profile.profile_pic) else ""
+
+    data = {
+        "firstName": user.first_name,
+        "lastName": user.last_name,
+        "email": user.email,
+        "profilePicUrl": "",  # or pic_url if you store a picture
+    }
+    return data
+
+@router.put("/profile")
+def update_profile(
+    request,
+    firstName: str = None,
+    lastName: str = None,
+    email: str = None,
+    file: UploadedFile = File(None),  # For optional file upload
+):
+    """
+    PUT /jobs/profile
+    Updates the logged-in user's profile fields + optional file (profile pic).
+    Expects multipart/form-data if sending a file, or JSON if no file.
+    """
+    if not request.user.is_authenticated:
+        return Response({"error": "Not logged in"}, status=401)
+
+    user = request.user
+
+    # 1) Update text fields
+    if firstName is not None:
+        user.first_name = firstName
+    if lastName is not None:
+        user.last_name = lastName
+    if email is not None:
+        # Check uniqueness if needed
+        if User.objects.filter(username=email).exclude(pk=user.pk).exists():
+            return Response({"error": "Email already in use"}, status=400)
+        user.email = email
+        user.username = email  # If you treat email as username
+
+    user.save()
+
+    # 2) If you want to handle a file upload for a profile pic
+    if file is not None:
+        # If you have a separate Profile model
+        # profile = getattr(user, "profile", None)
+        # if not profile:
+        #     profile = Profile.objects.create(user=user)
+        # profile.profile_pic = file
+        # profile.save()
+        pass  # Remove or replace with your logic
+
+    return Response({"message": "Profile updated successfully"}, status=200)
+
 
 # -------------------------------------------------------
 # 1) Auth Endpoint (Login and Signup)
@@ -216,3 +360,24 @@ def list_saved_jobs(request):
             "location": job.location,
         })
     return data
+
+
+JOBS_DATA = [
+    {
+        "name": "Ranger Sanger",
+        "role": "Applicant",
+        "status": "upcoming",
+        "title": "House Cleaner",
+        "date": "Tuesday 3rd March, 2024",
+        "time": "9:00 AM.",
+        "duration": "2hrs",
+        "amount": "5000",
+        "image": "profile.png",
+        "location": "4517 Washington Ave. Manchester, Kentucky 39495, Ilorin Nigeria",
+        "date_posted": "2 days ago",
+        "no_of_application": "7"
+    },
+
+    # ... add more objects if needed ...
+]
+

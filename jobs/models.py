@@ -109,3 +109,14 @@ class Rating(models.Model):
         if ratings.exists():
             return round(sum(r.rating for r in ratings) / ratings.count(), 2)
         return 0
+
+
+
+def user_profile_pic_path(instance, filename):
+    # e.g. "profile_pics/user_<id>/<filename>"
+    return f"profile_pics/user_{instance.user.id}/{filename}"
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
+    profile_pic = models.ImageField(upload_to=user_profile_pic_path, null=True, blank=True)
+    # Add any other fields you like

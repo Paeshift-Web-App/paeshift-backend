@@ -1,17 +1,5 @@
 export const JobsData = [
-	{
-        name: 'Eniola Lucas',
-        role: 'Applicant',
-        status: 'upcoming',
-        title: 'Professional Grass Cutter',
-        date: 'Tuesday 3rd March, 2024',
-        time:'9:00 AM.',
-        duration:'2hrs',
-		amount:'5000',
-		image: 'profile.png',
-		location: '4517 Washington Ave. Manchester, Kentucky 39495, Ilorin Nigeria',
-        review: 'Adipiscing elit, sed do eiusmod tempor incididunt ut labore et. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et ',
-	},
+
 	{
         name: 'Sanni Lawal',
         role: 'Applicant',

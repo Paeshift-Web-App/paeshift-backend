@@ -1,6 +1,6 @@
 
 git add .
-git commit -m "api files arranged"
+git commit -m "Profile updated"
 git push origin backend
 
 
