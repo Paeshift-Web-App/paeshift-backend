@@ -344,22 +344,3 @@ def list_saved_jobs(request):
             "location": job.location,
         })
     return data
-
-# (Optional) A local sample data array if needed
-JOBS_DATA = [
-    {
-        "name": "Ranger Sanger",
-        "role": "Applicant",
-        "status": "upcoming",
-        "title": "House Cleaner",
-        "date": "Tuesday 3rd March, 2024",
-        "time": "9:00 AM.",
-        "duration": "2hrs",
-        "amount": "5000",
-        "image": "profile.png",
-        "location": "4517 Washington Ave. Manchester, Kentucky 39495, Ilorin Nigeria",
-        "date_posted": "2 days ago",
-        "no_of_application": "7"
-    },
-    # ... add more objects if needed ...
-]
