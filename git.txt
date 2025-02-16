@@ -3,6 +3,12 @@ git add .
 git commit -m "api files arranged"
 git push origin main
 
+
+git add jobs/frontend/*
+git add paeshift-frontend/*
+git commit -m "Added missing frontend files"
+git push origin <your-branch-name>
+
 git push -f origin master
 git push origin main --force
 git push origin main --force-with-lease
