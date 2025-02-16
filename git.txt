@@ -1,6 +1,6 @@
 
 git add .
-git commit -m "iSearch and whatsapp"
+git commit -m "api files arranged"
 git push origin main
 
 git push -f origin master
