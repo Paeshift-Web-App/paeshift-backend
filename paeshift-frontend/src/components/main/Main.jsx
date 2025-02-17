@@ -33,13 +33,11 @@ const Main = () => {
       .post(`http://127.0.0.1:8000/jobs/save-job/${jobId}`)
       .then((response) => {
         alert(response.data.message); 
-        // e.g. "Job saved successfully." or "Job is already saved."
       })
       .catch((error) => {
         console.error("Error saving job:", error);
         if (error.response?.data?.error) {
           alert(error.response.data.error);
-          // e.g. "You must be logged in to save jobs."
         }
       });
   };

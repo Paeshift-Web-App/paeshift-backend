@@ -2,6 +2,7 @@ POST /auth/login
 POST /auth/logout
 POST /auth/signup
 POST /auth/change-password
+
 GET /jobs/profile
 PUT /jobs/profile
 POST /jobs/ (create a job)
@@ -10,3 +11,8 @@ GET /jobs/list
 GET /jobs/{job_id}
 POST /jobs/save-job/{job_id}
 GET /jobs/saved-jobs
+
+
+
+
+Create an endpoint to fetch all users at signup

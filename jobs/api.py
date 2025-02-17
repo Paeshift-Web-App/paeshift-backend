@@ -9,24 +9,36 @@ from django.contrib.auth import (
     update_session_auth_hash
 )
 from django.contrib.auth.hashers import check_password
-from django.contrib.auth.models import User
-
+from django.contrib.auth import get_user_model
 from ninja import Router, File
 from ninja.files import UploadedFile
 from ninja.responses import Response
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
-from .models import *
-from .schemas import *
-# from .schemas import LocationSchema  # We'll define a local example below
 
-router = Router()
-
-# ------------------------------------------------------------------------------
-# 0) Example user_profile_pic_path function (for storing profile pics)
-# ------------------------------------------------------------------------------
 import os
 from django.utils import timezone
+
+from .models import (
+    Job, SavedJob, Application, Profile
+)
+from .schemas import (
+    LoginSchema, SignupSchema, CreateJobSchema, LocationSchema
+    # Adjust if you keep schemas in a separate file
+)
+
+router = Router()
+User = get_user_model()
+
+# ----------------------------------------------------------------------
+# Helper Functions
+# ----------------------------------------------------------------------
+def fetch_all_users():
+    """
+    Fetch all users from the database.
+    Returns a list of user dictionaries.
+    """
+    # Customize fields as needed
+    users = User.objects.all().values("id", "username", "email", "date_joined")
+    return list(users)
 
 def user_profile_pic_path(instance, filename):
     """
@@ -36,15 +48,26 @@ def user_profile_pic_path(instance, filename):
     timestamp = timezone.now().strftime("%Y%m%d_%H%M%S")
     return os.path.join("profile_pics", f"user_{instance.user.id}", f"{timestamp}_{filename}")
 
-# ------------------------------------------------------------------------------
-# 1) LOGOUT
-# ------------------------------------------------------------------------------
+# ----------------------------------------------------------------------
+# 0) All Users Endpoint
+# ----------------------------------------------------------------------
+@router.get("/all-users")
+def get_all_users_view(request):
+    """
+    GET /jobs/all-users
+    Returns a list of all user dictionaries.
+    """
+    user_list = fetch_all_users()
+    return {"users": user_list}
+
+# ----------------------------------------------------------------------
+# 1) Logout
+# ----------------------------------------------------------------------
 @router.post("/logout")
 def logout_view(request):
     """
     POST /jobs/logout
     Logs out the current session-based user.
-    Returns 200 if successful, 401 if not logged in.
     """
     if not request.user.is_authenticated:
         return Response({"error": "Not logged in"}, status=401)
@@ -52,22 +75,15 @@ def logout_view(request):
     logout(request)
     return Response({"message": "Logged out successfully"}, status=200)
 
-# ------------------------------------------------------------------------------
-# 2) CHANGE PASSWORD
-# ------------------------------------------------------------------------------
+# ----------------------------------------------------------------------
+# 2) Change Password
+# ----------------------------------------------------------------------
 @router.post("/change-password")
 def change_password(request, oldPassword: str, newPassword: str, confirmPassword: str):
     """
     POST /jobs/change-password
     Allows the logged-in user to change their password if oldPassword is correct
     and newPassword matches confirmPassword.
-    Expects JSON:
-      {
-        "oldPassword": "...",
-        "newPassword": "...",
-        "confirmPassword": "..."
-      }
-    Returns 200 on success, 400 on error, 401 if not logged in.
     """
     if not request.user.is_authenticated:
         return Response({"error": "Not logged in"}, status=401)
@@ -83,30 +99,21 @@ def change_password(request, oldPassword: str, newPassword: str, confirmPassword
     user.set_password(newPassword)
     user.save()
     update_session_auth_hash(request, user)
-
     return Response({"message": "Password changed successfully"}, status=200)
 
-# ------------------------------------------------------------------------------
-# 3) PROFILE ENDPOINTS (Get & Update)
-# ------------------------------------------------------------------------------
+# ----------------------------------------------------------------------
+# 3) Profile Endpoints (Get & Update)
+# ----------------------------------------------------------------------
 @router.get("/profile")
 def get_profile(request):
     """
     GET /jobs/profile
-    Fetches the current user's profile info (lo-fi).
-    Returns JSON like:
-      {
-        "firstName": "...",
-        "lastName": "...",
-        "email": "...",
-        "profilePicUrl": "..."
-      }
+    Fetches the current user's profile info.
     """
     if not request.user.is_authenticated:
         return Response({"error": "Not logged in"}, status=401)
 
     user = request.user
-
     # If you have a separate Profile model:
     # profile = getattr(user, "profile", None)
     # pic_url = profile.profile_pic.url if (profile and profile.profile_pic) else ""
@@ -130,7 +137,6 @@ def update_profile(
     """
     PUT /jobs/profile
     Updates the logged-in user's profile fields + optional file (profile pic).
-    Expects multipart/form-data if sending a file, or JSON if no file.
     """
     if not request.user.is_authenticated:
         return Response({"error": "Not logged in"}, status=401)
@@ -153,29 +159,20 @@ def update_profile(
 
     # If handling file uploads for a profile pic:
     if file is not None:
-        # If using a separate Profile model:
         profile, created = Profile.objects.get_or_create(user=user)
         profile.profile_pic = file
         profile.save()
 
     return Response({"message": "Profile updated successfully"}, status=200)
 
-# ------------------------------------------------------------------------------
-# 4) AUTH ENDPOINTS (Login & Signup)
-# ------------------------------------------------------------------------------
+# ----------------------------------------------------------------------
+# 4) Auth Endpoints (Login & Signup)
+# ----------------------------------------------------------------------
 @router.post("/login")
 def login_view(request, payload: LoginSchema):
     """
     POST /jobs/login
     Authenticates a user by email/password and logs them in (session-based).
-    Expects JSON:
-      {
-        "email": "...",
-        "password": "..."
-      }
-    Returns:
-      200 - {"message": "Login successful"} if valid
-      401 - {"error": "Invalid credentials"} if invalid
     """
     user = authenticate(request, username=payload.email, password=payload.password)
     if user:
@@ -188,17 +185,6 @@ def signup_view(request, payload: SignupSchema):
     """
     POST /jobs/signup
     Creates a new user account if email is unique and passwords match.
-    Expects JSON:
-      {
-        "firstName": "...",
-        "lastName": "...",
-        "email": "...",
-        "password": "...",
-        "confirmPassword": "..."
-      }
-    Returns:
-      201 - {"message": "Registration successful"} on success
-      400 - {"error": "..."} if validation fails
     """
     if not all([
         payload.firstName,
@@ -212,6 +198,7 @@ def signup_view(request, payload: SignupSchema):
     if payload.password != payload.confirmPassword:
         return Response({"error": "Passwords do not match"}, status=400)
 
+    # Different logic to check if user exists
     if User.objects.filter(username=payload.email).exists():
         return Response({"error": "Email already exists"}, status=400)
 
@@ -230,12 +217,9 @@ def signup_view(request, payload: SignupSchema):
     except Exception as e:
         return Response({"error": f"Unexpected error: {e}"}, status=500)
 
-# ------------------------------------------------------------------------------
-# 5) JOBS ENDPOINTS
-# ------------------------------------------------------------------------------
-
-
-
+# ----------------------------------------------------------------------
+# 5) Jobs Endpoints
+# ----------------------------------------------------------------------
 @router.post("/jobs/")
 def create_job(request, payload: CreateJobSchema):
     """
@@ -245,7 +229,6 @@ def create_job(request, payload: CreateJobSchema):
     if not request.user.is_authenticated:
         return Response({"error": "Not logged in"}, status=401)
 
-    # Create the job object
     new_job = Job.objects.create(
         client=request.user,  # The user creating the job
         title=payload.title,
@@ -253,14 +236,9 @@ def create_job(request, payload: CreateJobSchema):
         location=payload.location,
         duration=payload.duration,
         amount=payload.amount,
-        # Convert date/time if needed
-        # e.g. date=payload.date if you parse it properly
-        # e.g. time=payload.time if you parse it properly
+        # Optionally parse date/time if needed
     )
-
     return {"message": "Job created successfully", "job_id": new_job.id}
-
-
 
 @router.get("/client-posted")
 def client_posted_jobs(request):
@@ -298,13 +276,11 @@ def list_accepted_applications(request):
     for app in apps_qs:
         job = app.job
         data.append({
-            # Application fields
             "application_id": app.id,
             "applicant_name": app.applicant.first_name,
             "is_accepted": app.is_accepted,
             "applied_at": str(app.applied_at),
 
-            # Job fields
             "job_id": job.id,
             "client_name": job.client.first_name if job.client else "Unknown Client",
             "status": job.status,
@@ -341,23 +317,31 @@ def job_detail(request, job_id: int):
     }
     return data
 
-# ------------------------------------------------------------------------------
-# 6) SAVED JOBS ENDPOINTS
-# ------------------------------------------------------------------------------
+# ----------------------------------------------------------------------
+# 6) Saved Jobs Endpoints
+# ----------------------------------------------------------------------
 @router.post("/save-job/{job_id}")
 def save_job(request, job_id: int):
     """
     POST /jobs/save-job/<job_id>
     Saves the job for the current user (session-based).
+    Uses a different logic to check if the job exists.
     """
     if not request.user.is_authenticated:
         return Response({"error": "You must be logged in to save jobs."}, status=401)
 
-    job = get_object_or_404(Job, id=job_id)
+    # New logic: try/except to check if job exists
+    try:
+        job = Job.objects.get(pk=job_id)
+    except Job.DoesNotExist:
+        return Response({"error": "Job not found."}, status=404)
+
+    # Now save or respond
     saved_job, created = SavedJob.objects.get_or_create(user=request.user, job=job)
-    if not created:
+    if created:
+        return Response({"message": "Job saved successfully."}, status=201)
+    else:
         return Response({"message": "Job is already saved."}, status=200)
-    return Response({"message": "Job saved successfully."}, status=201)
 
 @router.get("/saved-jobs")
 def list_saved_jobs(request):
@@ -386,21 +370,19 @@ def list_saved_jobs(request):
         })
     return data
 
-# ------------------------------------------------------------------------------
-# 7) LOCATION UPDATE (If using Channels for real-time, or just storing in DB)
-# ------------------------------------------------------------------------------
-
-
+# ----------------------------------------------------------------------
+# 7) LOCATION UPDATE (Optional)
+# ----------------------------------------------------------------------
 @router.post("/jobs/{job_id}/update-location")
 def update_location(request, job_id: int, payload: LocationSchema):
     """
     The client user posts their lat/long for a specific job.
-    Optionally store in DB, then broadcast to a Channels group for real-time.
+    Optionally store in DB or broadcast to a Channels group for real-time.
     """
     if not request.user.is_authenticated:
         return {"error": "Not logged in"}, 401
 
-    # Example if you want to store each location in DB (uncomment if needed):
+    # Example if you want to store each location in DB:
     # LocationHistory.objects.create(
     #     user=request.user,
     #     job_id=job_id,
@@ -408,19 +390,16 @@ def update_location(request, job_id: int, payload: LocationSchema):
     #     longitude=payload.longitude
     # )
 
-    # Then broadcast to "job_<job_id>" group if using Channels
-    channel_layer = get_channel_layer()
-    group_name = f"job_{job_id}"
+    # If using Channels for real-time:
+    # channel_layer = get_channel_layer()
+    # group_name = f"job_{job_id}"
+    # async_to_sync(channel_layer.group_send)(
+    #     group_name,
+    #     {
+    #         "type": "location_update",
+    #         "latitude": payload.latitude,
+    #         "longitude": payload.longitude,
+    #     }
+    # )
 
-    async_to_sync(channel_layer.group_send)(
-        group_name,
-        {
-            "type": "location_update",
-            "latitude": payload.latitude,
-            "longitude": payload.longitude,
-        }
-    )
-
-    return {"message": "Location updated & broadcasted"}
-
-
+    return {"message": "Location updated (optionally broadcasted)"}

@@ -27,11 +27,11 @@ CORS_ALLOWED_ORIGINS = [
 
 # Application definition
 INSTALLED_APPS = [
-    "jazzmin",   
+    # "jazzmin",   
     
     "jobs",
     "corsheaders",  # Uncomment if you decide to use it
-    "channels",
+    # "channels",
 
     "django.contrib.admin",
     "django.contrib.auth",
