@@ -17,13 +17,8 @@ from ninja.responses import Response
 import os
 from django.utils import timezone
 
-from .models import (
-    Job, SavedJob, Application, Profile
-)
-from .schemas import (
-    LoginSchema, SignupSchema, CreateJobSchema, LocationSchema
-    # Adjust if you keep schemas in a separate file
-)
+from .models import *
+from .schemas import *
 
 router = Router()
 User = get_user_model()
@@ -180,29 +175,31 @@ def login_view(request, payload: LoginSchema):
         return Response({"message": "Login successful"}, status=200)
     return Response({"error": "Invalid credentials"}, status=401)
 
+
 @router.post("/signup")
 def signup_view(request, payload: SignupSchema):
     """
     POST /jobs/signup
-    Creates a new user account if email is unique and passwords match.
+    Creates a new user account and a corresponding profile.
     """
     if not all([
         payload.firstName,
         payload.lastName,
         payload.email,
         payload.password,
-        payload.confirmPassword
+        payload.confirmPassword,
+        payload.role,  
     ]):
         return Response({"error": "All fields are required"}, status=400)
 
     if payload.password != payload.confirmPassword:
         return Response({"error": "Passwords do not match"}, status=400)
 
-    # Different logic to check if user exists
     if User.objects.filter(username=payload.email).exists():
         return Response({"error": "Email already exists"}, status=400)
 
     try:
+        # Create the user
         user = User.objects.create_user(
             username=payload.email,
             first_name=payload.firstName,
@@ -210,13 +207,17 @@ def signup_view(request, payload: SignupSchema):
             email=payload.email,
             password=payload.password,
         )
+
+        # Create the profile
+        Profile.objects.create(user=user, user_type=payload.user_type)
+
+        # Log the user in
         login(request, user)
         return Response({"message": "Registration successful"}, status=201)
     except IntegrityError:
         return Response({"error": "Email already exists"}, status=400)
     except Exception as e:
         return Response({"error": f"Unexpected error: {e}"}, status=500)
-
 # ----------------------------------------------------------------------
 # 5) Jobs Endpoints
 # ----------------------------------------------------------------------
@@ -403,3 +404,288 @@ def update_location(request, job_id: int, payload: LocationSchema):
     # )
 
     return {"message": "Location updated (optionally broadcasted)"}
+
+
+
+
+
+# ------------------------------------------------------------------------------
+# A) RATING SYSTEM
+# ------------------------------------------------------------------------------
+@router.post("/ratings", tags=["Ratings"])
+def create_rating(request, payload: RatingCreateSchema):
+    """
+    POST /jobs/ratings
+    Allows a user (client or applicant) to submit a rating for another user.
+    """
+    if not request.user.is_authenticated:
+        return Response({"error": "Not logged in"}, status=401)
+
+    # Validate that the reviewed user exists
+    reviewed_user = get_object_or_404(User, pk=payload.reviewedUserId)
+
+    # Create a new rating
+    new_rating = Rating.objects.create(
+        reviewer=request.user,
+        reviewed=reviewed_user,
+        rating=payload.rating,
+        feedback=payload.feedback
+    )
+    return {"message": "Rating submitted", "rating_id": new_rating.id}
+
+
+@router.get("/ratings/{user_id}", tags=["Ratings"])
+def get_user_ratings(request, user_id: int):
+    """
+    GET /jobs/ratings/{user_id}
+    Retrieves all ratings for a specific user, plus average rating.
+    """
+    reviewed_user = get_object_or_404(User, pk=user_id)
+
+    # Query all ratings where "reviewed = user_id"
+    all_ratings = Rating.objects.filter(reviewed=reviewed_user)
+    data_list = []
+    for r in all_ratings:
+        data_list.append({
+            "id": r.id,
+            "reviewer": r.reviewer.username,
+            "rating": r.rating,
+            "feedback": r.feedback,
+            "created_at": r.created_at.isoformat()
+        })
+
+    # Example: compute average rating
+    avg_rating = Rating.get_average_rating(reviewed_user)
+
+    return {
+        "user_id": reviewed_user.id,
+        "username": reviewed_user.username,
+        "average_rating": avg_rating,
+        "ratings": data_list
+    }
+
+# ------------------------------------------------------------------------------
+# B) DISPUTE RESOLUTION
+# ------------------------------------------------------------------------------
+@router.post("/jobs/{job_id}/disputes", tags=["Disputes"])
+def create_dispute(request, job_id: int, payload: DisputeCreateSchema):
+    """
+    POST /jobs/{job_id}/disputes
+    Creates a new dispute regarding a specific job.
+    """
+    if not request.user.is_authenticated:
+        return Response({"error": "Not logged in"}, status=401)
+
+    job = get_object_or_404(Job, pk=job_id)
+    # The user raising the dispute could be either the client or the applicant
+
+    dispute = Dispute.objects.create(
+        job=job,
+        created_by=request.user,
+        title=payload.title,
+        description=payload.description
+    )
+    return {"message": "Dispute created", "dispute_id": dispute.id}
+
+
+@router.get("/jobs/{job_id}/disputes", tags=["Disputes"])
+def list_job_disputes(request, job_id: int):
+    """
+    GET /jobs/{job_id}/disputes
+    Returns all disputes for a specific job.
+    """
+    job = get_object_or_404(Job, pk=job_id)
+    disputes = job.disputes.select_related("created_by").all()
+
+    data = []
+    for d in disputes:
+        data.append({
+            "id": d.id,
+            "title": d.title,
+            "description": d.description,
+            "status": d.status,
+            "created_by": d.created_by.username,
+            "created_at": d.created_at.isoformat(),
+            "updated_at": d.updated_at.isoformat()
+        })
+    return data
+
+
+@router.get("/disputes/{dispute_id}", tags=["Disputes"])
+def dispute_detail(request, dispute_id: int):
+    """
+    GET /jobs/disputes/{dispute_id}
+    Fetches detail for a single dispute.
+    """
+    dispute = get_object_or_404(Dispute, pk=dispute_id)
+    return {
+        "id": dispute.id,
+        "title": dispute.title,
+        "description": dispute.description,
+        "status": dispute.status,
+        "created_by": dispute.created_by.username,
+        "created_at": dispute.created_at.isoformat(),
+        "updated_at": dispute.updated_at.isoformat()
+    }
+
+
+@router.put("/disputes/{dispute_id}", tags=["Disputes"])
+def update_dispute(request, dispute_id: int, payload: DisputeUpdateSchema):
+    """
+    PUT /jobs/disputes/{dispute_id}
+    Updates an existing dispute (change status, add resolution, etc.).
+    """
+    if not request.user.is_authenticated:
+        return Response({"error": "Not logged in"}, status=401)
+
+    dispute = get_object_or_404(Dispute, pk=dispute_id)
+
+    # Possibly check if request.user is the dispute creator or the job's client
+    if payload.status:
+        dispute.status = payload.status
+    if payload.resolution:
+        # If you have a 'resolution' field in Dispute, set it here
+        # dispute.resolution = payload.resolution
+        pass
+
+    dispute.save()
+    return {"message": "Dispute updated", "dispute_id": dispute.id}
+
+# # ------------------------------------------------------------------------------
+# # C) PAYMENT SYSTEM
+# # ------------------------------------------------------------------------------
+# @router.post("/jobs/{job_id}/payments", tags=["Payments"])
+# def create_payment(request, job_id: int, payload: PaymentCreateSchema):
+#     """
+#     POST /jobs/{job_id}/payments
+#     Creates a payment record for a given job.
+#     """
+#     if not request.user.is_authenticated:
+#         return Response({"error": "Not logged in"}, status=401)
+
+#     job = get_object_or_404(Job, pk=job_id)
+
+#     # For instance, the user paying is the client, or it might be a different logic
+#     # Possibly ensure job.client == request.user, or something similar
+#     payment = Payment.objects.create(
+#         payer=request.user,  # or job.client
+#         recipient=None,      # set a recipient if you have logic for who gets paid
+#         job=job,
+#         original_amount=payload.original_amount,
+#         service_fee=payload.service_fee,
+#         final_amount=payload.final_amount,
+#         pay_code=payload.pay_code  # or auto-generate if needed
+#     )
+#     return {"message": "Payment created", "payment_id": payment.id}
+
+
+# @router.get("/jobs/{job_id}/payments", tags=["Payments"])
+# def list_payments_for_job(request, job_id: int):
+#     """
+#     GET /jobs/{job_id}/payments
+#     Returns a list of payment records for the specified job.
+#     """
+#     job = get_object_or_404(Job, pk=job_id)
+#     payments = job.payments.all()
+
+#     data = []
+#     for p in payments:
+#         data.append({
+#             "id": p.id,
+#             "payer": p.payer.username,
+#             "recipient": p.recipient.username if p.recipient else None,
+#             "original_amount": str(p.original_amount),
+#             "service_fee": str(p.service_fee),
+#             "final_amount": str(p.final_amount),
+#             "pay_code": p.pay_code,
+#             "payment_status": p.payment_status,
+#             "created_at": p.created_at.isoformat(),
+#             "confirmed_at": p.confirmed_at.isoformat() if p.confirmed_at else None
+#         })
+#     return data
+
+
+# @router.put("/payments/{payment_id}", tags=["Payments"])
+# def update_payment(request, payment_id: int, payload: PaymentUpdateSchema):
+#     """
+#     PUT /jobs/payments/{payment_id}
+#     Allows updating a payment’s status or details.
+#     """
+#     if not request.user.is_authenticated:
+#         return Response({"error": "Not logged in"}, status=401)
+
+#     payment = get_object_or_404(Payment, pk=payment_id)
+
+#     # Possibly check if request.user is the payer or an admin. Exclude admin logic if not needed
+#     if payload.payment_status:
+#         payment.payment_status = payload.payment_status
+#     if payload.refund_requested is not None:
+#         payment.refund_requested = payload.refund_requested
+
+#     payment.save()
+#     return {"message": "Payment updated", "payment_id": payment.id}
+
+# # ------------------------------------------------------------------------------
+# # D) SHIFT SCHEDULING
+# # ------------------------------------------------------------------------------
+# @router.post("/jobs/{job_id}/shifts", tags=["Shifts"])
+# def create_or_update_shift(request, job_id: int, payload: ShiftSchema):
+#     """
+#     POST /jobs/{job_id}/shifts
+#     Creates or updates shift info for a given job (morning/night).
+#     """
+#     if not request.user.is_authenticated:
+#         return Response({"error": "Not logged in"}, status=401)
+
+#     job = get_object_or_404(Job, pk=job_id)
+
+#     # If you have a Shift model, you might do something like:
+#     # shift, created = Shift.objects.update_or_create(
+#     #     job=job,
+#     #     shiftType=payload.shiftType,
+#     #     defaults={
+#     #         "startTime": payload.startTime,
+#     #         "endTime": payload.endTime
+#     #     }
+#     # )
+#     # For now, we'll just return a placeholder
+#     return {"message": "Shift created/updated for job", "job_id": job.id}
+
+# @router.get("/jobs/{job_id}/shifts", tags=["Shifts"])
+# def get_job_shifts(request, job_id: int):
+#     """
+#     GET /jobs/{job_id}/shifts
+#     Returns the shift schedule details for a given job.
+#     """
+#     job = get_object_or_404(Job, pk=job_id)
+
+#     # If you have a Shift model:
+#     # shifts = Shift.objects.filter(job=job)
+#     # data = []
+#     # for s in shifts:
+#     #     data.append({
+#     #         "id": s.id,
+#     #         "shiftType": s.shiftType,
+#     #         "startTime": s.startTime,
+#     #         "endTime": s.endTime
+#     #     })
+#     # return data
+
+#     return {"message": f"Shifts for job {job.id} (placeholder)"}
+
+# # ------------------------------------------------------------------------------
+# # E) REAL-TIME JOB MATCHING (Optional)
+# # ------------------------------------------------------------------------------
+# @router.post("/jobs/match", tags=["Matching"])
+# def match_jobs(request, payload: MatchSchema):
+#     """
+#     POST /jobs/match
+#     (Optional) If the system triggers a job matching algorithm.
+#     Accepts job details, user preference, or location data.
+#     """
+#     if not request.user.is_authenticated:
+#         return Response({"error": "Not logged in"}, status=401)
+
+#     # Some job matching logic or placeholders
+#     # e.g., find applicants near a location, check shift/time, rating, etc.
+#     return {"message": "Job matching triggered (placeholder)"}
