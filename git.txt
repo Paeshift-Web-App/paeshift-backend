@@ -1,13 +1,13 @@
 
 git add .
 git commit -m "Profile updated"
-git push origin main backend
+git push origin backend
 
 
 
-git push -f origin master
-git push origin main --force
-git push origin master --force-with-lease
+git push -f origin backend
+git push origin backend --force
+git push origin backend --force-with-lease
 
 git checkout master  #Switch to the Master Branch
 
