@@ -14,9 +14,10 @@ from django.contrib.auth.models import User
 from ninja import Router, File
 from ninja.files import UploadedFile
 from ninja.responses import Response
-
-from .models import Job, Application, SavedJob
-from .schemas import LoginSchema, SignupSchema  # If you keep them in schemas.py
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+from .models import *
+from .schemas import *
 # from .schemas import LocationSchema  # We'll define a local example below
 
 router = Router()
@@ -232,6 +233,35 @@ def signup_view(request, payload: SignupSchema):
 # ------------------------------------------------------------------------------
 # 5) JOBS ENDPOINTS
 # ------------------------------------------------------------------------------
+
+
+
+@router.post("/jobs/")
+def create_job(request, payload: CreateJobSchema):
+    """
+    POST /jobs/
+    Creates a new job for the logged-in user (client).
+    """
+    if not request.user.is_authenticated:
+        return Response({"error": "Not logged in"}, status=401)
+
+    # Create the job object
+    new_job = Job.objects.create(
+        client=request.user,  # The user creating the job
+        title=payload.title,
+        description=payload.description,
+        location=payload.location,
+        duration=payload.duration,
+        amount=payload.amount,
+        # Convert date/time if needed
+        # e.g. date=payload.date if you parse it properly
+        # e.g. time=payload.time if you parse it properly
+    )
+
+    return {"message": "Job created successfully", "job_id": new_job.id}
+
+
+
 @router.get("/client-posted")
 def client_posted_jobs(request):
     """
@@ -359,17 +389,7 @@ def list_saved_jobs(request):
 # ------------------------------------------------------------------------------
 # 7) LOCATION UPDATE (If using Channels for real-time, or just storing in DB)
 # ------------------------------------------------------------------------------
-# Example schema for location updates
-from typing import Optional
-from ninja import Schema
 
-class LocationSchema(Schema):
-    latitude: float
-    longitude: float
-
-# If you want to broadcast location updates for a specific job
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
 
 @router.post("/jobs/{job_id}/update-location")
 def update_location(request, job_id: int, payload: LocationSchema):

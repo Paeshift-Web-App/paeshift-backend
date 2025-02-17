@@ -1,7 +1,12 @@
 from ninja import Schema
 from datetime import datetime
 from decimal import Decimal
+# Example schema for location updates
+from typing import Optional
 
+class LocationSchema(Schema):
+    latitude: float
+    longitude: float
 # -------------------------------------------------------
 # 1) Authentication Schemas
 # -------------------------------------------------------
@@ -94,3 +99,13 @@ class RatingSchema(Schema):
     rating: int  # Store rating as a percentage (0-100%)
     feedback: str = None
     created_at: datetime
+
+
+class CreateJobSchema(Schema):
+    title: str
+    description: str = None
+    location: str = None
+    duration: str = None
+    amount: float = 0.0
+    date: str = None  # or a more specific date type if you want
+    time: str = None  # or a more specific time type
