@@ -105,8 +105,9 @@ const Signup = () => {
 
                     // let baseURL = "http://localhost:8000/Users";
                     let baseURL = "http://127.0.0.1:8000/jobs/signup";
+                    let getUsersURL = "http://127.0.0.1:8000/jobs/all-users";
                     try {
-                      let allUser = await Axios.get(`${baseURL}`);
+                      let allUser = await Axios.get(`${getUsersURL}`);
 
                       let isUnique = false;
                       allUser.data.forEach((each) => {
@@ -120,6 +121,7 @@ const Signup = () => {
                         Axios.post(`${baseURL}`, userdata)
                           .then((response) => {
                             //   setUser({isLoggedIn: true, data: response.data});
+                            console.log(response);
                             swal("Registeration Successful!", " ", "success", { button: false, timer: 1500 });
                             setTimeout(() => {
                               redir("../signin");

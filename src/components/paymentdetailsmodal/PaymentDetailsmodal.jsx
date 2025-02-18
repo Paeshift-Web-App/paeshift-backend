@@ -17,27 +17,6 @@ import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 
 
-
-
-const Schema = Yup.object().shape({
-    jobtitle: Yup.string().required("Required").min(2, "Too short!").required("Required"),
-    jobLocation: Yup.string().required("Required").min(2, "Too short!").required("Required"),
-    jobIndustry: Yup.string().required("Required").min(2, "Too short!").required("Required"),
-    jobSubCategory: Yup.string().required("Required").min(2, "Too short!").required("Required"),
-    jobRate: Yup.string().required("Required").required("Required"),
-    noOfApplicants: Yup.string().required("Required").required("Required"),
-    jobType: Yup.string().required("Required").required("Required"),
-    shiftType: Yup.string().required("Required").required("Required"),
-    jobDate: Yup.string().required("Required").required("Required"),
-    startTime: Yup.string().required("Required").required("Required"),
-    endTime: Yup.string().required("Required").required("Required"),
-});
-
-
-
-
-
-
 const PaymentDetailsmodal = () => {
 
 

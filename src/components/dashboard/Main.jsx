@@ -14,6 +14,7 @@ import { faBars } from "@fortawesome/free-solid-svg-icons";
 import ProfileImage from "../../assets/images/profile.png";
 import Profile from "../../assets/images/profileimage.png";
 import Postmodal from "../postmodal/Postmodal";
+import Notificationmodal from "../notificationmodal/Notificationmodal";
 
 
 import { JobsData } from "../JobsData";
@@ -86,7 +87,7 @@ const Main = () => {
               <input className="form-control searchbar-input" onChange={(e) => setSearchWork(e.target.value)} type="text" placeholder="Search" aria-label="Search" />
               <FontAwesomeIcon className="search-icon" icon={faSearch} />
             </div>
-            <button type="button" className="notification-icon px-3">
+            <button type="button" className="notification-icon px-3" data-bs-toggle="modal" data-bs-target="#notificationModal">
               <FontAwesomeIcon className="" icon={faBell} />
             </button>
           </div>
@@ -198,6 +199,7 @@ const Main = () => {
 
           </div>
         </div>
+        <Notificationmodal />
         <Postmodal />
       </section>
     </main >

@@ -312,6 +312,42 @@ body {
 
   }
 
+
+
+
+
+
+
+  
+  #notificationModal.come-from-modal.right .modal-body .notify_details .labels p,
+  #notificationModal.come-from-modal.right .modal-body .notify_details .values p {
+    font-size: 14px;
+    font-weight: 700;
+  }
+  
+  #notificationModal.come-from-modal.right .modal-body .notify_details .message p {
+    font-weight: normal;
+  }
+  
+  
+  #notificationModal.come-from-modal.right .modal-body .notify_details .profile_wrapper {
+    width: 1.5rem;
+
+  }
+
+  
+  #notificationModal.come-from-modal.right .modal-body .notify_details .labels button {
+    font-size: 12px;
+  }
+  
+  #notificationModal.come-from-modal.right .modal-body .notify_details .values a {
+    font-size: 12px;
+  }
+  
+  #notificationModal.come-from-modal.right .modal-body .notify_details .notify_icon {
+    font-size: 12px;
+  }
+
 }
 
 
@@ -485,6 +521,33 @@ body {
 
 
 
+
+
+
+
+
+
+  #notificationModal.come-from-modal.right .modal-dialog {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    transform: translate3d(0%, 0, 0);
+  }
+  
+  #notificationModal.come-from-modal.right .modal-content {
+    height: 90%;
+    overflow-y: auto;
+    border-radius: 1.25rem;
+  }
+  
+  #notificationModal.come-from-modal.right.fade .modal-dialog {
+    right: 1rem;
+    transition: opacity 0.3s linear, right 0.3s ease-out;
+  }
+  
+  #notificationModal.come-from-modal.right.fade.in .modal-dialog {
+    right: 0;
+  }
 
 
 
