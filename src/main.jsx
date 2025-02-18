@@ -20,6 +20,7 @@ import CreatePassword from './pages/CreatePassword.jsx';
 import VerificationScreen from './pages/VerificationScreen.jsx';
 import ThirdParty from './pages/ThirdParty.jsx';
 import Dashboard from './pages/Dashboard.jsx';
+import Home from './pages/Home.jsx';
 
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import Jobs from './pages/Jobs.jsx';
@@ -43,6 +44,12 @@ const router = createBrowserRouter([
     // id:id++,
       path: "/dashboard",
       element:  <RecoilRoot><Dashboard /></RecoilRoot>,
+     
+    },
+  {
+    // id:id++,
+      path: "/home",
+      element:  <RecoilRoot><Home /> </RecoilRoot>,
      
     },
   {

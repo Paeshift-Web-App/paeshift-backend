@@ -10,11 +10,11 @@ import iconWallet from "../../assets/images/wallet.png";
 import iconStamp from "../../assets/images/paeshiftstamp.png";
 import iconWema from "../../assets/images/wemaicon.png";
 import iconLogo from "../../assets/images/icon-logo.png";
+import Axios from "axios";
 
 import ProfileImage from "../../assets/images/profile.png";
 import Walletmodal from "../walletmodal/Walletmodal";
 
-import Axios from "axios";
 import { userInfo } from "../../atoms/User.jsx";
 import { useRecoilValue, useRecoilState } from "recoil";
 
@@ -22,7 +22,6 @@ import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 
 import { JobsData } from "./JobsData";
-import { faFacebook, faInstagram, faTiktok } from "@fortawesome/free-brands-svg-icons";
 
 
 
@@ -274,7 +273,7 @@ const Main = () => {
                         // 'Access-Control-Allow-Origin': '*',
                         // 'Content-Type': 'application/json',
                         "Access-Control-Allow-Headers": "Content-Type",
-                        "Access-Control-Allow-Origin": "*",
+                        "Access-Control-Allow-Origin": "https://paeshift-backend.onrender.com",
                         'Content-Type': 'application/json',
                         "Access-Control-Allow-Methods": "OPTIONS,POST"
                       }
@@ -794,7 +793,94 @@ const Main = () => {
                         </div>
                       </div>
                     </div>
-                  
+                    <div className="accordion-item">
+                      <h2 className="accordion-header">
+                        <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTw" aria-expanded="false" aria-controls="collapseTw">
+                          <h4>Forget Password</h4>
+                        </button>
+                      </h2>
+                      <div id="collapseTw" className="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                        <div className="accordion-body p-2">
+                          <Formik
+                            initialValues={{
+                              email: "",
+                            }}
+
+                            validationSchema={Schema}
+                            onSubmit={async (values) => {
+                              // same shape as initial values
+                              /**
+                               * Steps to create a new user
+                               * get data
+                               * sed to db in object format
+                               */
+
+                              let userdata = {
+                                email: values.email,
+                              };
+
+                              // console.log(userdata);
+
+                              // swal(<p className="mb-2">Registeration Successful!</p>, 'success', false, 1500)
+                              // Endpoint needs to be updated
+                              // let baseURL = "https://paeshift-backend.onrender.com/userApi/v1/user/register/";
+                              // try {
+                              //   // let allUser = await Axios.get(`${baseURL}`);
+
+                              //   // let isUnique = false;
+                              //   // allUser.data.forEach((each) => {
+                              //   //   if (each.email === values.email) {
+                              //   //     isUnique = true;
+                              //   //   }
+                              //   // });
+
+
+                              //   // setInterval(() => {
+                              //   //   AppSwal.showLoading()
+                              //   // }, 1000);
+
+                              //   // use the typed email to check if the email already exist
+                              //   // if (!isUnique) {
+                              //   await Axios({
+                              //     method: 'post',
+                              //     url: `${baseURL}`,
+                              //     // url: "https://paeshift-backend.onrender.com/userApi/v1/user/register/",
+                              //     data: userdata
+                              //   })
+                              //     .then((response) => {
+                              //       console.log(response);
+                              //       swal("Registeration Successful!", " ", "success", { button: false, timer: 1500 });
+                              //       redir("../signin");
+                              //       // setTimeout(() => {
+                              //       // redir("../signin");
+                              //       // }, 1500);
+                              //     })
+                              //     .catch((error) => {
+                              //       swal("Registeration Failed!", " ", "error", { button: false, timer: 1500 })
+                              //       console.error(error.message);
+                              //     });
+
+                              //   // if unique email allow to signup else dont
+                              // } catch (error) {
+                              //   console.error(error);
+                              // }
+                            }
+                            }
+                          >
+                            {({ errors, touched }) => (
+                              <Form className="form_settings">
+                                <div>
+                                  <label htmlFor="email" className="form-label mb-0">To reset your password, Please enter your registered email address</label>
+                                  <Field name="email" className="form-control" placeholder="Enter your email address" />
+                                  {touched.email && errors.email && (<div className="errors">{errors.email}</div>)}
+                                </div>
+                                <button type="submit" name='submit' className="btn btn-lg primary-btn w-100 mt-2">Send Verification Code</button>
+                              </Form>
+                            )}
+                          </Formik>
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
                 </div>
@@ -893,7 +979,7 @@ const Main = () => {
                           {/* If this field has been touched, and it contains an error, display it */}
                           {touched.feedback && errors.feedback && (<div className="errors">{errors.feedback}</div>)}
                         </div>
-                        <button type="submit" name='submit' className="btn btn-lg primary-btn w-100 mt-2">Submit</button>
+                        <button type="submit" name='submit' className="btn btn-lg primary-btn w-100 mt-2">Sign Up</button>
                       </Form>
                     )}
                   </Formik>
@@ -907,14 +993,14 @@ const Main = () => {
               <h3>About Paeshift</h3>
               <div className="row">
                 <div className="col-12">
-                  <div className="accordion" id="accordionExample2">
+                  <div className="accordion" id="accordionExample">
                     <div className="accordion-item">
                       <h2 className="accordion-header">
-                        <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                        <button className="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
                           <h4>Privacy Policy</h4>
                         </button>
                       </h2>
-                      <div id="collapseOne" className="accordion-collapse collapse" data-bs-parent="#accordionExample2">
+                      <div id="collapseOne" className="accordion-collapse collapse show" data-bs-parent="#accordionExample">
                         <div className="accordion-body">
                           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
                         </div>
@@ -926,7 +1012,7 @@ const Main = () => {
                           <h4>Terms & Condition</h4>
                         </button>
                       </h2>
-                      <div id="collapseTwo" className="accordion-collapse collapse" data-bs-parent="#accordionExample2">
+                      <div id="collapseTwo" className="accordion-collapse collapse" data-bs-parent="#accordionExample">
                         <div className="accordion-body">
                           Terms dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
                         </div>
@@ -938,13 +1024,9 @@ const Main = () => {
                           <h4>Social Media</h4>
                         </button>
                       </h2>
-                      <div id="collapseThree" className="accordion-collapse collapse" data-bs-parent="#accordionExample2">
+                      <div id="collapseThree" className="accordion-collapse collapse" data-bs-parent="#accordionExample">
                         <div className="accordion-body">
-                          <a href="#"> <FontAwesomeIcon icon={faInstagram}/> <span className="text-dark">Instagram</span> <FontAwesomeIcon className="socialmedia-icon" icon={faChevronRight} /></a>
-                          <br />
-                          <a href="#"> <FontAwesomeIcon icon={faFacebook}/> <span className="text-dark">Facebook</span>  <FontAwesomeIcon className="socialmedia-icon" icon={faChevronRight} /></a>
-                          <br />
-                          <a href="#"> <FontAwesomeIcon icon={faTiktok}/> <span className="text-dark">Tiktok</span>  <FontAwesomeIcon className="socialmedia-icon" icon={faChevronRight} /></a>
+                          This is the third item's accordion body. It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables overflow.
                         </div>
                       </div>
                     </div>

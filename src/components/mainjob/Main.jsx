@@ -93,7 +93,7 @@ const Main = () => {
     }
     e.target.classList.add('active');
     // buttons;
-  }
+  } 
 
   // useEffect(() => {
 
@@ -174,7 +174,7 @@ const Main = () => {
 
             {JobsData &&
               JobsData.filter((item) => {
-                return searchWork.toLowerCase() === "" ? item : item.title.toLowerCase().includes(searchWork.toLowerCase());
+                return searchWork.toLowerCase() === "" ? item.status.toLowerCase().includes(filterState.toLowerCase()) : item.title.toLowerCase().includes(searchWork.toLowerCase());
               }).map((item, key) => {
                 return (
                   <div className="card" key={key}>
