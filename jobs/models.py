@@ -43,8 +43,15 @@ class Job(models.Model):
     duration = models.CharField(max_length=50, blank=True, null=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     image = models.CharField(max_length=255, blank=True, null=True)
-    location = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    # Last shared location fields (to store the most recent location)
+    last_latitude = models.FloatField(null=True, blank=True)
+    last_longitude = models.FloatField(null=True, blank=True)
+    last_address = models.CharField(max_length=255, blank=True)
+    location = models.CharField(max_length=255, blank=True, null=True)
+    
+    # Optional: Track when the last location was updated
+    last_location_update = models.DateTimeField(null=True, blank=True)
     payment_status = models.CharField(
         max_length=20,
         choices=[
@@ -143,6 +150,7 @@ class LocationHistory(models.Model):
     job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name="locations")
     latitude = models.FloatField()
     longitude = models.FloatField()
+    address = models.CharField(max_length=255, blank=True)
     timestamp = models.DateTimeField(auto_now=True)
 
     def __str__(self):
