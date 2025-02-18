@@ -93,11 +93,12 @@ const Signup = () => {
                      */
 
                     let userdata = {
-                      firstName: values.firstName,
-                      lastName: values.lastName,
+                      first_name: values.firstName,
+                      last_name: values.lastName,
                       email: values.email,
-                      role: "client",
-                      password: values.confirmPassword,
+                      password: values.password,
+                      confirm_password: values.confirmPassword,
+                      role: "client"
                     };
 
                     console.log(userdata);
