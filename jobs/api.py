@@ -114,8 +114,8 @@ def get_profile(request):
     # pic_url = profile.profile_pic.url if (profile and profile.profile_pic) else ""
 
     data = {
-        "firstName": user.first_name,
-        "lastName": user.last_name,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
         "email": user.email,
         "profilePicUrl": "",  # or pic_url if storing images
     }
@@ -124,8 +124,8 @@ def get_profile(request):
 @router.put("/profile")
 def update_profile(
     request,
-    firstName: str = None,
-    lastName: str = None,
+    first_name: str = None,
+    last_name: str = None,
     email: str = None,
     file: UploadedFile = File(None),
 ):
@@ -139,10 +139,10 @@ def update_profile(
     user = request.user
 
     # Update text fields
-    if firstName is not None:
-        user.first_name = firstName
-    if lastName is not None:
-        user.last_name = lastName
+    if first_name is not None:
+        user.first_name = first_name
+    if last_name is not None:
+        user.last_name = last_name
     if email is not None:
         # Ensure no duplicates
         if User.objects.filter(username=email).exclude(pk=user.pk).exists():
@@ -183,16 +183,16 @@ def signup_view(request, payload: SignupSchema):
     Creates a new user account and a corresponding profile.
     """
     if not all([
-        payload.firstName,
-        payload.lastName,
+        payload.first_name,
+        payload.last_name,
         payload.email,
         payload.password,
-        payload.confirmPassword,
+        payload.confirm_password,
         payload.role,  
     ]):
         return Response({"error": "All fields are required"}, status=400)
 
-    if payload.password != payload.confirmPassword:
+    if payload.password != payload.confirm_password:
         return Response({"error": "Passwords do not match"}, status=400)
 
     if User.objects.filter(username=payload.email).exists():
@@ -202,14 +202,16 @@ def signup_view(request, payload: SignupSchema):
         # Create the user
         user = User.objects.create_user(
             username=payload.email,
-            first_name=payload.firstName,
-            last_name=payload.lastName,
+            first_name=payload.first_name,
+            last_name=payload.last_name,
             email=payload.email,
             password=payload.password,
+            role=payload.role,
+            
         )
 
         # Create the profile
-        Profile.objects.create(user=user, user_type=payload.user_type)
+        Profile.objects.create(user=user, user_type=payload.role)
 
         # Log the user in
         login(request, user)

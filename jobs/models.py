@@ -240,7 +240,7 @@ class Profile(models.Model):
         null=True,
         blank=True
     )
-    # Add any other fields you like
+    role =models.CharField(max_length=100, blank=True)
 
     def __str__(self):
         return f"Profile of {self.user.username}"

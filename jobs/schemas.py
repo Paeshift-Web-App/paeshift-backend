@@ -24,6 +24,7 @@ class SignupSchema(Schema):
     email: str
     password: str
     confirm_password: str
+    role: str
 
 
 # -------------------------------------------------------
