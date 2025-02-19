@@ -294,7 +294,7 @@
 #settings.container__data .profile_form {
   position: absolute;
   background-color: var(--color-text-white);
-  min-height: 100vh;
+  /* min-height: 100vh; */
 }
 
 #settings.container__data .profile_form.hide {
@@ -419,7 +419,6 @@
   width: 7.5rem;
   height: 7.5rem;
   border-radius: 50%;
-  background-color: aqua;
   overflow: hidden;
   margin-bottom: 2rem;
 }
@@ -452,10 +451,9 @@
 
 #settings.container__data form input.email {
   margin-bottom: 5rem;
-
 }
 
-#settings.container__data .save-btn {
+#settings.container__data #profile .save-btn {
   padding: 0.625rem 1rem;
   border-radius: 0.5rem;
   background-color: var(--primary-purple);
@@ -560,10 +558,11 @@
 }
 
 
-#invoice_section .transactions .bottom_section{
+#invoice_section .transactions .bottom_section {
   height: 450px;
   overflow-y: scroll;
 }
+
 #wallet_section .transactions .bottom_section {
   height: 250px;
   overflow-y: scroll;
@@ -846,6 +845,14 @@
   margin-bottom: 0.5rem;
 }
 
+
+#settings.container__data .tab-content .notification_form {
+  max-height: 75vh;
+  padding: 1rem;
+  overflow-y: scroll;
+}
+
+
 #settings.container__data .tab-content .notifications {
   padding: 0.625rem;
 }
@@ -1039,28 +1046,29 @@
 
 
 
-#login_settings  .accordion-item {
+#login_settings .accordion-item {
   border: none;
 }
 
-#login_settings  .accordion-button {
+#login_settings .accordion-button {
   background-color: var(--color-bg);
   border-radius: 1rem;
   margin-bottom: 0.5rem;
   box-shadow: none;
 }
-#login_settings  .accordion-button h4 {
-  font-size: 0.85rem !important; 
+
+#login_settings .accordion-button h4 {
+  font-size: 0.85rem !important;
 }
 
-#login_settings  .accordion-button:focus {
+#login_settings .accordion-button:focus {
   background-color: var(--color-bg-light);
 }
 
 #login_settings .accordion-body {
   border: 0.5px solid var(--color-text-ash);
   border-radius: 1rem;
-  font-size: 0.75rem; 
+  font-size: 0.75rem;
   margin-bottom: 1rem;
   padding: 1.5rem !important;
 }
@@ -1129,35 +1137,51 @@
   font-size: 1rem;
 }
 
-#about_paeshift  .accordion-item {
+#about_paeshift .accordion-item {
   border: none;
 }
 
-#about_paeshift  .accordion-button {
+#about_paeshift .accordion-button {
   background-color: var(--color-bg);
   border-radius: 1rem;
   margin-bottom: 0.5rem;
   box-shadow: none;
 }
-#about_paeshift  .accordion-button h4 {
-  font-size: 0.85rem !important; 
+
+#about_paeshift .accordion-button h4 {
+  font-size: 0.85rem !important;
 }
 
-#about_paeshift  .accordion-button:focus {
+#about_paeshift .accordion-button:focus {
   background-color: var(--color-bg-light);
 }
 
 #about_paeshift .accordion-body {
   border: 0.5px solid var(--color-text-ash);
   border-radius: 1rem;
-  font-size: 0.75rem; 
+  font-size: 0.75rem;
   margin-bottom: 1rem;
   padding: 1.5rem !important;
 }
 
 
 
+#about_paeshift #collapseThree .accordion-body a {
+  display: block;
+  background-color: var(--color-bg);
+  width: 100%;
+  height: 60;
+  border-radius: 16px;
+  padding: 20px;
+  color: var(--color-text-dark);
 
+}
+
+#about_paeshift #collapseThree .accordion-body .s {
+ 
+  
+
+}
 
 
 

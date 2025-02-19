@@ -21,6 +21,8 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5173",
     "http://localhost:5173",
+    "http://localhost:8000",
+    
 ]
 
 # Application definition
@@ -30,14 +32,45 @@ INSTALLED_APPS = [
     
     "jobs",
     "channels",  # Django Channels
+    # Django default apps
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.sites',           # Needed by allauth
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
 
-    "django.contrib.admin",
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
+    # The allauth apps
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+
+    # Providers you want to enable:
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.facebook',
+    'allauth.socialaccount.providers.apple',
+
 ]
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+SITE_ID = 1
+
+SITE_ID = 1  # Make sure this matches a Site entry in your admin
+
+# allauth settings:
+LOGIN_REDIRECT_URL = '/'  # or your front-end route
+LOGOUT_REDIRECT_URL = '/'
+ACCOUNT_LOGOUT_ON_GET = True  # optional
+
+# If you want email verification:
+ACCOUNT_EMAIL_VERIFICATION = 'none'  # or 'mandatory'
+ACCOUNT_EMAIL_REQUIRED = True
+
+
+
 
 # Channels configuration
 CHANNEL_LAYERS = {
@@ -63,14 +96,12 @@ MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-AUTHENTICATION_BACKENDS = [
-    "django.contrib.auth.backends.ModelBackend",
-]
 
 ROOT_URLCONF = "payshift.urls"  # Adjust if your main project is spelled differently
 

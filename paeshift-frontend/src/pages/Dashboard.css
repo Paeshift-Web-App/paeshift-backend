@@ -10,6 +10,7 @@
   --color-bg: #F2F1F8;
 
 
+
   --color-primary-blue: #1A69AF;
   --color-secondary: #0D2F5F;
   --color-secondary-dark: #071830;
@@ -181,6 +182,17 @@ body {
     font-size: 0.85rem !important;
   }
 
+  .page_title .payment-btn {
+    /* display: flex; */
+    justify-content: space-between;
+
+  }
+
+  .page_title .payment-btn a {
+    justify-self: center;
+    align-self: center;
+  }
+
 }
 
 @media (min-width: 425px) {
@@ -247,7 +259,7 @@ body {
 
   #profileModal.come-from-modal.right .card .price a {
     padding: 0.75rem 1.5rem !important;
-}
+  }
 
 
   #profileModal.come-from-modal.right .profile_details h4 {
@@ -265,11 +277,76 @@ body {
 
   #profileModal.come-from-modal.right .tabs ul li {
     padding: 0rem;
-}
+  }
 
-#settings.container__data .profile_form .close_btn {
-  right: -23.5rem !important;
-}
+  #settings.container__data .profile_form .close_btn {
+    right: -23.5rem !important;
+  }
+
+
+
+
+
+
+
+
+  
+  #paymentDetailsModal.come-from-modal.right .modal-header h1 {
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 28.8px;
+  }
+
+  #paymentDetailsModal.come-from-modal.right .modal-header h1 span.success {
+    font-size: 10px !important;
+    line-height: 12px;
+  }
+
+  #paymentDetailsModal.come-from-modal.right .modal-body .trans_details .values p {
+    font-weight: 700 !important;
+  }
+
+  #paymentDetailsModal.come-from-modal.right .modal-body .trans_details .labels p,
+  #paymentDetailsModal.come-from-modal.right .modal-body .trans_details .values p {
+    font-size: 14px !important;
+
+  }
+
+
+
+
+
+
+
+  
+  #notificationModal.come-from-modal.right .modal-body .notify_details .labels p,
+  #notificationModal.come-from-modal.right .modal-body .notify_details .values p {
+    font-size: 14px;
+    font-weight: 700;
+  }
+  
+  #notificationModal.come-from-modal.right .modal-body .notify_details .message p {
+    font-weight: normal;
+  }
+  
+  
+  #notificationModal.come-from-modal.right .modal-body .notify_details .profile_wrapper {
+    width: 1.5rem;
+
+  }
+
+  
+  #notificationModal.come-from-modal.right .modal-body .notify_details .labels button {
+    font-size: 12px;
+  }
+  
+  #notificationModal.come-from-modal.right .modal-body .notify_details .values a {
+    font-size: 12px;
+  }
+  
+  #notificationModal.come-from-modal.right .modal-body .notify_details .notify_icon {
+    font-size: 12px;
+  }
 
 }
 
@@ -353,6 +430,204 @@ body {
 
 
 
+
+
+
+
+
+
+  #postModal.come-from-modal.right .modal-dialog {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    transform: translate3d(0%, 0, 0);
+  }
+
+  #postModal.come-from-modal.right .modal-content {
+    height: 90%;
+    overflow-y: auto;
+    border-radius: 1.25rem;
+  }
+
+  #postModal.come-from-modal.right.fade .modal-dialog {
+    right: 1rem;
+    transition: opacity 0.3s linear, right 0.3s ease-out;
+  }
+
+  #postModal.come-from-modal.right.fade.in .modal-dialog {
+    right: 0;
+  }
+
+
+
+  .container__data .container_bottom button.view-btn {
+    font-size: 12px !important;
+    line-height: 12px !important;
+  }
+
+
+
+  #applicantModal.come-from-modal.right .modal-dialog {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    transform: translate3d(0%, 0, 0);
+  }
+
+  #applicantModal.come-from-modal.right .modal-content {
+    height: 90%;
+    overflow-y: auto;
+    border-radius: 1.25rem;
+  }
+
+  #applicantModal.come-from-modal.right.fade .modal-dialog {
+    right: 1rem;
+    transition: opacity 0.3s linear, right 0.3s ease-out;
+  }
+
+  #applicantModal.come-from-modal.right.fade.in .modal-dialog {
+    right: 0;
+  }
+
+
+
+
+
+
+
+  #paymentDetailsModal.come-from-modal.right .modal-dialog {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    transform: translate3d(0%, 0, 0);
+  }
+
+  #paymentDetailsModal.come-from-modal.right .modal-content {
+    height: 90%;
+    overflow-y: auto;
+    border-radius: 1.25rem;
+  }
+
+  #paymentDetailsModal.come-from-modal.right.fade .modal-dialog {
+    right: 1rem;
+    transition: opacity 0.3s linear, right 0.3s ease-out;
+  }
+
+  #paymentDetailsModal.come-from-modal.right.fade.in .modal-dialog {
+    right: 0;
+  }
+
+
+
+
+
+
+
+
+
+
+
+  #notificationModal.come-from-modal.right .modal-dialog {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    transform: translate3d(0%, 0, 0);
+  }
+  
+  #notificationModal.come-from-modal.right .modal-content {
+    height: 90%;
+    overflow-y: auto;
+    border-radius: 1.25rem;
+  }
+  
+  #notificationModal.come-from-modal.right.fade .modal-dialog {
+    right: 1rem;
+    transition: opacity 0.3s linear, right 0.3s ease-out;
+  }
+  
+  #notificationModal.come-from-modal.right.fade.in .modal-dialog {
+    right: 0;
+  }
+
+
+
+
+
+
+
+
+
+
+  .dashboard_profile .profile_wrapper {
+    width: 13.5rem;
+    height: 13.5rem;
+    border-radius: 1.5rem;
+  }
+
+
+
+  .container__data .dashboard_profile h3 {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 2.4rem;
+  }
+
+  .container__data .dashboard_profile p {
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .container__data .dashboard_profile .rate_score {
+    font-size: 14px;
+    line-height: 1.5rem;
+
+  }
+
+  .container__data .dashboard_profile h4 {
+    font-size: 14px;
+    line-height: 1.5rem;
+  }
+
+
+
+  .container__data .dashboard_profile .edit-btn {
+    padding: 0.6875rem 1.5rem;
+    width: auto;
+  }
+
+
+
+
+  .container__data .dashboard_user_data .user_data {
+    width: 24%;
+  }
+
+  .top_title {
+    padding: 1.5rem 0;
+  }
+
+  .top_title h3 {
+    font-size: 1.5rem;
+    line-height: 1.8rem;
+  }
+
+  .top_title span a {
+    font-size: 0.875rem;
+    line-height: 1.05rem;
+    margin-right: 2rem;
+  }
+
+
+
+
+
+
+
+
+
+
   #profileModal.come-from-modal.right .modal-dialog {
     position: fixed;
     width: 100%;
@@ -423,8 +698,6 @@ body {
   }
 
 
-
-
   #settings.container__data .profile_data {
     border-right: 1px solid var(--color-text-ash);
     /* padding: 1rem; */
@@ -443,22 +716,54 @@ body {
 
   #settings.container__data .profile_form {
     position: relative !important;
-    background-color: var(--color-text-white);
+    height: 85vh;
   }
-  
+
+
+  /* #settings.container__data .profile_form {
+    position: absolute;
+  } */
+
+  #settings.container__data .tab-content .profile_wrapper {
+    margin-bottom: 1rem !important;
+  }
+
+  #settings.container__data .change-image-btn {
+    margin-bottom: 1rem !important;
+  }
+
+
+  #settings.container__data form input.email {
+    margin-bottom: 4rem !important;
+  }
+
+
   #settings.container__data .profile_form.hide {
     display: block !important;
   }
+
   #settings.container__data .profile_form .close_btn {
     display: none;
   }
 
   /* WALLET CSS  */
-#invoice_section.tab-content ,
-#wallet_section.tab-content {
-  padding: 1rem !important;
-}
- 
+  #invoice_section.tab-content,
+  #wallet_section.tab-content {
+    padding: 1rem !important;
+  }
+
+
+  .container__data .container_bottom h4 {
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 21.6px;
+  }
+
+  .container__data .container_bottom button.view-btn {
+    padding: 12px 24px;
+  }
+
+
 
 }
 
@@ -477,7 +782,7 @@ body {
     bottom: -10.5rem !important;
   }
 
- 
+
 
   .page_header {
     width: auto !important;
@@ -506,7 +811,7 @@ body {
 
   #settings.container__data form input.email {
     margin-bottom: 4rem !important;
-  
+
   }
 }
 
@@ -524,7 +829,7 @@ body {
     padding: 0.75rem 2.2rem !important;
   }
 
-  .container__data .buttons button.apply-btn {
-    padding: 0.8rem 28rem !important;
-  }
+  /* .container__data .buttons button.apply-btn {
+    padding: 0.8rem 20rem !important;
+  } */
 }

@@ -1,0 +1,146 @@
+{
+  "Admin": [
+    {
+      "first_name": "Taofeeq",
+      "last_name": "Ogunsanya",
+      "userName": "Admin",
+      "id": "taofeeq@gmail.com",
+      "contact": "+63 983 0962 971",
+      "password": "123456",
+      "role": "sadmin",
+      "image": "http://dummyimage.com/157x158.png/dddddd/000000"
+    },
+    {
+      "first_name": "Khadijah",
+      "last_name": "Rasaq",
+      "userName": "Admin",
+      "id": "khadijah@gmail.com",
+      "contact": "+63 983 0962 979",
+      "password": "123456",
+      "role": "admin",
+      "image": "http://dummyimage.com/122x180.png/cc0000/ffffff"
+    },
+    {
+      "first_name": "Okeomasilachi",
+      "last_name": "Onyedibia",
+      "userName": "Admin",
+      "id": "okeoma@gmail.com",
+      "contact": "+63 983 0962 971",
+      "password": "123456",
+      "role": "admin",
+      "image": "http://dummyimage.com/206x105.png/ff4444/ffffff"
+    },
+    {
+      "first_name": "Aliyu",
+      "last_name": "Musas",
+      "userName": "Admin",
+      "id": "aliyu@gmail.com",
+      "contact": "+63 983 0962 971",
+      "password": "123456",
+      "role": "admin",
+      "image": "http://dummyimage.com/206x105.png/ff4444/ffffff"
+    },
+    {
+      "id": "admin@example.com",
+      "first_name": "New",
+      "last_name": "Admin",
+      "userName": "newadmin",
+      "contact": "+23481 8923 4444",
+      "password": "New",
+      "role": "admin",
+      "image": "../images/avatar.png"
+    }
+  ],
+  "Users": [
+    {
+      "id": "newu@example.com",
+      "firstName": "New",
+      "lastName": "User",
+      "email": "newu@example.com",
+      "role": "client",
+      "password": "Abcd12345@"
+    },
+    {
+      "id": "info.asixtech@gmail.com",
+      "firstName": "TAOFEEQ",
+      "lastName": "OGUNSANYA",
+      "email": "info.asixtech@gmail.com",
+      "role": "client",
+      "password": "Abcd12345@"
+    },
+    {
+      "id": "inf.oasixtech@gmail.com",
+      "firstName": "TAOFEEQ",
+      "lastName": "OGUNSANYA",
+      "email": "infoasixtech@gmail.com",
+      "role": "applicant",
+      "password": "Abcd1234@"
+    },
+    {
+      "id": "bdf7",
+      "firstName": "TAOFEEQ",
+      "lastName": "OGUNSANYA",
+      "email": "infasixtech@gmail.com",
+      "role": "applicant",
+      "password": "Abcd1234@"
+    }
+  ],
+  "Jobs": [
+    {
+      "name": "Eniola Lucas",
+      "role": "Applicant",
+      "status": "upcoming",
+      "title": "House Cleaner",
+      "date": "Tuesday 3rd March, 2024",
+      "time": "9:00 AM.",
+      "duration": "2hrs",
+      "amount": "5000",
+      "image": "profile.png",
+      "location": "4517 Washington Ave. Manchester, Kentucky 39495, Ilorin Nigeria",
+      "date_posted": "2 days ago",
+      "no_of_application": "7"
+    },
+    {
+      "name": "Sanni Lawal",
+      "role": "Applicant",
+      "status": "ongoing",
+      "title": "Professional Grass Cutter",
+      "date": "Monday 2nd March, 2024",
+      "time": "9:00 AM.",
+      "duration": "2hrs",
+      "amount": "4000",
+      "image": "profile.png",
+      "location": "4517 Washington Ave. Manchester, Kentucky 39495, Ilorin Nigeria",
+      "date_posted": "2 days ago",
+      "no_of_application": "1"
+    },
+    {
+      "name": "Ahmed Musa",
+      "role": "Applicant",
+      "status": "completed",
+      "title": "Laundry Chores",
+      "date": "Monday 6th January, 2025",
+      "time": "9:00 AM.",
+      "duration": "2hrs",
+      "amount": "4000",
+      "image": "profile.png",
+      "location": "4517 Washington Ave. Manchester, Kentucky 39495, Ilorin Nigeria",
+      "date_posted": "2 days ago",
+      "no_of_application": "3"
+    },
+    {
+      "name": "John Mathew",
+      "role": "Applicant",
+      "status": "canceled",
+      "title": "Professional Painter",
+      "date": "Monday 2nd March, 2024",
+      "time": "9:00 AM.",
+      "duration": "2hrs",
+      "amount": "4000",
+      "image": "profile.png",
+      "location": "4517 Washington Ave. Manchester, Kentucky 39495, Ilorin Nigeria",
+      "date_posted": "2 days ago",
+      "no_of_application": "2"
+    }
+  ]
+}

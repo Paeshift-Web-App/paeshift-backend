@@ -2,6 +2,7 @@
 import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { sidebarRoutes } from "./Sidebarroutes";
+import { applicantSidebarRoutes } from "./Sidebarroutes";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleArrowLeft, faGear } from "@fortawesome/free-solid-svg-icons";
 import brandLogo from "../../assets/images/logo-sm.png";
@@ -17,14 +18,16 @@ import "./Sidebar.css";
 
 const Sidebar = () => {
   let user = useRecoilValue(userInfo);
-  let [signout, setSignout] =  useRecoilState(userInfo);
+
+  let [signout, setSignout] = useRecoilState(userInfo);
   let redir = useNavigate()
 
   const handleLogout = () => {
-    setSignout({isLoggedIn:false, data: {}})
+    setSignout({ isLoggedIn: false, data: {} })
     redir("../")
   }
   // console.log(user);
+  console.log(user.data.role);
   return (
     <section className="container_sidebar">
       <nav id="sidebarMenu" className="col-12 col-md-4 col-lg-3 col-xl-2 d-lg-block sidebar collapse p-3 p-md-1 p-lg-3 pt-4" >
@@ -46,23 +49,27 @@ const Sidebar = () => {
             </button>
           </div>
           <ul className="nav flex-column mt-4">
-            {sidebarRoutes.map((item, key) => {
-              return (
-                <li
-                  style={{ display: "block" }}
-                  className="nav-item" key={key}>
-                  <NavLink
-                    className={item.current ? "nav-link active" : "nav-link"}
-                    aria-current="page"
-                    to={item.to}
-                  >
-                    {item.icon} {item.title}
-                  </NavLink>
-                </li>
-              );
+          {
+                sidebarRoutes.map((item, key) => {
+                  return (
+                    item.title !== "Home" ?
+                    <li
+                      style={{ display: "block" }}
+                      className="nav-item" key={key}>
+                      <NavLink
+                        className={item.current ? "nav-link active" : "nav-link"}
+                        aria-current="page"
+                        to={item.to}
+                      >
+                        {item.icon} {item.title}
+                      </NavLink>
+                    </li> 
+                    : ""
 
-            })}
-
+                  );
+                }
+                )
+              }
 
           </ul>
           <div className="profile-logout">

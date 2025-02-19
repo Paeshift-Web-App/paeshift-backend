@@ -19,6 +19,7 @@ from django.utils import timezone
 
 from .models import *
 from .schemas import *
+from django.contrib.auth.hashers import make_password
 
 router = Router()
 User = get_user_model()
@@ -26,6 +27,23 @@ User = get_user_model()
 # ----------------------------------------------------------------------
 # Helper Functions
 # ----------------------------------------------------------------------
+
+
+@router.get("/whoami")
+def whoami(request):
+    """
+    GET /jobs/whoami
+    Returns the user’s ID, username, and session-based role.
+    """
+    if not request.user.is_authenticated:
+        return {"error": "Not logged in"}
+    
+    return {
+        "user_id": request.user.id,
+        "username": request.user.username,
+        "role": request.session.get("user_role", "unknown")
+    }
+
 def fetch_all_users():
     """
     Fetch all users from the database.
@@ -167,12 +185,29 @@ def update_profile(
 def login_view(request, payload: LoginSchema):
     """
     POST /jobs/login
-    Authenticates a user by email/password and logs them in (session-based).
+    Authenticates a user and logs them in. Stores role in session.
     """
-    user = authenticate(request, username=payload.email, password=payload.password)
-    if user:
+    user = authenticate(
+        request, 
+        username=payload.email, 
+        password=payload.password
+    )
+    if user is not None:
+        # Log the user in (creates a session + session cookie)
         login(request, user)
-        return Response({"message": "Login successful"}, status=200)
+        
+        # If you have a Profile model with 'role' (e.g. "client"/"applicant")
+        if hasattr(user, "profile"):
+            request.session["user_role"] = user.profile.role
+        else:
+            # Default to "client" if no profile
+            request.session["user_role"] = "client"
+        
+        return Response({
+            "message": "Login successful",
+            "role": request.session["user_role"]
+        }, status=200)
+    
     return Response({"error": "Invalid credentials"}, status=401)
 
 
@@ -182,21 +217,21 @@ def signup_view(request, payload: SignupSchema):
     POST /jobs/signup
     Creates a new user account and a corresponding profile.
     """
-    if not all([
-        payload.first_name,
-        payload.last_name,
-        payload.email,
-        payload.password,
-        payload.confirm_password,
-        payload.role,  
-    ]):
-        return Response({"error": "All fields are required"}, status=400)
+    # if not all([
+    #     payload.first_name,
+    #     payload.last_name,
+    #     payload.email,
+    #     payload.password,
+    #     payload.confirm_password,
+    #     payload.role,  
+    # ]):
+    #     return Response({"error": "All fields are required"}, status=400)
 
-    if payload.password != payload.confirm_password:
-        return Response({"error": "Passwords do not match"}, status=400)
+    # if payload.password != payload.confirm_password:
+    #     return Response({"error": "Passwords do not match"}, status=400)
 
-    if User.objects.filter(username=payload.email).exists():
-        return Response({"error": "Email already exists"}, status=400)
+    # if User.objects.filter(username=payload.email).exists():
+    #     return Response({"error": "Email already exists"}, status=400)
 
     try:
         # Create the user
@@ -205,17 +240,17 @@ def signup_view(request, payload: SignupSchema):
             first_name=payload.first_name,
             last_name=payload.last_name,
             email=payload.email,
-            password=payload.password,
-            role=payload.role,
-            
+            password=payload.password,  # create_user() handles hashing
         )
-
+        # 4) Optionally log them in
+        login(request, user)
+        
         # Create the profile
-        Profile.objects.create(user=user, user_type=payload.role)
+        Profile.objects.create(user=user, role=payload.role)
 
         # Log the user in
         login(request, user)
-        return Response({"message": "Registration successful"}, status=201)
+        return Response({"message": "success"}, status=200)
     except IntegrityError:
         return Response({"error": "Email already exists"}, status=400)
     except Exception as e:
