@@ -1,6 +1,9 @@
 import os
 from pathlib import Path
-
+if os.getenv("DJANGO_USE_LOCALHOST"):
+    ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+else:
+    ALLOWED_HOSTS = ["127.0.0.1"]
 # -----------------------------
 # BASE DIRECTORY & SECRET KEY
 # -----------------------------
