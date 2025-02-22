@@ -19,14 +19,16 @@ from django.utils import timezone
 from .models import *
 from .schemas import *
 from django.contrib.auth.hashers import make_password
-
+from django.shortcuts import redirect
 router = Router()
 User = get_user_model()
 
 # ----------------------------------------------------------------------
 # Helper Functions
 # ----------------------------------------------------------------------
-
+@router.get("/google-login")
+def google_login(request):
+    return redirect("/accounts/google/login/")
 
 @router.get("/whoami")
 def whoami(request):

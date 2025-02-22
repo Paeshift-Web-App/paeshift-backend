@@ -72,14 +72,17 @@ SITE_ID = 1  # Ensure this matches the Site entry in your admin
 # -----------------------------
 # ALLAUTH CONFIG
 # -----------------------------
-LOGIN_REDIRECT_URL = '/dashboard'        # Where to go after successful login
-LOGOUT_REDIRECT_URL = '/'       # Where to go after logout
-ACCOUNT_LOGOUT_ON_GET = True    # Whether logging out is immediate
-ACCOUNT_EMAIL_VERIFICATION = 'none'  # or 'mandatory' if you want email confirmation
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = False  # Disable username field
-ACCOUNT_AUTHENTICATION_METHOD = "email"
-ACCOUNT_UNIQUE_EMAIL = True  # Prevent duplicate emails
+LOGIN_REDIRECT_URL = "/dashboard"  # ✅ Redirect after login
+LOGOUT_REDIRECT_URL = "/login"  # ✅ Redirect after logout
+ACCOUNT_LOGOUT_REDIRECT_URL = "/"  # ✅ New way to handle logout redirection
+
+ACCOUNT_EMAIL_VERIFICATION = "none"  # Set to "mandatory" if email confirmation is needed
+ACCOUNT_EMAIL_REQUIRED = True  # ✅ Force email requirement
+ACCOUNT_USERNAME_REQUIRED = False  # ✅ Disable username field
+
+# ✅ Use new authentication method
+ACCOUNT_LOGIN_METHODS = {"email"}  # ✅ Correct replacement for ACCOUNT_AUTHENTICATION_METHOD
+ACCOUNT_UNIQUE_EMAIL = True  # ✅ Prevent duplicate emails
 
 SOCIALACCOUNT_AUTO_SIGNUP = True
 SOCIALACCOUNT_PROVIDERS = {
@@ -89,6 +92,7 @@ SOCIALACCOUNT_PROVIDERS = {
         "OAUTH_PKCE_ENABLED": True,  # ✅ Enables secure PKCE authentication
     }
 }
+
 # -----------------------------
 # CHANNELS CONFIG
 # -----------------------------

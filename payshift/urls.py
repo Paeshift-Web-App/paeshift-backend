@@ -19,4 +19,6 @@ urlpatterns = [
     path("accounts/", include("allauth.urls")),  # ✅ Django-Allauth for authentication
     path("accounts/signup/", signup_redirect, name="account_signup"),  # ✅ Force Google signup
     path("jobs/", include("jobs.urls")),  # ✅ Job-related routes
+    path("api/", api.urls),                      # The single API
+
 ]
