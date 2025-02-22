@@ -171,3 +171,12 @@ class PaymentCreateSchema(Schema):
 class PaymentUpdateSchema(Schema):
     user: UserSchema
   
+  
+class IndustrySchema(Schema):
+    id: int
+    name: str
+
+class SubCategorySchema(Schema):
+    id: int
+    name: str
+    industry_id: int  # or industry: IndustrySchema if you want nested detail

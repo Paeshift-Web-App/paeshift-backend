@@ -1,14 +1,61 @@
 from django.contrib import admin
 from .models import (
-    Job, SavedJob, Application, Dispute, LocationHistory,
-    Payment, Rating, Profile
+    JobIndustry, JobSubCategory, Job,
+    SavedJob, Application, Dispute,
+    LocationHistory, Payment, Rating, Profile
 )
+
+@admin.register(JobIndustry)
+class JobIndustryAdmin(admin.ModelAdmin):
+    """
+    Admin for the JobIndustry model.
+    """
+    list_display = ("name",)
+    search_fields = ("name",)
+
+@admin.register(JobSubCategory)
+class JobSubCategoryAdmin(admin.ModelAdmin):
+    """
+    Admin for the JobSubCategory model.
+    """
+    list_display = ("industry", "name")
+    search_fields = ("industry__name", "name")
 
 @admin.register(Job)
 class JobAdmin(admin.ModelAdmin):
-    list_display = ("title", "client", "status", "amount", "created_at")
-    list_filter = ("status", "payment_status", "created_at")
-    search_fields = ("title", "client__username", "applicant__username")
+    """
+    Admin for the main Job model, including newly added fields
+    like industry, sub_category, rate_per_hour, etc.
+    """
+    list_display = (
+        "title",
+        "client",
+        "status",
+        "industry",
+        "subcategory",
+        "rate_per_hour",
+        "applicants_needed",
+        "job_type",
+        "shift_type",
+        "amount",
+        "created_at",
+    )
+    list_filter = (
+        "status",
+        "payment_status",
+        "created_at",
+        "industry",
+        "subcategory",
+        "job_type",
+        "shift_type",
+    )
+    search_fields = (
+        "title",
+        "client__username",
+        "applicant__username",
+        "industry__name",
+        "subcategory__name",
+    )
     readonly_fields = ("created_at", "last_location_update")
 
 @admin.register(SavedJob)
@@ -39,7 +86,14 @@ class LocationHistoryAdmin(admin.ModelAdmin):
 
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
-    list_display = ("payer", "recipient", "job", "original_amount", "payment_status", "created_at")
+    list_display = (
+        "payer",
+        "recipient",
+        "job",
+        "original_amount",
+        "payment_status",
+        "created_at",
+    )
     list_filter = ("payment_status", "created_at")
     search_fields = ("payer__username", "recipient__username", "job__title", "pay_code")
     readonly_fields = ("created_at", "confirmed_at")

@@ -13,10 +13,9 @@ from django.contrib.auth import get_user_model
 from ninja import Router, File
 from ninja.files import UploadedFile
 from ninja.responses import Response
-
+from typing import List, Optional
 import os
 from django.utils import timezone
-
 from .models import *
 from .schemas import *
 from django.contrib.auth.hashers import make_password
@@ -355,6 +354,27 @@ def job_detail(request, job_id: int):
     }
     return data
 
+@router.get("/industries", response=List[IndustrySchema])
+def list_industries(request):
+    """
+    GET /jobs/industries
+    Returns all JobIndustry records.
+    """
+    qs = JobIndustry.objects.all()
+    return qs
+
+@router.get("/subcategories", response=List[SubCategorySchema])
+def list_subcategories(request, industry_id: Optional[int] = None):
+    """
+    GET /jobs/subcategories?industry_id=<ID>
+    Returns all JobSubCategory records.
+    If `industry_id` is provided, filters subcategories for that industry.
+    """
+    if industry_id:
+        qs = JobSubCategory.objects.filter(industry_id=industry_id)
+    else:
+        qs = JobSubCategory.objects.all()
+    return qs
 # ----------------------------------------------------------------------
 # 6) Saved Jobs Endpoints
 # ----------------------------------------------------------------------

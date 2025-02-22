@@ -32,8 +32,9 @@ CORS_ALLOWED_ORIGINS = [
 INSTALLED_APPS = [
     # "corsheaders",            # Uncomment if using corsheaders
     # "jazzmin",                # Optional admin theme
-    
-    "jobs",                    # Your main Django app
+
+    "jobs", 
+    "socialauth",          # Your main Django app
     "channels",                # For Django Channels
 
     # Django default apps
@@ -41,12 +42,11 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.sites',    # Needed by django-allauth
+    'django.contrib.sites',  # ✅ Keep only one instance of this
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
     # django-allauth
-    ''
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -54,6 +54,8 @@ INSTALLED_APPS = [
     # Providers for social login
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.facebook',
+    "allauth.socialaccount.providers.github",
+    "allauth.socialaccount.providers.twitter",
     'allauth.socialaccount.providers.apple',
 ]
 
@@ -66,15 +68,27 @@ AUTHENTICATION_BACKENDS = [
 ]
 SITE_ID = 1  # Ensure this matches the Site entry in your admin
 
+
 # -----------------------------
 # ALLAUTH CONFIG
 # -----------------------------
-LOGIN_REDIRECT_URL = '/'        # Where to go after successful login
+LOGIN_REDIRECT_URL = '/dashboard'        # Where to go after successful login
 LOGOUT_REDIRECT_URL = '/'       # Where to go after logout
 ACCOUNT_LOGOUT_ON_GET = True    # Whether logging out is immediate
 ACCOUNT_EMAIL_VERIFICATION = 'none'  # or 'mandatory' if you want email confirmation
 ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False  # Disable username field
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_UNIQUE_EMAIL = True  # Prevent duplicate emails
 
+SOCIALACCOUNT_AUTO_SIGNUP = True
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "SCOPE": ["email", "profile"],
+        "AUTH_PARAMS": {"access_type": "online"},
+        "OAUTH_PKCE_ENABLED": True,  # ✅ Enables secure PKCE authentication
+    }
+}
 # -----------------------------
 # CHANNELS CONFIG
 # -----------------------------
