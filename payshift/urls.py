@@ -7,7 +7,7 @@ from payment.api import payment_router
 
 # ✅ Initialize API
 api = NinjaAPI()
-api.add_router("/payment", payment_router)
+# api.add_router("/payment", payment_router)
 
 # ✅ Redirect users to Google signup instead of showing "Sign Up Closed"
 def signup_redirect(request):

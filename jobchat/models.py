@@ -7,7 +7,7 @@ User = get_user_model()
 class Message(models.Model):
     """Stores chat messages between users for a specific job."""
     job = models.ForeignKey(
-        "jobs.Job",  # ✅ Use string reference
+        "jobs.Job",
         on_delete=models.CASCADE,
         related_name="messages",
         verbose_name="Related Job"
@@ -34,16 +34,10 @@ class Message(models.Model):
 class LocationHistory(models.Model):
     """Stores the location updates of users related to a job."""
     user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name="location_histories",
-        verbose_name="User"
+        User, on_delete=models.CASCADE, related_name="location_histories", verbose_name="User"
     )
     job = models.ForeignKey(
-        "jobs.Job",  # ✅ Use string-based reference
-        on_delete=models.CASCADE,
-        related_name="locations",
-        verbose_name="Job"
+        "jobs.Job", on_delete=models.CASCADE, related_name="locations", verbose_name="Job"
     )
     latitude = models.FloatField(verbose_name="Latitude")
     longitude = models.FloatField(verbose_name="Longitude")
@@ -52,9 +46,13 @@ class LocationHistory(models.Model):
 
     class Meta:
         ordering = ["-timestamp"]
-        indexes = [models.Index(fields=["-timestamp"]), models.Index(fields=["job"])]
+        indexes = [
+            models.Index(fields=["-timestamp"]),
+            models.Index(fields=["job"]),
+            models.Index(fields=["user", "latitude", "longitude"]),
+        ]
         verbose_name = "Location History"
         verbose_name_plural = "Location Histories"
 
     def __str__(self):
-        return f"Location for {self.user.username} on {self.job}"
+        return f"Location for {self.user.username} on {self.job} at {self.timestamp}"

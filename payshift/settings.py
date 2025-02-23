@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     "jobchat", 
     "socialauth",          # Your main Django app
     "channels",                # For Django Channels
-
+    "daphne",
     # Django default apps
     "django.contrib.admin",
     'django.contrib.auth',
@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.twitter",
     'allauth.socialaccount.providers.apple',
 ]
+SITE_ID = 1
 
 # -----------------------------
 # AUTH BACKENDS & SITE_ID
@@ -213,9 +214,13 @@ ASGI_APPLICATION = "payshift.asgi.application"  # If your main project is "paysh
 # DATABASE
 # -----------------------------
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+        'OPTIONS': {
+            'timeout': 30,  # Increased from default 5 seconds
+            'check_same_thread': False,  # Allow multiple threads
+        }
     }
 }
 
