@@ -36,7 +36,8 @@ INSTALLED_APPS = [
     # "corsheaders",            # Uncomment if using corsheaders
     # "jazzmin",                # Optional admin theme
 
-    "jobs", 
+    "jobs",
+    "jobchat", 
     "socialauth",          # Your main Django app
     "channels",                # For Django Channels
 
@@ -45,9 +46,9 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.sites',  # ✅ Keep only one instance of this
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',  # ✅ Keep only one instance of this
 
     # django-allauth
     'allauth',
@@ -134,7 +135,8 @@ LOGGING = {
 }
 
 
-
+AUTH_USER_MODEL = "auth.User"  # Default Django user model
+# OR your custom user model (e.g., "socialauth.User")
 # -----------------------------
 # CHANNELS CONFIG
 # -----------------------------
@@ -245,3 +247,5 @@ USE_L10N = True
 USE_TZ = True
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

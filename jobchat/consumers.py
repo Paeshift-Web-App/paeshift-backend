@@ -1,126 +1,116 @@
-# jobs/consumers.py
-
+# chat/consumers.py
 import json
-import requests
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
+from .models import Message, LocationHistory
+from jobs.models import Job
+from django.contrib.auth import get_user_model
+import requests
 from django.conf import settings
-from django.utils import timezone
 
-from ..jobs.models import Job, LocationHistory
+User = get_user_model()
+
+import logging
+
+logger = logging.getLogger(__name__)
+
+class ChatConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        logger.info(f"WebSocket connected: {self.channel_name}")
+        self.job_id = self.scope['url_route']['kwargs']['job_id']
+        self.room_group_name = f"chat_{self.job_id}"
+
+        await self.channel_layer.group_add(self.room_group_name, self.channel_name)
+        await self.accept()
+
+    async def disconnect(self, close_code):
+        logger.info(f"WebSocket disconnected: {self.channel_name}")
+        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+
+    async def receive(self, text_data):
+        logger.info(f"Received message: {text_data}")
+        data = json.loads(text_data)
+        message = data.get('message', '').strip()
+        sender = self.scope["user"]
+
+        if sender.is_authenticated and message:
+            await self.save_message(sender, message)
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    "type": "chat_message",
+                    "message": message,
+                    "sender": sender.username,
+                }
+            )
+
+    async def chat_message(self, event):
+        logger.info(f"Sending message: {event}")
+        await self.send(text_data=json.dumps(event))
+
+    @database_sync_to_async
+    def save_message(self, sender, message):
+        job = Job.objects.get(id=self.job_id)
+        logger.info(f"Saving message: {message} by {sender.username}")
+        return Message.objects.create(job=job, sender=sender, content=message)
+
+
 
 class JobLocationConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        """
-        Called when a WebSocket connection is established.
-        We'll join a group named "job_<job_id>" so multiple participants
-        of this job can share and receive location updates in real time.
-        """
+        logger.info(f"WebSocket connected: {self.channel_name}")
         self.job_id = self.scope["url_route"]["kwargs"]["job_id"]
         self.group_name = f"job_{self.job_id}"
 
-        # Join the group
         await self.channel_layer.group_add(self.group_name, self.channel_name)
         await self.accept()
-        print(f"WebSocket connected for Job #{self.job_id}")
 
     async def disconnect(self, close_code):
-        """
-        Called when WebSocket disconnects.
-        We'll remove the connection from the group.
-        """
+        logger.info(f"WebSocket disconnected: {self.channel_name}")
         await self.channel_layer.group_discard(self.group_name, self.channel_name)
-        print(f"WebSocket disconnected from Job #{self.job_id}")
 
     async def receive(self, text_data):
-        """
-        Called when the frontend sends JSON data with "latitude" and "longitude".
-        e.g. {"latitude": 6.5244, "longitude": 3.3792}
-        """
+        logger.info(f"Received location data: {text_data}")
         data = json.loads(text_data)
         latitude = data.get("latitude")
         longitude = data.get("longitude")
+        user = self.scope["user"]
 
-        # 1) Reverse geocode to get an address (optional)
-        address = await self.decode_address(latitude, longitude)
-
-        # 2) Save location in DB (LocationHistory + update Job's last location)
-        await self.save_location_to_db(latitude, longitude, address)
-
-        # 3) Broadcast location to everyone in the job_<job_id> group
-        await self.channel_layer.group_send(
-            self.group_name,
-            {
-                "type": "location_update",
-                "latitude": latitude,
-                "longitude": longitude,
-                "address": address,
-            }
-        )
+        if user.is_authenticated and latitude and longitude:
+            address = await self.decode_address(latitude, longitude)
+            await self.save_location(user, latitude, longitude, address)
+            await self.channel_layer.group_send(
+                self.group_name,
+                {
+                    "type": "location_update",
+                    "latitude": latitude,
+                    "longitude": longitude,
+                    "address": address,
+                    "user": user.username,
+                }
+            )
 
     async def location_update(self, event):
-        """
-        Group broadcast handler: sends the updated location to all group members
-        connected to this job.
-        """
-        await self.send(text_data=json.dumps({
-            "latitude": event["latitude"],
-            "longitude": event["longitude"],
-            "address": event["address"],
-        }))
+        logger.info(f"Sending location update: {event}")
+        await self.send(text_data=json.dumps(event))
 
     async def decode_address(self, lat, lon):
-        """
-        Async helper to call a synchronous function that fetches the address from Google Maps.
-        """
         return await database_sync_to_async(self._fetch_address_from_google)(lat, lon)
 
     def _fetch_address_from_google(self, lat, lon):
-        """
-        Synchronous function that calls the Google Maps Geocoding API.
-        If you have a real key, store it in settings.GOOGLE_MAPS_API_KEY.
-        """
-        api_key = getattr(settings, 'GOOGLE_MAPS_API_KEY', 'YOUR_API_KEY')
+        api_key = getattr(settings, 'GOOGLE_MAPS_API_KEY', None)
+        if not api_key:
+            return "API Key Missing"
         url = f"https://maps.googleapis.com/maps/api/geocode/json?latlng={lat},{lon}&key={api_key}"
         response = requests.get(url)
         data = response.json()
 
-        if data["status"] == "OK" and data["results"]:
-            return data["results"][0]["formatted_address"]
+        if data.get("status") == "OK" and data.get("results"):
+            return data["results"][0].get("formatted_address", "Unknown Location")
         return "Unknown Location"
 
-    async def save_location_to_db(self, lat, lon, address):
-        """
-        Async wrapper that calls a sync method to store the location in DB.
-        """
-        return await database_sync_to_async(self._save_location)(lat, lon, address)
-
-    def _save_location(self, lat, lon, address):
-        """
-        1) Insert a record into LocationHistory for historical data.
-        2) Update the Job's last shared location fields.
-        """
-        # Get the job
+    @database_sync_to_async
+    def save_location(self, user, lat, lon, address):
         job = Job.objects.get(id=self.job_id)
-
-        # Identify the user from the scope if they're authenticated
-        user = self.scope["user"] if self.scope["user"].is_authenticated else None
-
-        # Create a LocationHistory record
-        LocationHistory.objects.create(
-            job=job,
-            user=user,
-            latitude=lat,
-            longitude=lon,
-            address=address,
-            timestamp=timezone.now()
-        )
-
-        # Update the job's last location fields
-        job.last_latitude = lat
-        job.last_longitude = lon
-        job.last_address = address
-        job.last_location_update = timezone.now()
-        job.save()
-
-        return True
+        logger.info(f"Saving location: {lat}, {lon} by {user.username}")
+        return LocationHistory.objects.create(job=job, user=user, latitude=lat, longitude=lon, address=address)

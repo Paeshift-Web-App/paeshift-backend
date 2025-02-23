@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 import os
+from jobchat.models import *  
 
 User = get_user_model()
 
@@ -245,21 +246,6 @@ class Dispute(models.Model):
 
 
 # ------------------------------------------------------
-# 6) LOCATION HISTORY
-# ------------------------------------------------------
-class LocationHistory(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name="locations")
-    latitude = models.FloatField()
-    longitude = models.FloatField()
-    address = models.CharField(max_length=255, blank=True)
-    timestamp = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return f"Location for {self.user} on {self.job}"
-
-
-# ------------------------------------------------------
 # 7) PAYMENT
 # ------------------------------------------------------
 class Payment(models.Model):
@@ -365,3 +351,4 @@ class Profile(models.Model):
 
     def __str__(self):
         return f"Profile of {self.user.username}"
+

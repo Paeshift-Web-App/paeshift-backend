@@ -1,9 +1,7 @@
 from django.contrib import admin
-from .models import (
-    JobIndustry, JobSubCategory, Job,
-    SavedJob, Application, Dispute,
-    LocationHistory, Payment, Rating, Profile
-)
+from .models import *
+from jobchat.models import *
+
 
 @admin.register(JobIndustry)
 class JobIndustryAdmin(admin.ModelAdmin):
