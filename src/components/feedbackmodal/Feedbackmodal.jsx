@@ -66,11 +66,11 @@ const Feedbackmodal = () => {
                                 <span>Nice Experience</span>
                             </div>
                             <div className="col-5 star-ratings">
-                                <FontAwesomeIcon icon={faStar} className="rating-star"/>
-                                <FontAwesomeIcon icon={faStar} className="rating-star"/>
-                                <FontAwesomeIcon icon={faStar} className="rating-star"/>
-                                <FontAwesomeIcon icon={faStar} className="rating-star"/>
-                                <FontAwesomeIcon icon={faStar} className="rating-star"/>
+                                <FontAwesomeIcon icon={faStar} className="rating-star" />
+                                <FontAwesomeIcon icon={faStar} className="rating-star" />
+                                <FontAwesomeIcon icon={faStar} className="rating-star" />
+                                <FontAwesomeIcon icon={faStar} className="rating-star" />
+                                <FontAwesomeIcon icon={faStar} className="rating-star" />
                             </div>
                         </div>
 
@@ -107,6 +107,16 @@ const Feedbackmodal = () => {
                                     //     isUnique = true;
                                     //   }
                                     // });
+
+
+                                    if (result === "success") {
+                                        swal("Registeration Successful!", " ", "success", { button: false, timer: 1500 });
+                                        redir("../signin");
+                                    }
+                                    else {
+                                        swal("Registeration Failed!", " ", "error", { button: false, timer: 1500 })
+                                    }
+
 
                                     // use the typed email to check if the email already exist
 

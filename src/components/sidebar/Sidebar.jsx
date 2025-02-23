@@ -51,7 +51,6 @@ const Sidebar = () => {
           <ul className="nav flex-column mt-4">
             
               {
-                user.data.role === "client" &&
                 sidebarRoutes.map((item, key) => {
                   return (
                     item.title !== "Home" ?
@@ -69,12 +68,10 @@ const Sidebar = () => {
                     : ""
 
                   );
-
                 }
-
                 )
               }
-              {
+              {/* {
                 user.data.role === "applicant" &&
                 applicantSidebarRoutes.map((item, key) => {
                   return (
@@ -97,7 +94,7 @@ const Sidebar = () => {
                 }
 
                 )
-              }
+              } */}
             
 
           </ul>

@@ -58,7 +58,7 @@ const router = createBrowserRouter([
 
   },
   {
-    path: "/signupwith",
+    path: "/signupwith/:role",
     element: <ThirdParty />
 
   },
@@ -83,12 +83,12 @@ const router = createBrowserRouter([
 
   },
   {
-    path: "/csignup",
+    path: "/csignup/:role",
     element: <ClientSignup />
 
   },
   {
-    path: "/asignup",
+    path: "/asignup/:role",
     element: <AppSignup />
 
   },

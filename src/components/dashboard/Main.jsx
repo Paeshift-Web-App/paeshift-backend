@@ -15,7 +15,7 @@ import ProfileImage from "../../assets/images/profile.png";
 import Profile from "../../assets/images/profileimage.png";
 import Postmodal from "../postmodal/Postmodal";
 import Notificationmodal from "../notificationmodal/Notificationmodal";
-
+import Jobrequestmodal from "../jobrequestsmodal/Jobrequestmodal";
 
 import { JobsData } from "../JobsData";
 // import { defaults } from "chart.js/auto";
@@ -151,9 +151,9 @@ const Main = () => {
         <div className="row mt-3">
           <div className="col-12 top_title">
             <h3>Your Recent Job Requests</h3>
-            <span><Link to="#">See More</Link></span>
+            <span><button type="button" data-bs-toggle="modal" data-bs-target="#jobrequestModal" >See More</button></span>
           </div>
-          <div className="cards">
+          <div className="cards p-0">
             {JobsData && JobsData.filter((item) => {
               return searchWork.toLowerCase() === "" ? item : item.title.toLowerCase().includes(searchWork.toLowerCase());
             }).map((item, key) => {
@@ -199,6 +199,7 @@ const Main = () => {
 
           </div>
         </div>
+        <Jobrequestmodal />
         <Notificationmodal />
         <Postmodal />
       </section>

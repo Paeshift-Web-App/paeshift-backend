@@ -1,8 +1,11 @@
 import React, { useState } from 'react'
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import brandLogo from "../assets/images/logo-sm.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck, faChevronLeft, faCircle, faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+// import { useParams } from "react-router";
+
+
 
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
@@ -38,16 +41,12 @@ const Schema = Yup.object().shape({
 
 const Signup = () => {
   let redir = useNavigate();
-
+  const roleValue = useParams();
 
   let [show, setShow] = useState('password');
   let [show1, setShow1] = useState('password');
 
-
-
-
-
-
+  console.log(roleValue);
   return (
     <div className="row m-0 px-2 signup_wrapper animate__animated animate__fadeIn">
       <div className="col-12 col-md-4 main-card animate__animated animate__zoomIn">
@@ -93,24 +92,26 @@ const Signup = () => {
                      */
 
                     let userdata = {
-                      firstName: values.firstName,
-                      lastName: values.lastName,
+                      first_name: values.firstName,
+                      last_name: values.lastName,
                       email: values.email,
-                      role: "applicant",
+                      role: roleValue.role,
                       password: values.confirmPassword,
+                      confirm_password: values.confirmPassword,
                     };
 
                     console.log(userdata);
 
-
-                    // let baseURL = "http://localhost:8000/Users";
-                    let baseURL = "http://127.0.0.1:8000/jobs/signup";
+                    // let baseURL = "http://127.0.0.1:8000/jobs/signup";
                     let getUsersURL = "http://127.0.0.1:8000/jobs/all-users";
                     try {
                       let allUser = await Axios.get(`${getUsersURL}`);
+                      // console.log(allUser.data.users); 
+                      allUser = allUser.data.users;
+
 
                       let isUnique = false;
-                      allUser.data.forEach((each) => {
+                      allUser.forEach((each) => {
                         if (each.email === values.email) {
                           isUnique = true;
                         }
@@ -118,19 +119,18 @@ const Signup = () => {
 
                       // use the typed email to check if the email already exist
                       if (!isUnique) {
-                        Axios.post(`${baseURL}`, userdata)
-                          .then((response) => {
-                            //   setUser({isLoggedIn: true, data: response.data});
-                            console.log(response);
-                            swal("Registeration Successful!", " ", "success", { button: false, timer: 1500 });
-                            setTimeout(() => {
-                              redir("../signin");
+                        let result = await Axios.post("http://127.0.0.1:8000/jobs/signup", userdata);
+                        result = result.data.message;
 
-                            }, 1500);
-                          })
-                          .catch((error) => {
-                            console.error(error);
-                          });
+
+                        if (result === "success") {
+                          swal("Registeration Successful!", " ", "success", { button: false, timer: 1500 });
+                          redir("../signin");
+                        }
+                        else {
+                          swal("Registeration Failed!", " ", "error", { button: false, timer: 1500 })
+                        }
+
                       } else {
                         swal("User already exit!", " ", "error", { button: false, timer: 1500 })
                         // swal("Registeration Failed!", " ", "error", { button: false, timer: 1500 })
@@ -140,49 +140,6 @@ const Signup = () => {
                       console.error(error);
                     }
 
-                    // swal(<p className="mb-2">Registeration Successful!</p>, 'success', false, 1500)
-                    // Endpoint needs to be updated
-                    // let baseURL = "https://paeshift-backend.onrender.com/userApi/v1/user/register/";
-                    // try {
-                    //   // let allUser = await Axios.get(`${baseURL}`);
-
-                    //   // let isUnique = false;
-                    //   // allUser.data.forEach((each) => {
-                    //   //   if (each.email === values.email) {
-                    //   //     isUnique = true;
-                    //   //   }
-                    //   // });
-
-
-                    //   // setInterval(() => {
-                    //   //   AppSwal.showLoading()
-                    //   // }, 1000);
-
-                    //   // use the typed email to check if the email already exist
-                    //   // if (!isUnique) {
-                    //   await Axios({
-                    //     method: 'post',
-                    //     url: `${baseURL}`,
-                    //     // url: "https://paeshift-backend.onrender.com/userApi/v1/user/register/",
-                    //     data: userdata
-                    //   })
-                    //     .then((response) => {
-                    //       console.log(response);
-                    //       swal("Registeration Successful!", " ", "success", { button: false, timer: 1500 });
-                    //       redir("../signin");
-                    //       // setTimeout(() => {
-                    //       // redir("../signin");
-                    //       // }, 1500);
-                    //     })
-                    //     .catch((error) => {
-                    //       swal("Registeration Failed!", " ", "error", { button: false, timer: 1500 })
-                    //       console.error(error.message);
-                    //     });
-
-                    //   // if unique email allow to signup else dont
-                    // } catch (error) {
-                    //   console.error(error);
-                    // }
                   }
                   }
                 >
