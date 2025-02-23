@@ -13,6 +13,7 @@ import { faBars } from "@fortawesome/free-solid-svg-icons";
 import ProfileImage from "../../assets/images/profile.png";
 import Walletmodal from "../walletmodal/Walletmodal";
 import Notificationmodal from "../notificationmodal/Notificationmodal";
+import Feedbackmodal from "../feedbackmodal/Feedbackmodal";
 
 
 import { JobsData } from "./JobsData";
@@ -243,7 +244,7 @@ const Main = () => {
                     {
                       item.status === 'completed' || item.status === 'canceled' ?
                         <div className="bottom">
-                          <button className="track-btn w-100">Feedback Client</button>
+                          <button className="track-btn w-100" data-bs-toggle="modal" data-bs-target="#feedbackModal" >Feedback Client</button>
                         </div>
                         :
                         ""
@@ -267,6 +268,7 @@ const Main = () => {
         </div>
         <Walletmodal />
         <Notificationmodal />
+        <Feedbackmodal />
       </section>
     </main >
   )

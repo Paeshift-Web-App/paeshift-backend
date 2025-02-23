@@ -622,6 +622,32 @@ body {
 
 
 
+  
+  
+#jobrequestModal.come-from-modal.right .modal-dialog {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  transform: translate3d(0%, 0, 0);
+}
+
+#jobrequestModal.come-from-modal.right .modal-content {
+  width: 25rem;
+  height: 90%;
+  overflow-y: auto;
+  border-radius: 1.25rem;
+}
+
+#jobrequestModal.come-from-modal.right.fade .modal-dialog {
+  right: -4rem;
+  transition: opacity 0.3s linear, right 0.3s ease-out;
+}
+
+#jobrequestModal.come-from-modal.right.fade.in .modal-dialog {
+  right: 0;
+}
+
+
 
 
 

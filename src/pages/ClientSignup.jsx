@@ -44,6 +44,7 @@ const Signup = () => {
   let [show1, setShow1] = useState('password');
 
 
+  
 
 
 
@@ -101,7 +102,7 @@ const Signup = () => {
                       role: "client"
                     };
 
-                    console.log(userdata);
+                    // console.log(userdata);
 
 
                     // let baseURL = "http://localhost:8000/Users";
