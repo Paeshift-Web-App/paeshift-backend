@@ -8,7 +8,8 @@ from channels.db import database_sync_to_async
 from django.conf import settings
 from django.contrib.auth import get_user_model
 import django
-django.setup()  # Ensure Django apps are initialized
+
+django.setup()
 
 from django.apps import apps
 
@@ -16,11 +17,8 @@ Message = apps.get_model("jobchat", "Message")
 LocationHistory = apps.get_model("jobchat", "LocationHistory")
 Job = apps.get_model("jobs", "Job")
 
-
-
 User = get_user_model()
 logger = logging.getLogger(__name__)
-
 
 class ChatConsumer(AsyncWebsocketConsumer):
     """Handles real-time job chat messaging"""
@@ -39,9 +37,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         data = json.loads(text_data)
         message = data.get('message', '').strip()
-        sender = self.scope["user"]
+        sender = self.scope.get("user")
 
-        if sender.is_authenticated and message:
+        if sender and sender.is_authenticated and message:
             await self.save_message(sender, message)
             await self.channel_layer.group_send(
                 self.room_group_name,
@@ -70,7 +68,6 @@ class JobLocationConsumer(AsyncWebsocketConsumer):
         self.last_lat = None
         self.last_lon = None
         self.same_location_count = 0
-        self.last_saved_time = None
         logger.info(f"Location WebSocket connected: {self.channel_name}")
 
     async def disconnect(self, close_code):
@@ -85,33 +82,33 @@ class JobLocationConsumer(AsyncWebsocketConsumer):
             await self.send(text_data=json.dumps({"type": "heartbeat_ack"}))
             return
 
-        user = self.scope["user"]
+        user = self.scope.get("user")
         latitude = data.get("latitude")
         longitude = data.get("longitude")
 
-        if user.is_authenticated and latitude and longitude:
+        if user and user.is_authenticated and latitude and longitude:
             asyncio.create_task(self.process_location(user, latitude, longitude))
 
     async def process_location(self, user, latitude, longitude):
         """Process location update asynchronously"""
         current_time = datetime.utcnow()
 
-        if self.last_lat == latitude and self.last_lon == longitude:
-            if self.same_location_count < 1:
-                self.same_location_count += 1
-            else:
-                if self.last_saved_time:
-                    await self.update_last_location_time(user, latitude, longitude, current_time)
-                return
+        existing_locations = await self.get_existing_locations(user, latitude, longitude)
+
+        if len(existing_locations) == 0:
+            # First time location is received, save it
+            await self.save_location(user, latitude, longitude, current_time)
+        elif len(existing_locations) == 1:
+            # Second time, save it as the "latest" location
+            await self.save_location(user, latitude, longitude, current_time)
         else:
-            self.same_location_count = 0
+            # Third+ time, just update the latest timestamp
+            await self.update_last_location_time(user, latitude, longitude, current_time)
 
         self.last_lat = latitude
         self.last_lon = longitude
-        self.last_saved_time = current_time
 
         address = await self.decode_address(latitude, longitude)
-        await self.save_location(user, latitude, longitude, address, current_time)
 
         await self.channel_layer.group_send(
             self.group_name,
@@ -145,15 +142,20 @@ class JobLocationConsumer(AsyncWebsocketConsumer):
             return "Unknown Location"
 
     @database_sync_to_async
-    def save_location(self, user, lat, lon, address, timestamp):
+    def get_existing_locations(self, user, lat, lon):
+        """Retrieve existing location records"""
+        return list(LocationHistory.objects.filter(user=user, latitude=lat, longitude=lon).order_by("-timestamp")[:2])
+
+    @database_sync_to_async
+    def save_location(self, user, lat, lon, timestamp):
         """Save user location to the database"""
         job = Job.objects.get(id=self.job_id)
-        return LocationHistory.objects.create(job=job, user=user, latitude=lat, longitude=lon, address=address, timestamp=timestamp)
+        return LocationHistory.objects.create(job=job, user=user, latitude=lat, longitude=lon, timestamp=timestamp)
 
     @database_sync_to_async
     def update_last_location_time(self, user, lat, lon, new_timestamp):
         """Update the timestamp of the last saved location"""
-        last_location = LocationHistory.objects.filter(user=user, latitude=lat, longitude=lon).last()
+        last_location = LocationHistory.objects.filter(user=user, latitude=lat, longitude=lon).order_by("-timestamp").first()
         if last_location:
             last_location.timestamp = new_timestamp
             last_location.save()
