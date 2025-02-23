@@ -42,17 +42,23 @@
         locationSocket.onmessage = function(event) {
             let data = JSON.parse(event.data);
             let key = data.user;
-            markers[key] = L.marker([data.latitude, data.longitude]).addTo(map).bindPopup(data.address).openPopup();
+            if (markers[key]) {
+                markers[key].setLatLng([data.latitude, data.longitude]).bindPopup(data.address).openPopup();
+            } else {
+                markers[key] = L.marker([data.latitude, data.longitude]).addTo(map).bindPopup(data.address).openPopup();
+            }
         };
 
-        setInterval(() => {
+        function sendLocation() {
             navigator.geolocation.getCurrentPosition(position => {
                 locationSocket.send(JSON.stringify({
                     latitude: position.coords.latitude,
                     longitude: position.coords.longitude
                 }));
             });
-        }, 5000);  // Send every 5 seconds (heartbeat)
+        }
+
+        setInterval(sendLocation, 5000);
     </script>
 </body>
 </html>

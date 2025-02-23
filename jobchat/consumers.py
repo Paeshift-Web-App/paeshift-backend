@@ -67,7 +67,6 @@ class JobLocationConsumer(AsyncWebsocketConsumer):
         await self.accept()
         self.last_lat = None
         self.last_lon = None
-        self.same_location_count = 0
         logger.info(f"Location WebSocket connected: {self.channel_name}")
 
     async def disconnect(self, close_code):
@@ -90,23 +89,18 @@ class JobLocationConsumer(AsyncWebsocketConsumer):
             asyncio.create_task(self.process_location(user, latitude, longitude))
 
     async def process_location(self, user, latitude, longitude):
-        """Process location update asynchronously"""
+        """Save or update location based on movement"""
         current_time = datetime.utcnow()
 
-        existing_locations = await self.get_existing_locations(user, latitude, longitude)
+        # Get the last saved location
+        last_location = await self.get_last_location(user)
 
-        if len(existing_locations) == 0:
-            # First time location is received, save it
-            await self.save_location(user, latitude, longitude, current_time)
-        elif len(existing_locations) == 1:
-            # Second time, save it as the "latest" location
-            await self.save_location(user, latitude, longitude, current_time)
+        if last_location and last_location.latitude == latitude and last_location.longitude == longitude:
+            # If the location is the same as the last one, just update the timestamp
+            await self.update_last_location_time(last_location, current_time)
         else:
-            # Third+ time, just update the latest timestamp
-            await self.update_last_location_time(user, latitude, longitude, current_time)
-
-        self.last_lat = latitude
-        self.last_lon = longitude
+            # Save the new location if different
+            await self.save_location(user, latitude, longitude, current_time)
 
         address = await self.decode_address(latitude, longitude)
 
@@ -142,9 +136,9 @@ class JobLocationConsumer(AsyncWebsocketConsumer):
             return "Unknown Location"
 
     @database_sync_to_async
-    def get_existing_locations(self, user, lat, lon):
-        """Retrieve existing location records"""
-        return list(LocationHistory.objects.filter(user=user, latitude=lat, longitude=lon).order_by("-timestamp")[:2])
+    def get_last_location(self, user):
+        """Get the last recorded location of the user"""
+        return LocationHistory.objects.filter(user=user).order_by("-timestamp").first()
 
     @database_sync_to_async
     def save_location(self, user, lat, lon, timestamp):
@@ -153,9 +147,7 @@ class JobLocationConsumer(AsyncWebsocketConsumer):
         return LocationHistory.objects.create(job=job, user=user, latitude=lat, longitude=lon, timestamp=timestamp)
 
     @database_sync_to_async
-    def update_last_location_time(self, user, lat, lon, new_timestamp):
+    def update_last_location_time(self, last_location, new_timestamp):
         """Update the timestamp of the last saved location"""
-        last_location = LocationHistory.objects.filter(user=user, latitude=lat, longitude=lon).order_by("-timestamp").first()
-        if last_location:
-            last_location.timestamp = new_timestamp
-            last_location.save()
+        last_location.timestamp = new_timestamp
+        last_location.save()
