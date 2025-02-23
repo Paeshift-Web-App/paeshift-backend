@@ -4,7 +4,7 @@ git commit -m "Map websocket"
 git push origin main
 
 
-git pull origin main
+git pull https://github.com/Paeshift-Web-App/paeshift-frontend/tree/main
 
 
 

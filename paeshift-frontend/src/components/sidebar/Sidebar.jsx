@@ -49,7 +49,8 @@ const Sidebar = () => {
             </button>
           </div>
           <ul className="nav flex-column mt-4">
-          {
+            
+              {
                 sidebarRoutes.map((item, key) => {
                   return (
                     item.title !== "Home" ?
@@ -70,6 +71,31 @@ const Sidebar = () => {
                 }
                 )
               }
+              {/* {
+                user.data.role === "applicant" &&
+                applicantSidebarRoutes.map((item, key) => {
+                  return (
+                    item.title !== "Dashboard" ?
+                    <li
+                      style={{ display: "block" }}
+                      className="nav-item" key={key}>
+                      <NavLink
+                        className={item.current ? "nav-link active" : "nav-link"}
+                        aria-current="page"
+                        to={item.to}
+                      >
+                        {item.icon} {item.title}
+                      </NavLink>
+                    </li> 
+                    : ""
+
+                  );
+
+                }
+
+                )
+              } */}
+            
 
           </ul>
           <div className="profile-logout">

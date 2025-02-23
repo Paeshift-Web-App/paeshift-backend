@@ -75,32 +75,29 @@ const Signin = () => {
                                     };
 
 
-                                    // console.log(userdata);
+                                    console.log(userdata);
 
+                                    let baseURL = "http://localhost:8000/Users";
                                     try {
-                                        // POST to your Django Ninja login route on port 8000
-                                        // e.g., http://127.0.0.1:8000/jobs/login
-                                        const response = await Axios.post("http://127.0.0.1:8000/jobs/login", userdata);
-                                        console.log(response)
-                                        if (response.status === 200) {
+                                        let getUser = await Axios.get(`${baseURL}/${values.email}`);
+
+                                        if (getUser.data.password === values.password) {
                                             swal("account logged in successfully", " ", "success", { button: false, timer: 1500 });
-                                          // e.g. redirect to dashboard or something else
-                                          setTimeout(() => {
-                                            redir("../dashboard");
-                                          }, 1500);
-                                        }
-                                        // If Django returns {error: "..."}
-                                        else if (response.data.error) {
-                                          swal("User does not exist!", " ", "error", { button: false, timer: 1500 })
-                                  
-                                        }
-                                      } catch (error) {
-                                        if (error.response?.data?.error) {
-                                          swal("Login Failed!", error.response.data.error, "error");
+
+                                            setUser({ isLoggedIn: true, data: getUser.data });
+                                            setTimeout(() => {
+                                                redir("../dashboard");
+                                            }, 1500)
                                         } else {
-                                          swal("Login Failed!", "Something went wrong. Please try again.", "error");
+                                            swal("Invalid login details!", " ", "error", { button: false, timer: 1500 })
                                         }
-                                      }
+                                    } catch (error) {
+                                        console.error(error);
+                                        if (error.response.status === 404) {
+                                            swal("User does not exist!", " ", "error", { button: false, timer: 1500 })
+                                        }
+                                    }
+
 
 
 
@@ -144,13 +141,13 @@ const Signin = () => {
                                     <Form className="signin_form">
                                         <div className="mb-2">
                                             <label htmlFor="email" className="form-label mb-0">Email:</label>
-                                            <Field name="email" className="form-control" autoComplete= "False" />
+                                            <Field name="email" className="form-control" />
                                             {touched.email && errors.email && (<div className="errors">{errors.email}</div>)}
                                         </div>
                                         <div className="mb-2">
                                             <label htmlFor="password" className="form-label mb-0">Enter Password:</label>
                                             <span className="visibility">
-                                                <Field type={show} name="password" id="password" className="form-control" placeholder="Enter your password"  autoComplete= "False" />
+                                                <Field type={show} name="password" id="password" className="form-control" placeholder="Enter your password" />
                                                 <FontAwesomeIcon icon={show === "password" ? faEye : faEyeSlash} onClick={() => setShow(show === "password" ? "text" : "password")} className='eye-icon' />
                                             </span>
                                             {touched.password && errors.password && (<div className="errors">{errors.password}</div>)}

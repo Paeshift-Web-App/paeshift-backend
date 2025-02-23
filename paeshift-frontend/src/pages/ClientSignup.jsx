@@ -44,6 +44,7 @@ const Signup = () => {
   let [show1, setShow1] = useState('password');
 
 
+  
 
 
 
@@ -91,16 +92,17 @@ const Signup = () => {
                      * get data
                      * sed to db in object format
                      */
+
                     let userdata = {
                       first_name: values.firstName,
                       last_name: values.lastName,
                       email: values.email,
-                      role: "client",
-                      password: values.confirmPassword,
+                      password: values.password,
                       confirm_password: values.confirmPassword,
+                      role: "client"
                     };
 
-                    console.log(userdata);
+                    // console.log(userdata);
 
 
                     // let baseURL = "http://localhost:8000/Users";

@@ -1,8 +1,11 @@
 import React, { useState } from 'react'
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import brandLogo from "../assets/images/logo-sm.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck, faChevronLeft, faCircle, faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+// import { useParams } from "react-router";
+
+
 
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
@@ -38,16 +41,12 @@ const Schema = Yup.object().shape({
 
 const Signup = () => {
   let redir = useNavigate();
-
+  const roleValue = useParams();
 
   let [show, setShow] = useState('password');
   let [show1, setShow1] = useState('password');
 
-
-
-
-
-
+  console.log(roleValue);
   return (
     <div className="row m-0 px-2 signup_wrapper animate__animated animate__fadeIn">
       <div className="col-12 col-md-4 main-card animate__animated animate__zoomIn">
@@ -82,6 +81,7 @@ const Signup = () => {
                     password: "",
                     confirmPassword: "",
                     role: "",
+
                   }}
 
                   validationSchema={Schema}
@@ -90,28 +90,26 @@ const Signup = () => {
                     /**
                      * Steps to create a new user
                      * get data
-                     * send to db in object format
+                     * sed to db in object format
                      */
 
                     let userdata = {
                       first_name: values.firstName,
                       last_name: values.lastName,
                       email: values.email,
-                      role: "applicant",
+                      role: roleValue.role,
                       password: values.confirmPassword,
                       confirm_password: values.confirmPassword,
                     };
 
-                    // console.log(userdata);
+                    console.log(userdata);
 
-
-                    // let baseURL = "http://localhost:8000/Users";
-                    let baseURL = "http://127.0.0.1:8000/jobs/signup";
+                    // let baseURL = "http://127.0.0.1:8000/jobs/signup";
                     let getUsersURL = "http://127.0.0.1:8000/jobs/all-users";
                     try {
                       let allUser = await Axios.get(`${getUsersURL}`);
                       // console.log(allUser.data.users); 
-                      allUser= allUser.data.users; 
+                      allUser = allUser.data.users;
 
 
                       let isUnique = false;
@@ -124,29 +122,17 @@ const Signup = () => {
                       // use the typed email to check if the email already exist
                       if (!isUnique) {
                         let result = await Axios.post("http://127.0.0.1:8000/jobs/signup", userdata);
-                        // let result = Axios.post(`${baseURL}`, userdata);
                         result = result.data.message;
 
 
-                      if (result === "success") {
+                        if (result === "success") {
                           swal("Registeration Successful!", " ", "success", { button: false, timer: 1500 });
                           redir("../signin");
-                      }
-                      else {
+                        }
+                        else {
                           swal("Registeration Failed!", " ", "error", { button: false, timer: 1500 })
-                      }
-                        // .then((response) => {
-                        //     //   setUser({isLoggedIn: true, data: response.data});
-                        //     console.log(response);
-                        //     swal("Registeration Successful!", " ", "success", { button: false, timer: 1500 });
-                        //     setTimeout(() => {
-                        //       redir("../signin");
+                        }
 
-                        //     }, 1500);
-                        //   })
-                        //   .catch((error) => {
-                        //     console.error(error);
-                        //   });
                       } else {
                         swal("User already exit!", " ", "error", { button: false, timer: 1500 })
                         // swal("Registeration Failed!", " ", "error", { button: false, timer: 1500 })
