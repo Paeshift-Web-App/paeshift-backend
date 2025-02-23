@@ -143,7 +143,8 @@ const ThirdParty = () => {
                 <div className="bg-card">
                     <div className="row">
                         <div className="col-3">
-                            <Link to="/select" className='text-dark'>
+                            <Link to="/welcomeclear
+                            " className='text-dark'>
                                 <FontAwesomeIcon icon={faChevronLeft} />
                             </Link>
                         </div>
