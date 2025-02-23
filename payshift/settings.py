@@ -69,7 +69,7 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
-SITE_ID = 1  # Ensure this matches the Site entry in your admin
+# SITE_ID = 1  # Ensure this matches the Site entry in your admin
 
 
 # -----------------------------
@@ -93,8 +93,47 @@ SOCIALACCOUNT_PROVIDERS = {
         "SCOPE": ["email", "profile"],
         "AUTH_PARAMS": {"access_type": "online"},
         "OAUTH_PKCE_ENABLED": True,  # ✅ Enables secure PKCE authentication
-    }
+    },
+    "facebook": {
+        "METHOD": "oauth2",
+        "SCOPE": ["email", "public_profile"],
+        "AUTH_PARAMS": {"auth_type": "reauthenticate"},
+        "FIELDS": ["id", "email", "name", "first_name", "last_name"],
+        "VERSION": "v17.0",
+    },
 }
+# app = SocialApp(
+#     provider="facebook",
+#     name="Facebook Login",
+#     client_id="3640745886229353",
+#     secret="3640745886229353"
+# )
+
+
+
+
+import logging
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'allauth_debug.log',
+        },
+    },
+    'loggers': {
+        'allauth': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
+
+
 
 # -----------------------------
 # CHANNELS CONFIG

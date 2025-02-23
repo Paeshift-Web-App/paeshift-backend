@@ -1,84 +1,36 @@
-import React, { useCallback, useState } from 'react'
-import {Link, useNavigate } from "react-router-dom";
+import React, { useCallback, useState } from 'react';
+import { Link, useNavigate } from "react-router-dom";
 import brandLogo from "../assets/images/logo-sm.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCheck, faChevronLeft, faCircle, faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
-import {
-    LoginSocialGoogle,
-    LoginSocialFacebook,
-    LoginSocialApple,
-} from 'reactjs-social-login'
-
-
-// CUSTOMIZE ANY UI BUTTON
-import {
-    FacebookLoginButton,
-    GoogleLoginButton,
-    AppleLoginButton,
-} from 'react-social-login-buttons'
-
+import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
+import { LoginSocialFacebook, LoginSocialApple } from 'reactjs-social-login';
 
 import iemail from "../assets/images/icon-email.png";
 import igoogle from "../assets/images/icon-google.png";
 import ifacebook from "../assets/images/icon-facebook.png";
 import iapple from "../assets/images/icon-apple.png";
-import { ToastContainer, toast, Bounce } from 'react-toastify'
 import Axios from "axios";
-// import { faChevronLeft, faEye, faEyeSlash } from "@fortawesome/free-regular-svg-icons";
-
-// import { jwtDecode } from "jwt-decode";
-import { useGoogleLogin } from '@react-oauth/google';
-
-
-// REDIRECT URL must be same with URL where the (reactjs-social-login) components is locate
-// MAKE SURE the (reactjs-social-login) components aren't unmounted or destroyed before the ask permission dialog closes
-const REDIRECT_URI = window.location.href;
-
 
 const ThirdParty = () => {
-    const [provider, setProvider] = useState('')
-    const [profile, setProfile] = useState(null)
+    const navigate = useNavigate();
+    const [profile, setProfile] = useState(null);
 
     const onLoginStart = useCallback(() => {
-        alert('login start')
-    }, [])
+        console.log('Login process started...');
+    }, []);
 
-    const onLogoutSuccess = useCallback(() => {
-        setProfile(null)
-        setProvider('')
-        alert('logout success')
-    }, [])
+    // ✅ Redirect to Django's Google OAuth Sign-Up Flow
+    const handleGoogleSignup = () => {
+        window.location.href = "http://127.0.0.1:8000/accounts/google/login/";
+    };
 
-
-    const login = useGoogleLogin({
-        // onSuccess: tokenResponse => console.log(tokenResponse),
-        onSuccess: async (tokenResponse) => {
-
-            let URL = "https://www.googleapis.com/oauth2/v3/userinfo";
-            try {
-                const res = await Axios.get(
-                    URL,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${tokenResponse.access_token}`,
-                        },
-                    }
-                );
-                console.log(res);
-            } catch (err) {
-                console.log(err);
-            }
-        }
-    });
-
-
-
-   
+    // ✅ Redirect to Django's Facebook OAuth Sign-Up Flow
+    const handleFacebookSignup = () => {
+        window.location.href = "http://127.0.0.1:8000/accounts/facebook/login/";
+    };
 
     return (
-
         <div className="row m-0 px-2 thirdparty_wrapper animate__animated animate__fadeIn">
-
             <div className="col-12 col-md-4 main-card animate__animated animate__zoomIn">
                 <div className="col-12 bg-card-2"></div>
                 <div className="col-12 bg-card-3"></div>
@@ -92,74 +44,57 @@ const ThirdParty = () => {
                         <div className="col-6 text-center">
                             <img src={brandLogo} className="brand-logo ms-2" alt="Paeshift logo" />
                         </div>
-                        <div className="col-3"></div>
                     </div>
                     <div className="row content">
                         <div className="col-12">
                             <div className="title">
                                 <h3>Sign Up With</h3>
-                                <p>Kindly choose your sign up option to create new account</p>
+                                <p>Choose an option to create your account</p>
                             </div>
                             <div className="body">
-                                <Link to="/signup" className="btn primary-btn-outline mb-2 btn-signup"> <img src={iemail} alt="Email" className="me-2" /> Sign up with Email </Link>
-                                <button className="btn primary-btn-outline mb-2 btn-signup" onClick={() => login()} > <img src={igoogle} alt="Google" className="me-2" /> Sign up with Google </button>
-                                {/* <LoginSocialGoogle
-                                    isOnlyGetToken
-                                    client_id={'796224650682-uuudhogl202q8lgh0d01kul7i86j2f25.apps.googleusercontent.com'}
-                                    onLoginStart={onLoginStart}
-                                    onResolve={({ provider, data }) => {
-                                        setProvider(provider)
-                                        setProfile(data)
-                                    }}
-                                    onReject={(err) => {
-                                        console.log(err)
-                                    }}
-                                >
-                                     <GoogleLoginButton className="btn primary-btn-outline w-100 mb-2" /> 
-                                    <button className="btn primary-btn-outline w-100 mb-2" > <img src={igoogle} alt="Google" className="me-2" /> Sign up with Google </button>
+                                {/* ✅ Sign Up with Email */}
+                                <Link to="/signup" className="btn primary-btn-outline mb-2 btn-signup">
+                                    <img src={iemail} alt="Email" className="me-2" /> Sign up with Email
+                                </Link>
 
-                                </LoginSocialGoogle> */}
-                                <LoginSocialFacebook
-                                    isOnlyGetToken
-                                    appId={'607654518584001'}
-                                    onLoginStart={onLoginStart}
-                                    onResolve={({ provider, data }) => {
-                                        setProvider(provider)
-                                        setProfile(data)
-                                        // console.log(data)
-                                    }}
-                                    onReject={(err) => {
-                                        console.log(err)
-                                    }}
-                                >
-                                    {/* <FacebookLoginButton className="btn primary-btn-outline w-100 mb-2" /> */}
-                                    <button className="btn primary-btn-outline mb-2 btn-signup"> <img src={ifacebook} alt="Facebook" className="me-2" /> Sign up with Facebook </button>
+                                {/* ✅ Google OAuth Login */}
+                                <button className="btn primary-btn-outline mb-2 btn-signup" onClick={handleGoogleSignup}>
+                                    <img src={igoogle} alt="Google" className="me-2" /> Sign up with Google
+                                </button>
 
-                                </LoginSocialFacebook>
+                                {/* ✅ Facebook OAuth Login */}
+                                <button className="btn primary-btn-outline mb-2 btn-signup" onClick={handleFacebookSignup}>
+                                    <img src={ifacebook} alt="Facebook" className="me-2" /> Sign up with Facebook
+                                </button>
+
+                                {/* ✅ Apple OAuth Login */}
                                 <LoginSocialApple
-                                    client_id="adffgfg"
+                                    client_id="YOUR_APPLE_CLIENT_ID"
                                     scope={'name email'}
-                                    redirect_uri={REDIRECT_URI}
+                                    redirect_uri={window.location.href}
                                     onLoginStart={onLoginStart}
                                     onResolve={({ provider, data }) => {
-                                        setProvider(provider);
+                                        console.log("Apple Login:", data);
                                         setProfile(data);
+                                        navigate("/dashboard");
                                     }}
-                                    onReject={err => {
-                                        console.log(err);
-                                    }}
+                                    onReject={err => console.error("Apple Login Error:", err)}
                                 >
-                                    <button className="btn primary-btn-outline mb-2 btn-signup"> <img src={iapple} alt="Apple" className="me-2" /> Sign up with Apple </button>
+                                    <button className="btn primary-btn-outline mb-2 btn-signup">
+                                        <img src={iapple} alt="Apple" className="me-2" /> Sign up with Apple
+                                    </button>
                                 </LoginSocialApple>
 
-                                <p className="mt-4">Already have an account? <Link href="#" >Sign In to my account</Link></p>
+                                <p className="mt-4">
+                                    Already have an account? <Link to="/login">Sign In</Link>
+                                </p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default ThirdParty
+export default ThirdParty;
