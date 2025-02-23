@@ -1,7 +1,8 @@
 
 git add .
 git commit -m "facebook login"
-git push origin main
+git push origin backend
+main
 
 
 
@@ -9,7 +10,7 @@ git push -f origin backend
 git push origin backend --force
 git push origin backend --force-with-lease
 
-git checkout master  #Switch to the Master Branch
+git checkout backend  #Switch to the Master Branch
 
 
 git init
