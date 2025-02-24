@@ -77,63 +77,36 @@ const Signin = () => {
 
                                     console.log(userdata);
 
-                                    let baseURL = "http://localhost:8000/Users";
                                     try {
-                                        let getUser = await Axios.get(`${baseURL}/${values.email}`);
-
-                                        if (getUser.data.password === values.password) {
+                                        // POST to your Django Ninja login route on port 8000
+                                        // e.g., http://127.0.0.1:8000/jobs/login
+                                        const response = await Axios.post("http://127.0.0.1:8000/jobs/login", userdata);
+                                        console.log(response)
+                                        if (response.status === 200) {
                                             swal("account logged in successfully", " ", "success", { button: false, timer: 1500 });
-
-                                            setUser({ isLoggedIn: true, data: getUser.data });
-                                            setTimeout(() => {
-                                                redir("../dashboard");
-                                            }, 1500)
+                                          // e.g. redirect to dashboard or something else
+                                          setTimeout(() => {
+                                            redir("../dashboard");
+                                          }, 1500);
+                                        }
+                                        // If Django returns {error: "..."}
+                                        else if (response.data.error) {
+                                          swal("User does not exist!", " ", "error", { button: false, timer: 1500 })
+                                  
+                                        }
+                                      } catch (error) {
+                                        if (error.response?.data?.error) {
+                                          swal("Login Failed!", error.response.data.error, "error");
                                         } else {
-                                            swal("Invalid login details!", " ", "error", { button: false, timer: 1500 })
+                                          swal("Login Failed!", "Something went wrong. Please try again.", "error");
                                         }
-                                    } catch (error) {
-                                        console.error(error);
-                                        if (error.response.status === 404) {
-                                            swal("User does not exist!", " ", "error", { button: false, timer: 1500 })
-                                        }
-                                    }
+                                      }
 
 
 
 
-                                    // swal("Login Successfully!", " ", "success", { button: false, timer: 1500 });
-                                    // setInterval(() => {
-                                    //     redir("../dashboard");
-                                    // }, 1500)
-                                    // Endpoint needs to be updated
-                                    // const token = '..your token..';
-                                    // const headers = {
-                                    //     'Content-Type': 'application/json',
-                                    //     "Access-Control-Allow-Origin": "*",
-                                    //     'Authorization': 'JWT fefege...',
-                                    //     'Authorization': `Basic ${token}`
-                                    // }
-                                    // let baseURL = "http://localhost:8000/Users";
-                                    // try {
-                                    //     let getUser = await Axios.get(`${baseURL}/${values.email}`, {
-                                    //         headers: headers
-                                    //     });
 
-                                    //     if (getUser.data.password === values.password) {
-                                    //         notify("account logged in successfully");
-                                    //         //   setUser({ isLoggedIn: true, data: getUser.data });
-                                    //         setTimeout(() => {
-                                    //             redir("../dashboard");
-                                    //         }, 1500)
-                                    //     } else {
-                                    //         swal("Invalid login details!", " ", "error", { button: false, timer: 1500 })
-                                    //     }
-                                    // } catch (error) {
-                                    //     console.error(error);
-                                    //     if (error.response.status === 404) {
-                                    //         swal("User does not exist!", " ", "error", { button: false, timer: 1500 })
-                                    //     }
-                                    // }
+     
                                 }
                                 }
                             >

@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     # "corsheaders",            # Uncomment if using corsheaders
     # "jazzmin",                # Optional admin theme
 
+    'django.contrib.sites',  # ✅ Keep only one instance of this
     "jobs",
     "jobchat", 
     "socialauth",          # Your main Django app
@@ -48,7 +49,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sites',  # ✅ Keep only one instance of this
 
     # django-allauth
     'allauth',
@@ -62,7 +62,8 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.twitter",
     'allauth.socialaccount.providers.apple',
 ]
-SITE_ID = 1
+SITE_ID = 3  # Placeholder
+
 
 # -----------------------------
 # AUTH BACKENDS & SITE_ID

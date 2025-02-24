@@ -30,6 +30,14 @@ User = get_user_model()
 def google_login(request):
     return redirect("/accounts/google/login/")
 
+
+@router.get("/facebook-login")
+def facebook_login(request):
+    return redirect("/accounts/facebook/login/")
+
+
+
+
 @router.get("/whoami")
 def whoami(request):
     """

@@ -2,6 +2,15 @@ from django.contrib import admin
 from .models import *
 from jobchat.models import *
 
+from django.contrib import admin
+from django.contrib.sites.models import Site
+
+class SiteAdmin(admin.ModelAdmin):
+    list_display = ("id", "domain", "name")  # Display PK (id), domain, and name
+    ordering = ("id",)  # Optional: Order by ID
+
+admin.site.unregister(Site)  # Unregister default admin
+admin.site.register(Site, SiteAdmin)  # Register with custom admin
 
 @admin.register(JobIndustry)
 class JobIndustryAdmin(admin.ModelAdmin):
