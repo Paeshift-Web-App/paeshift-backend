@@ -24,6 +24,7 @@ git remote add origin https://github.com/skillyboy/SanDiegoEcommerce.git
 git push -u origin main
 
 
-git remote add origin https://github.com/skillyboy/SanDiegoEcommerce.git
+git remote add origin https://github.com/Paeshift-Web-App/paeshift-frontend.git
+
 git branch -M main
 git push -u origin main
