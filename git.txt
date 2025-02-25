@@ -6,7 +6,6 @@ git push origin main
 
 git pull https://github.com/Paeshift-Web-App/paeshift-frontend/tree/main
 
-
 daphne -b 0.0.0.0 -p 8000 payshift.asgi:application --websocket_timeout 60
 
 git push -f origin backend
@@ -15,6 +14,7 @@ git push origin backend --force-with-lease
 
 git checkout backend  #Switch to the Master Branch
 
+git clone --branch main https://github.com/Paeshift-Web-App/paeshift-backend.git
 
 git init
 git add .
