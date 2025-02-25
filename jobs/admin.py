@@ -40,11 +40,10 @@ class JobAdmin(admin.ModelAdmin):
         "status",
         "industry",
         "subcategory",
-        "rate_per_hour",
+        "rate",
         "applicants_needed",
         "job_type",
         "shift_type",
-        "amount",
         "created_at",
     )
     list_filter = (

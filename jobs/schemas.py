@@ -60,15 +60,22 @@ class JobDetailSchema(JobListSchema):
     applicant_name: Optional[str] = None
     payment_status: str
 
+
 class CreateJobSchema(Schema):
     title: str
     description: Optional[str] = None
-    location: Optional[str] = None
+    industry: Optional[str] = None  # Industry name as string
+    subcategory: Optional[str] = None  # Subcategory name as string
+    applicants_needed: Optional[int] = 1
+    job_type: Optional[str] = "single_day"
+    shift_type: Optional[str] = "day_shift"
+    date: str  # "YYYY-MM-DD" format from frontend
+    time: str  # "HH:MM" format from frontend
     duration: Optional[str] = None
-    amount: Decimal = 0.0
-    date: Optional[str] = None  # or use `datetime.date`
-    time: Optional[str] = None  # or use `datetime.time`
-
+    rate: Optional[float] = None
+    location: Optional[str] = None
+    image: Optional[str] = None
+    payment_status: Optional[str] = "Pending"
 
 # -------------------------------------------------------
 # 5) Application Schemas

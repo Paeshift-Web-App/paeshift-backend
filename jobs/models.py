@@ -46,6 +46,7 @@ class JobSubCategory(models.Model):
 # ------------------------------------------------------
 # 2) JOB MODEL
 # ------------------------------------------------------
+
 class Job(models.Model):
     STATUS_CHOICES = [
         ('upcoming', 'Upcoming'),
@@ -61,116 +62,51 @@ class Job(models.Model):
         ('day_shift', 'Day Shift'),
         ('night_shift', 'Night Shift'),
     ]
+    PAYMENT_STATUS_CHOICES = [
+        ("Pending", "Pending"),
+        ("Completed", "Completed"),
+        ("Failed", "Failed")
+    ]
 
+    # Job details
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
-
-    # Relationship fields
-    industry = models.ForeignKey(
-        JobIndustry,
-        on_delete=models.CASCADE,
-        blank=True,
-        null=True
-    )
-    subcategory = models.ForeignKey(
-        JobSubCategory,
-        on_delete=models.CASCADE,
-        blank=True,
-        null=True
-    )
-
-    # Additional job details
-    rate_per_hour = models.DecimalField(
-        max_digits=6,
-        decimal_places=2,
-        default=0.00,
-        help_text="Hourly rate for the job."
-    )
-    applicants_needed = models.PositiveIntegerField(
-        default=1,
-        help_text="Number of workers needed."
-    )
-    job_type = models.CharField(
-        max_length=20,
-        choices=JOB_TYPE_CHOICES,
-        default='single_day',
-        help_text="Single day or multiple-day job."
-    )
-    shift_type = models.CharField(
-        max_length=20,
-        choices=SHIFT_TYPE_CHOICES,
-        default='day_shift',
-        help_text="Day shift or night shift."
-    )
-
-    # Who posted the job, and who is assigned (if any)
-    client = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name="jobs",
-        blank=True,
-        null=True
-    )
-    applicant = models.ForeignKey(
-        User,
-        on_delete=models.SET_NULL,
-        related_name="applied_jobs",
-        blank=True,
-        null=True
-    )
-
-    # Status / scheduling
-    status = models.CharField(
-        max_length=20,
-        choices=STATUS_CHOICES,
-        default='upcoming'
-    )
+    industry = models.ForeignKey("JobIndustry", on_delete=models.CASCADE, blank=True, null=True)
+    subcategory = models.ForeignKey("JobSubCategory", on_delete=models.CASCADE, blank=True, null=True)
+    applicants_needed = models.PositiveIntegerField(default=1)
+    job_type = models.CharField(max_length=20, choices=JOB_TYPE_CHOICES, default='single_day')
+    shift_type = models.CharField(max_length=20, choices=SHIFT_TYPE_CHOICES, default='day_shift')
+    client = models.ForeignKey(User, on_delete=models.CASCADE, related_name="jobs", blank=True, null=True)
+    applicant = models.ForeignKey(User, on_delete=models.SET_NULL, related_name="applied_jobs", blank=True, null=True)
+    
+    # Scheduling
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='upcoming')
     date = models.DateField(blank=True, null=True)
     time = models.TimeField(blank=True, null=True)
     duration = models.CharField(max_length=50, blank=True, null=True)
-    amount = models.DecimalField(
-        max_digits=10,
-        decimal_places=2,
-        blank=True,
-        null=True,
-        help_text="Optional total pay or budget."
-    )
-    image = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True,
-        help_text="Optional URL or path to an image."
-    )
+    rate = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+
+    # Additional fields
+    image = models.CharField(max_length=255, blank=True, null=True)
+    location = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    # Location details (optional live tracking fields)
+    # Location tracking
     last_latitude = models.FloatField(null=True, blank=True)
     last_longitude = models.FloatField(null=True, blank=True)
     last_address = models.CharField(max_length=255, blank=True)
-    location = models.CharField(max_length=255, blank=True, null=True)
     last_location_update = models.DateTimeField(null=True, blank=True)
 
     # Payment status
-    payment_status = models.CharField(
-        max_length=20,
-        choices=[
-            ("Pending", "Pending"),
-            ("Completed", "Completed"),
-            ("Failed", "Failed")
-        ],
-        default="Pending"
-    )
+    payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default="Pending")
 
     def __str__(self):
         return f"{self.title} - {self.status}"
 
     @property
-    def no_of_application(self):
-        """
-        Returns the total number of applications for this job.
-        """
+    def no_of_applications(self):
+        """Returns the total number of applications for this job."""
         return self.applications.count()
-
 
 # ------------------------------------------------------
 # 3) SAVED JOBS

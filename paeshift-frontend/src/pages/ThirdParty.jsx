@@ -39,11 +39,14 @@ const ThirdParty = () => {
     const [provider, setProvider] = useState('')
     const [profile, setProfile] = useState(null)
     const roleValue = useParams();
+    let redir = useNavigate();
 
     const onLoginStart = useCallback(() => {
-        alert('login start')
+        // alert('login start')
     }, [])
-
+    // const onLoginFailure = useCallback((error) => {
+    //     console.error('login failure', error)
+    // }, [])
     const onLogoutSuccess = useCallback(() => {
         setProfile(null)
         setProvider('')
@@ -109,7 +112,7 @@ const ThirdParty = () => {
 
                         if (result === "success") {
                             swal("Registeration Successful!", " ", "success", { button: false, timer: 1500 });
-                            redir("../signin");
+                            redir("../dashboard");
                         }
                         else {
                             swal("Registeration Failed!", " ", "error", { button: false, timer: 1500 })
@@ -161,15 +164,18 @@ const ThirdParty = () => {
                             </div>
                             <div className="body">
                                 <Link to={`/asignup/${roleValue.role}`} className="btn primary-btn-outline mb-2 btn-signup"> <img src={iemail} alt="Email" className="me-2" /> Sign up with Email </Link>
+                                {/* <Link to={`http://localhost:8000/accounts/facebook/login`} className="btn primary-btn-outline mb-2 btn-signup"> <img src={iemail} alt="Email" className="me-2" /> Sign up with Fcaebook </Link> */}
                                 <button className="btn primary-btn-outline mb-2 btn-signup" onClick={() => login()} > <img src={igoogle} alt="Google" className="me-2" /> Sign up with Google </button>
                                 <LoginSocialFacebook
                                     isOnlyGetToken
-                                    appId={'607654518584001'}
+                                    appId={'1574866086563315'}
                                     onLoginStart={onLoginStart}
                                     onResolve={({ provider, data }) => {
                                         setProvider(provider)
                                         setProfile(data)
-                                        // console.log(data)
+                                        console.log(data)
+                                        console.log(provider)
+
                                     }}
                                     onReject={(err) => {
                                         console.log(err)
@@ -179,6 +185,8 @@ const ThirdParty = () => {
                                     <button className="btn primary-btn-outline mb-2 btn-signup"> <img src={ifacebook} alt="Facebook" className="me-2" /> Sign up with Facebook </button>
 
                                 </LoginSocialFacebook>
+
+
                                 <LoginSocialApple
                                     client_id="adffgfg"
                                     scope={'name email'}
@@ -195,7 +203,7 @@ const ThirdParty = () => {
                                     <button className="btn primary-btn-outline mb-2 btn-signup"> <img src={iapple} alt="Apple" className="me-2" /> Sign up with Apple </button>
                                 </LoginSocialApple>
 
-                                <p className="mt-4">Already have an account? <Link href="#" >Sign In to my account</Link></p>
+                                <p className="mt-4">Already have an account? <Link to="../signin" >Sign In to my account</Link></p>
                             </div>
                         </div>
                     </div>

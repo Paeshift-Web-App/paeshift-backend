@@ -20,20 +20,26 @@ from .models import *
 from .schemas import *
 from django.contrib.auth.hashers import make_password
 from django.shortcuts import redirect
+from django.contrib.auth import login, get_backends
+from django.contrib.auth.decorators import login_required
+from ninja.errors import ValidationError
 router = Router()
 User = get_user_model()
+from ninja.security import django_auth
+
+# router = Router(auth=django_auth)
 
 # ----------------------------------------------------------------------
 # Helper Functions
 # ----------------------------------------------------------------------
-@router.get("/google-login")
-def google_login(request):
-    return redirect("/accounts/google/login/")
+# @router.get("/google-login")
+# def google_login(request):
+#     return redirect("/accounts/google/login/")
 
 
-@router.get("/facebook-login")
-def facebook_login(request):
-    return redirect("/accounts/facebook/login/")
+# @router.get("/facebook-login")
+# def facebook_login(request):
+#     return redirect("/accounts/facebook/login/")
 
 
 
@@ -148,6 +154,10 @@ def get_profile(request):
     }
     return data
 
+
+
+
+
 @router.put("/profile")
 def update_profile(
     request,
@@ -202,46 +212,24 @@ def login_view(request, payload: LoginSchema):
         password=payload.password
     )
     if user is not None:
-        # Log the user in (creates a session + session cookie)
         login(request, user)
+        request.session["user_id"] = user.id  # Explicitly store ID
+        request.session.modified = True  # Ensure session is saved
         
-        # If you have a Profile model with 'role' (e.g. "client"/"applicant")
-        if hasattr(user, "profile"):
-            request.session["user_role"] = user.profile.role
-        else:
-            # Default to "client" if no profile
-            request.session["user_role"] = "client"
-        
+        print("Logged-in User ID:", user.id)  # Debugging
+
         return Response({
             "message": "Login successful",
-            "role": request.session["user_role"]
+            "user_id": user.id,
         }, status=200)
     
     return Response({"error": "Invalid credentials"}, status=401)
-
-
 @router.post("/signup")
 def signup_view(request, payload: SignupSchema):
     """
     POST /jobs/signup
     Creates a new user account and a corresponding profile.
     """
-    # if not all([
-    #     payload.first_name,
-    #     payload.last_name,
-    #     payload.email,
-    #     payload.password,
-    #     payload.confirm_password,
-    #     payload.role,  
-    # ]):
-    #     return Response({"error": "All fields are required"}, status=400)
-
-    # if payload.password != payload.confirm_password:
-    #     return Response({"error": "Passwords do not match"}, status=400)
-
-    # if User.objects.filter(username=payload.email).exists():
-    #     return Response({"error": "Email already exists"}, status=400)
-
     try:
         # Create the user
         user = User.objects.create_user(
@@ -249,69 +237,104 @@ def signup_view(request, payload: SignupSchema):
             first_name=payload.first_name,
             last_name=payload.last_name,
             email=payload.email,
-            password=payload.password,  # create_user() handles hashing
+            password=payload.password  # create_user() handles hashing
         )
-        # 4) Optionally log them in
-        login(request, user)
-        
-        # Create the profile
-        Profile.objects.create(user=user, role=payload.role)
+
+        # Manually assign an authentication backend
+        user.backend = get_backends()[0].__class__.__name__
 
         # Log the user in
         login(request, user)
+
+        # Create the profile
+        Profile.objects.create(user=user, role=payload.role)
+
         return Response({"message": "success"}, status=200)
+    
     except IntegrityError:
         return Response({"error": "Email already exists"}, status=400)
+    
     except Exception as e:
         return Response({"error": f"Unexpected error: {e}"}, status=500)
+
+
+
+
+
+
+
+
+
+@router.get("/csrf-token")
+def get_csrf_token(request):
+    from django.middleware.csrf import get_token
+    return {"csrf_token": get_token(request)}
+
 # ----------------------------------------------------------------------
 # 5) Jobs Endpoints
 # ----------------------------------------------------------------------
-@router.post("/jobs/")
-def create_job(request, payload: CreateJobSchema):
-    """
-    POST /jobs/
-    Creates a new job for the logged-in user (client).
-    """
-    if not request.user.is_authenticated:
-        return Response({"error": "Not logged in"}, status=401)
 
+
+
+from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
+from datetime import datetime
+from jobs.models import Job, JobIndustry, JobSubCategory
+from ninja.router import Router
+
+router = Router()
+
+
+
+router = Router()
+
+@router.post("/create-job")
+def create_job(request, payload: CreateJobSchema):
+    user_id = request.session.get("_auth_user_id")
+    if not user_id:
+        return JsonResponse({"error": "User session not found."}, status=401)
+
+    user = get_object_or_404(User, id=user_id)
+
+    # Convert date and time
+    try:
+        job_date = datetime.strptime(payload.date, "%Y-%m-%d").date()
+        job_time = datetime.strptime(payload.time, "%H:%M").time()
+    except ValueError as e:
+        return JsonResponse({"error": f"Invalid date/time format: {str(e)}"}, status=400)
+
+    # Get Industry and Subcategory
+    job_industry = None
+    if payload.industry:
+        job_industry = get_object_or_404(JobIndustry, name=payload.industry)
+
+    job_subcategory = None
+    if payload.subcategory:
+        job_subcategory = get_object_or_404(JobSubCategory, name=payload.subcategory)
+
+    # Create job
     new_job = Job.objects.create(
-        client=request.user,  # The user creating the job
+        client=user,
         title=payload.title,
         description=payload.description,
-        location=payload.location,
+        industry=job_industry,
+        subcategory=job_subcategory,
+        applicants_needed=payload.applicants_needed,
+        job_type=payload.job_type,
+        shift_type=payload.shift_type,
+        date=job_date,
+        time=job_time,
         duration=payload.duration,
-        amount=payload.amount,
-        # Optionally parse date/time if needed
+        rate=payload.rate,
+        location=payload.location,
+        image=payload.image,
+        payment_status=payload.payment_status,
     )
-    return {"message": "Job created successfully", "job_id": new_job.id}
 
-@router.get("/client-posted")
-def client_posted_jobs(request):
-    """
-    GET /jobs/client-posted
-    Returns a list of all jobs posted by clients (adjust logic if needed).
-    """
-    jobs_qs = Job.objects.all()
-    data = []
-    for job in jobs_qs:
-        data.append({
-            "id": job.id,
-            "name": job.client.first_name if job.client else "Unknown Client",
-            "status": job.status,
-            "title": job.title,
-            "date": str(job.date) if job.date else "",
-            "time": str(job.time) if job.time else "",
-            "duration": job.duration,
-            "amount": str(job.amount),
-            "location": job.location,
-            "date_posted": "2 days ago",  # or compute from job.created_at
-            "no_of_application": job.no_of_application,
-        })
-    return data
+    return JsonResponse({"success": True, "message": "Job created successfully", "job_id": new_job.id}, status=201)
 
-@router.get("/list")
+    
+@router.get("/accepted-list")
 def list_accepted_applications(request):
     """
     GET /jobs/list
@@ -388,28 +411,49 @@ def list_subcategories(request, industry_id: Optional[int] = None):
 # ----------------------------------------------------------------------
 # 6) Saved Jobs Endpoints
 # ----------------------------------------------------------------------
+# ----------------------------------------------------------------------
+# Save a job (POST)
+# ----------------------------------------------------------------------
 @router.post("/save-job/{job_id}")
 def save_job(request, job_id: int):
     """
     POST /jobs/save-job/<job_id>
     Saves the job for the current user (session-based).
-    Uses a different logic to check if the job exists.
     """
     if not request.user.is_authenticated:
         return Response({"error": "You must be logged in to save jobs."}, status=401)
 
-    # New logic: try/except to check if job exists
     try:
         job = Job.objects.get(pk=job_id)
     except Job.DoesNotExist:
         return Response({"error": "Job not found."}, status=404)
 
-    # Now save or respond
     saved_job, created = SavedJob.objects.get_or_create(user=request.user, job=job)
     if created:
         return Response({"message": "Job saved successfully."}, status=201)
     else:
         return Response({"message": "Job is already saved."}, status=200)
+
+
+# ----------------------------------------------------------------------
+# Unsave a job (DELETE)
+# ----------------------------------------------------------------------
+@router.delete("/save-job/{job_id}")
+def unsave_job(request, job_id: int):
+    """
+    DELETE /jobs/save-job/<job_id>
+    Removes the job from the user's saved list.
+    """
+    if not request.user.is_authenticated:
+        return Response({"error": "You must be logged in to unsave jobs."}, status=401)
+
+    try:
+        saved_record = SavedJob.objects.get(user=request.user, job_id=job_id)
+    except SavedJob.DoesNotExist:
+        return Response({"error": "You haven't saved this job yet."}, status=404)
+
+    saved_record.delete()
+    return Response({"message": "Job unsaved successfully."}, status=200)
 
 @router.get("/saved-jobs")
 def list_saved_jobs(request):

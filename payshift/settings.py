@@ -42,6 +42,14 @@ INSTALLED_APPS = [
     "socialauth",          # Your main Django app
     "channels",                # For Django Channels
     "daphne",
+    # 'payment',
+    "rest_framework",
+    "rest_framework_simplejwt",
+    
+    
+    
+    
+    
     # Django default apps
     "django.contrib.admin",
     'django.contrib.auth',
@@ -64,7 +72,14 @@ INSTALLED_APPS = [
 ]
 SITE_ID = 3  # Placeholder
 
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+}
 
+
+SESSION_COOKIE_SECURE = False
 # -----------------------------
 # AUTH BACKENDS & SITE_ID
 # -----------------------------

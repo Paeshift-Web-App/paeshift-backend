@@ -6,7 +6,7 @@ from socialauth.views import home
 from payment.api import payment_router
 
 # ✅ Initialize API
-api = NinjaAPI()
+api = NinjaAPI() 
 # api.add_router("/payment", payment_router)
 
 # ✅ Redirect users to Google signup instead of showing "Sign Up Closed"
@@ -21,6 +21,6 @@ urlpatterns = [
     path("jobs/", include("jobs.urls")),  # ✅ Job-related routes
     path("jobchat/", include("jobchat.urls")),  # ✅ Job-related routes
    
-    # path("api/", api.urls),                      # The single API
+    path("api/", api.urls),                      # The single API
 
 ]

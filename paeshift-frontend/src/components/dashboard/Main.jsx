@@ -39,7 +39,7 @@ const Main = () => {
   const [searchWork, setSearchWork] = useState("");
 
   const [users, setUsers] = useState();
-
+  const [jobs, setJobs] = useState();
 
 
   // useEffect(() => {
@@ -52,18 +52,6 @@ const Main = () => {
 
 
 
-  //   Axios.get("http://localhost:8000/Admin")
-  //     .then((response) => {
-  //       setAdmins(response.data);
-  //     })
-  //     .catch((error) => console.error(error));
-
-  //   Axios.get("http://localhost:8000/Users")
-  //     .then((response) => {
-  //       setUsers(response.data);
-  //       })
-  //       .catch((error) => console.error(error));
-  // }, []);
 
   // console.log(user.data)
 

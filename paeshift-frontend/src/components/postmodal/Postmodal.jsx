@@ -83,7 +83,7 @@ const Postmodal = () => {
                             }}
 
                             validationSchema={Schema}
-                            onSubmit={(values) => {
+                            onSubmit={async (values) => {
                                 // same shape as initial values
                                 /**
                                  * Steps to create a new user
@@ -93,68 +93,88 @@ const Postmodal = () => {
 
                                 let userdata = {
                                     jobtitle: values.jobtitle,
-                                    jobLocation: values.jobLocation,
-                                    jobIndustry: values.jobIndustry,
-                                    jobSubCategory: values.jobSubCategory,
-                                    jobRate: values.jobRate,
-                                    noOfApplicants: values.noOfApplicants,
-                                    jobType: values.jobType,
-                                    shiftType: values.shiftType,
-                                    jobDate: values.jobDate,
-                                    startTime: values.startTime,
+                                    location: values.jobLocation,
+                                    industry: values.jobIndustry,
+                                    sub_category: values.jobSubCategory,
+                                    rate: values.jobRate,
+                                    no_of_applicants: values.noOfApplicants,
+                                    job_type: values.jobType,
+                                    shift_type: values.shiftType,
+                                    job_date: values.jobDate,
+                                    end_time: values.startTime,
                                     endTime: values.endTime,
                                 };
 
                                 console.log(userdata);
-
+                                // try {
+                                 
+            
+                                //     // use the typed email to check if the email already exist
+                                //     let result = await Axios.post("http://127.0.0.1:8000/create-job", userdata);
+                                //     result = result.data.message;
+            
+            
+                                //     if (result === "success") {
+                                //         swal("Job Created Successful!", " ", "success", { button: false, timer: 1500 });
+                                //         redir("../signin");
+                                //     }
+                                //     else {
+                                //         swal("Job Creation Failed!", " ", "error", { button: false, timer: 1500 })
+                                //     }
+            
+                                 
+                                //   // if unique email allow to signup else dont
+                                // } catch (error) {
+                                //   console.error(error);
+                                // }
                                 // swal(<p className="mb-2">Registeration Successful!</p>, 'success', false, 1500)
                                 // Endpoint needs to be updated
                                 // let baseURL = "https://paeshift-backend.onrender.com/userApi/v1/user/register/";
-                                try {
-                                    // let allUser = await Axios.get(`${baseURL}`);
+                                // try {
+                                //     // let allUser = await Axios.get(`${baseURL}`);
 
-                                    // let isUnique = false;
-                                    // allUser.data.forEach((each) => {
-                                    //   if (each.email === values.email) {
-                                    //     isUnique = true;
-                                    //   }
-                                    // });
+                                //     // let isUnique = false;
+                                //     // allUser.data.forEach((each) => {
+                                //     //   if (each.email === values.email) {
+                                //     //     isUnique = true;
+                                //     //   }
+                                //     // });
 
-                                    // use the typed email to check if the email already exist
+                                //     // use the typed email to check if the email already exist
 
-                                    // if (!isUnique) {
-                                    Axios({
-                                        method: 'post',
-                                        url: `${baseURL}`,
-                                        data: userdata,
-                                        headers: {
-                                            // 'Access-Control-Allow-Origin': '*',
-                                            // 'Content-Type': 'application/json',
-                                            "Access-Control-Allow-Headers": "Content-Type",
-                                            "Access-Control-Allow-Origin": "https://paeshift-backend.onrender.com",
-                                            'Content-Type': 'application/json',
-                                            "Access-Control-Allow-Methods": "OPTIONS,POST"
-                                        }
-                                    })
-                                        .then((response) => {
+                                //     // if (!isUnique) {
+                                //     Axios({
+                                //         method: 'post',
+                                //         url: `${baseURL}`,
+                                //         data: userdata,
+                                //         headers: {
+                                //             // 'Access-Control-Allow-Origin': '*',
+                                //             // 'Content-Type': 'application/json',
+                                //             "Access-Control-Allow-Headers": "Content-Type",
+                                //             "Access-Control-Allow-Origin": "https://paeshift-backend.onrender.com",
+                                //             'Content-Type': 'application/json',
+                                //             "Access-Control-Allow-Methods": "OPTIONS,POST"
+                                //         }
+                                //     })
+                                //         .then((response) => {
 
-                                            console.log(response);
-                                            swal("Registeration Successful!", " ", "success", { button: false, timer: 1500 });
-                                            redir("../signin");
-                                            // setTimeout(() => {
-                                            // redir("../signin");
-                                            // }, 1500);
-                                        })
-                                        .catch((error) => {
+                                //             console.log(response);
+                                //             swal("Registeration Successful!", " ", "success", { button: false, timer: 1500 });
+                                //             redir("../signin");
+                                //             // setTimeout(() => {
+                                //             // redir("../signin");
+                                //             // }, 1500);
+                                //         })
+                                //         .catch((error) => {
 
 
-                                            console.error(error);
-                                        });
+                                //             console.error(error);
+                                //         });
 
-                                    // if unique email allow to signup else dont
-                                } catch (error) {
-                                    console.error(error);
-                                }
+                                //     // if unique email allow to signup else dont
+                                // } catch (error) {
+                                //     console.error(error);
+                                // }
                             }
                             }
                         >
@@ -258,10 +278,10 @@ const Postmodal = () => {
                                     </div>
                                     <div className="row m-0 p-0">
                                         <div className="col-4 px-1">
-                                            <button type="submit" name='submit' className="btn preview-btn ">Preview</button>
+                                            <button type="button" name='preview-btn' className="btn preview-btn ">Preview</button>
                                         </div>
                                         <div className="col-8">
-                                            <button type="button" className="btn proceed-btn">Proceed to Payment</button>
+                                            <button type="submit" name='submit' className="btn proceed-btn">Proceed to Payment</button>
                                         </div>
                                     </div>
                                 </Form>
