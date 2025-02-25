@@ -1,0 +1,43 @@
+## Initializing and Setting Up Repositories
+
+git init  # Initialize a new Git repository
+git remote add origin https://github.com/Paeshift-Web-App/paeshift-frontend.git  # Link remote repository
+git branch -M main  # Rename the branch to main
+git push -u origin main  # Push main branch to remote repository
+
+## Cloning Specific Branches
+To clone the `backend` branch from the `paeshift-frontend` repository:
+git clone --branch backend https://github.com/Paeshift-Web-App/paeshift-frontend.git
+
+To clone the `main` branch from the `paeshift-backend` repository:
+git clone --branch main https://github.com/Paeshift-Web-App/paeshift-backend.git
+
+## Pulling Latest Changes
+git pull https://github.com/Paeshift-Web-App/paeshift-frontend.git backend  # Pull latest updates from backend branch
+
+## Committing and Pushing Changes
+git add .  # Stage all changes
+git commit -m "Updated jobs feature"  # Commit with a meaningful message
+git push origin backend  # Push changes to backend branch
+
+### Forcing a Push (Use with Caution)
+git push -f origin backend  # Force push changes
+git push origin backend --force  # Alternative force push
+git push origin backend --force-with-lease  # Force push but with additional safety checks
+
+## Switching Branches
+git checkout backend  # Switch to the backend branch
+
+## Running Django with Daphne
+daphne -b 0.0.0.0 -p 8000 payshift.asgi:application --websocket_timeout 60  # Start Daphne ASGI server
+
+## Setting Up a New Repository (Example for Another Project)
+git init  # Initialize a new repository
+git add .  # Stage files
+git commit -m "Initial commit"
+git branch -M main  # Set the main branch
+git remote add origin https://github.com/skillyboy/SanDiegoEcommerce.git  # Link to remote repo
+git push -u origin main  # Push main branch
+```
+
+This workflow ensures smooth version control and deployment. Let me know if you need any refinements! 🚀
