@@ -46,6 +46,9 @@ class JobSubCategory(models.Model):
 # ------------------------------------------------------
 # 2) JOB MODEL
 # ------------------------------------------------------
+from django.db import models
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 class Job(models.Model):
     STATUS_CHOICES = [
@@ -70,7 +73,7 @@ class Job(models.Model):
 
     # Job details
     title = models.CharField(max_length=255)
-    description = models.TextField(blank=True, null=True)
+    # description = models.TextField(blank=True, null=True)  # Removed per update.
     industry = models.ForeignKey("JobIndustry", on_delete=models.CASCADE, blank=True, null=True)
     subcategory = models.ForeignKey("JobSubCategory", on_delete=models.CASCADE, blank=True, null=True)
     applicants_needed = models.PositiveIntegerField(default=1)
@@ -82,7 +85,8 @@ class Job(models.Model):
     # Scheduling
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='upcoming')
     date = models.DateField(blank=True, null=True)
-    time = models.TimeField(blank=True, null=True)
+    start_time = models.TimeField(blank=True, null=True)
+    end_time = models.TimeField(blank=True, null=True)
     duration = models.CharField(max_length=50, blank=True, null=True)
     rate = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
 
@@ -107,7 +111,6 @@ class Job(models.Model):
     def no_of_applications(self):
         """Returns the total number of applications for this job."""
         return self.applications.count()
-
 # ------------------------------------------------------
 # 3) SAVED JOBS
 # ------------------------------------------------------

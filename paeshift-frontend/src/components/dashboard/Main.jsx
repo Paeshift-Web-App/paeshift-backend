@@ -44,7 +44,7 @@ const Main = () => {
 
   // useEffect(() => {
 
-  //   Axios.get("http://localhost:8000/Products")
+  //   Axios.get("http://localhost:8000/dashboard")
   //     .then((response) => {
   //       setProduct(response.data);
   //     })

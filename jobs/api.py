@@ -173,46 +173,89 @@ def update_profile(request, first_name: str = None, last_name: str = None,
 # ----------------------------------------------------------------------
 # Job Endpoints
 # ----------------------------------------------------------------------
+import os
+from datetime import datetime
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from django.contrib.auth import get_user_model
+from ninja import Router
+from .models import Job, JobIndustry, JobSubCategory
+from .schemas import CreateJobSchema
+
+router = Router()
+User = get_user_model()
+
+def get_related_object(model, field, value):
+    """
+    Helper function to retrieve an object by a specific field.
+    Returns a tuple: (object, None) if found, or (None, JsonResponse error) if not.
+    """
+    try:
+        obj = model.objects.get(**{field: value})
+        return obj, None
+    except model.DoesNotExist:
+        error = JsonResponse(
+            {"error": f"{model.__name__} with {field} '{value}' does not exist."}, status=400
+        )
+        return None, error
+
 @router.post("/create-job")
 def create_job(request, payload: CreateJobSchema):
-    """POST /jobs/create-job - Creates a new job"""
+    """
+    POST /jobs/create-job - Creates a new job.
+    Expects date in "YYYY-MM-DD" and times in "HH:MM" format.
+    """
+    # Retrieve the logged-in user from the session.
     user_id = request.session.get("_auth_user_id")
     if not user_id:
         return JsonResponse({"error": "User session not found."}, status=401)
-    
     user = get_object_or_404(User, id=user_id)
-
+    
+    # Convert date and time.
     try:
         job_date = datetime.strptime(payload.date, "%Y-%m-%d").date()
-        job_time = datetime.strptime(payload.time, "%H:%M").time()
     except ValueError as e:
-        return JsonResponse({"error": f"Invalid date/time format: {str(e)}"}, status=400)
-
-    industry, error = get_related_object(JobIndustry, "name", payload.industry) if payload.industry else (None, None)
+        return JsonResponse({"error": f"Invalid date format: {str(e)}"}, status=400)
+    
+    try:
+        start_time = datetime.strptime(payload.start_time, "%H:%M").time()
+        end_time = datetime.strptime(payload.end_time, "%H:%M").time()
+    except ValueError as e:
+        return JsonResponse({"error": f"Invalid time format: {str(e)}"}, status=400)
+    
+    # Get related Industry and SubCategory objects (if provided)
+    industry, error = (get_related_object(JobIndustry, "name", payload.industry)
+                       if payload.industry else (None, None))
     if error:
         return error
-    subcategory, error = get_related_object(JobSubCategory, "name", payload.subcategory) if payload.subcategory else (None, None)
+    subcategory, error = (get_related_object(JobSubCategory, "name", payload.subcategory)
+                          if payload.subcategory else (None, None))
     if error:
         return error
 
+    # Create the new Job record.
     new_job = Job.objects.create(
         client=user,
         title=payload.title,
-        description=payload.description,
         industry=industry,
         subcategory=subcategory,
         applicants_needed=payload.applicants_needed,
         job_type=payload.job_type,
         shift_type=payload.shift_type,
         date=job_date,
-        time=job_time,
+        start_time=start_time,
+        end_time=end_time,
         duration=payload.duration,
         rate=payload.rate,
         location=payload.location,
         image=payload.image,
-        payment_status=payload.payment_status
+        payment_status=payload.payment_status,
     )
-    return JsonResponse({"success": True, "message": "Job created successfully", "job_id": new_job.id}, status=201)
+    return JsonResponse(
+        {"success": True, "message": "Job created successfully", "job_id": new_job.id},
+        status=201
+    )
+
 
 # jobs/api.py (continued from previous version)
 
