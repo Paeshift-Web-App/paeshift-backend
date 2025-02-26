@@ -1,0 +1,273 @@
+.navbar-toggler span.d-icon {
+  border: 1px solid var(--primary-purple);
+}
+
+
+
+.page_title {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.page_title h1 {
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+
+.icon-bars {
+  color: var(--primary-purple);
+}
+
+
+.page_title
+ .payment-btn {
+  display: flex;
+  justify-content: space-between;
+  
+ }
+
+.page_title .payment-btn button {
+font-size: 12px;
+font-weight: 500;
+line-height: 14.4px;
+color: var(--primary-purple);
+justify-self: center;align-self: center;
+background-color: transparent;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* DASHBOARD STYLING  */
+.dashboard_container {
+  min-height: 100vh;
+}
+
+.main__job-details {
+  background-color: var(--color-text-white);
+  border-radius: 1rem;
+  margin: 1rem 0;
+  padding-top: 0.5rem;
+  padding-bottom: 1rem;
+}
+
+
+.container__data {
+  margin-top: 0rem;
+  padding: 0;
+}
+
+.container__data .map_wrapper {
+  border-radius: 1.5rem;
+  overflow: hidden;
+  max-height: 28rem;
+}
+
+.container__data .map_wrapper img {
+  width: 100%;
+}
+
+.container__data .map_wrapper .img {
+  width: 100%;
+}
+
+
+.container__data .job_details {
+  width: 100%;
+  background: var(--color-bg);
+  margin-bottom: 0.2rem;
+  padding: 1rem;
+  padding-bottom: 0.5rem;
+  border-radius: 1rem;
+}
+
+.container__data .job_details h4 {
+  font-weight: bold;
+  font-size: 0.875rem;
+  line-height: 1.05rem;
+}
+
+.container__data .job_details .card_top {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.container__data .job_details .card_top .profile_info {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.container__data .job_details .card_top .profile_info>span:nth-child(2) {
+  margin-top: 0.2rem;
+}
+
+.container__data .job_details .card_top .profile_info img.prof {
+  width: 3rem;
+}
+
+.container__data .job_details .card_top .profile_info h4 {
+  font-size: 0.75rem;
+  line-height: 1.05rem;
+  margin-bottom: 0;
+  color: var(--primary-purple);
+  font-weight: 700;
+}
+
+.container__data .job_details .card_top .profile_info .rate_score {
+  color: var(--color-text-ash);
+  font-size: 0.6rem;
+}
+
+.container__data .job_details .card_top .profile_info .rate_score {
+  color: var(--color-text-ash);
+  font-size: 0.625rem;
+}
+
+.container__data .job_details .card_top .top_cta button {
+  border-radius: 0.5rem;
+  color: var(--primary-purple);
+  font-weight: bold;
+  background-color: var(--color-bg-light);
+  border: 1px solid var(--color-text-ash);
+  padding: 0.625rem 1rem;
+  font-size: 0.625rem;
+  margin-top: 0.5rem;
+}
+
+.container__data .job_details .card_top .top_cta button .icon-saved {
+  font-size: 0.625rem;
+}
+
+.container__data .job_details .card_top .top_cta button.active {
+  border-radius: 0.7rem;
+  background-color: var(--color-primary-dark);
+  color: var(--color-text-white);
+}
+
+.container__data .job_details .card_top .top_cta button:hover {
+  background-color: var(--color-bg-light);
+  color: var(--primary-purple);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+.container__data .container_bottom {
+  background-color: var(--color-bg);
+  border-radius: 0.8rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+}
+
+.container__data .container_bottom p {
+  color: var(--color-text-ash);
+  font-size: 0.5rem;
+  font-weight: 500;
+  line-height: 0.6rem;
+  margin: 0;
+}
+
+.container__data .container_bottom h2 {
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 0.9rem;
+
+}
+
+.container__data .container_bottom .applicant_details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.container__data .container_bottom h4 {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 14.4px;
+  margin: 0;
+}
+
+.container__data .container_bottom button.view-btn {
+  font-size: 8px;
+  font-weight: 700;
+  line-height: 9.6px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  opacity: 0.5px;
+  background-color: var(--primary-purple);
+  color: var(--color-text-white);
+}
+
+
+
+.container__data .buttons {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 1.5rem;
+  font-family: var(--font-family-text);
+  font-size: 0.625rem;
+  font-weight: 500;
+  line-height: 0.75rem;
+  border-radius: 0.625rem;
+}
+
+.container__data .buttons button.saved {
+  background-color: var(--color-bg-light);
+  border: 1px solid var(--color-text-ash);
+  color: var(--color-text-ash);
+  padding: 0.8rem;
+  border-radius: 0.625rem;
+}
+
+.container__data .buttons button.apply-btn {
+  background-color: var(--primary-purple);
+  color: var(--color-text-white);
+  padding: 0.8rem 3.5rem;
+  border-radius: 0.625rem;
+}
+
+
+
+.container__data .buttons button:hover {
+  background-color: var(--color-bg-light);
+  color: var(--primary-purple);
+  border: 1px solid var(--primary-purple);
+}
+
+
+
+
+
+/* .container__data .cards .job_details .card-body .dash-icon {
+  font-size: 2rem;
+  margin-bottom: 0.2rem;
+} */
