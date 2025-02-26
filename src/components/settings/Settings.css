@@ -1196,15 +1196,18 @@
 }
 
 
+#about_paeshift  .accordion-button:focus {
+  background-color: var(--color-bg-light);
+}
 
-
-/* DASHBOARD STYLING  */
-#settings.container__data {
-  margin-top: 0rem;
-  padding: 0;
+#about_paeshift .accordion-body {
+  border: 0.5px solid var(--color-text-ash);
+  border-radius: 1rem;
+  font-size: 0.75rem; 
+  margin-bottom: 1rem;
+  padding: 1.5rem !important;
 }
 
 
-.dashboard_container {
-  padding: 1rem;
-}
+
+
