@@ -70,10 +70,9 @@ class Job(models.Model):
         ("Completed", "Completed"),
         ("Failed", "Failed")
     ]
-
+    
     # Job details
     title = models.CharField(max_length=255)
-    # description = models.TextField(blank=True, null=True)  # Removed per update.
     industry = models.ForeignKey("JobIndustry", on_delete=models.CASCADE, blank=True, null=True)
     subcategory = models.ForeignKey("JobSubCategory", on_delete=models.CASCADE, blank=True, null=True)
     applicants_needed = models.PositiveIntegerField(default=1)

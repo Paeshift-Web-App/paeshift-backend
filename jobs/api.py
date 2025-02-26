@@ -250,7 +250,7 @@ def create_job(request, payload: CreateJobSchema):
         location=payload.location,
         image=payload.image,
         payment_status=payload.payment_status,
-    )
+    )                                          
     return JsonResponse(
         {"success": True, "message": "Job created successfully", "job_id": new_job.id},
         status=201
