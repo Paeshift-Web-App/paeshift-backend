@@ -1125,13 +1125,10 @@
   margin: 1rem 0;
 }
 
-<<<<<<< HEAD
 #feedback select {
   appearance: auto !important;
 }
 
-=======
->>>>>>> bf1ab8d6de2b1bbbfd7db3d87049d9d68ada6e3f
 #feedback textarea {
   font-size: 0.75rem;
   font-weight: 500;
@@ -1144,7 +1141,6 @@
   font-size: 1rem;
 }
 
-<<<<<<< HEAD
 
 
 
@@ -1153,8 +1149,6 @@
 
 
 
-=======
->>>>>>> bf1ab8d6de2b1bbbfd7db3d87049d9d68ada6e3f
 #about_paeshift .accordion-item {
   border: none;
 }

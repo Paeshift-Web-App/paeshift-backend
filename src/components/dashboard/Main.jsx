@@ -16,11 +16,8 @@ import Profile from "../../assets/images/profileimage.png";
 import Postmodal from "../postmodal/Postmodal";
 import Notificationmodal from "../notificationmodal/Notificationmodal";
 import Jobrequestmodal from "../jobrequestsmodal/Jobrequestmodal";
-<<<<<<< HEAD
-import PaymentMethodmodal from "../paymentmethodmodal/Paymentmethodmodal";
 
-=======
->>>>>>> bf1ab8d6de2b1bbbfd7db3d87049d9d68ada6e3f
+import PaymentMethodmodal from "../paymentmethodmodal/Paymentmethodmodal";
 
 import { JobsData } from "../JobsData";
 // import { defaults } from "chart.js/auto";
@@ -207,10 +204,7 @@ const Main = () => {
         <Jobrequestmodal />
         <Notificationmodal />
         <Postmodal />
-<<<<<<< HEAD
         <PaymentMethodmodal />
-=======
->>>>>>> bf1ab8d6de2b1bbbfd7db3d87049d9d68ada6e3f
       </section>
     </main >
   )
