@@ -101,8 +101,8 @@ const Postmodal = () => {
                                     job_type: values.jobType,
                                     shift_type: values.shiftType,
                                     date: values.jobDate,
-                                    time: values.startTime,
-                                    endTime: values.endTime,
+                                    start_time: values.startTime,
+                                    end_time: values.endTime,
                                     payment_status: "pending"
                                 };
 
