@@ -42,9 +42,13 @@
   color: var(--primary-purple);
 }
 
+<<<<<<< HEAD
 #feedbackModal.come-from-modal.right select {
   appearance: auto !important;
 }
+=======
+
+>>>>>>> bf1ab8d6de2b1bbbfd7db3d87049d9d68ada6e3f
 
 #feedbackModal.come-from-modal.right textarea {
   margin-top: 1rem;

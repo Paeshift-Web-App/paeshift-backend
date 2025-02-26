@@ -92,6 +92,7 @@ const Postmodal = () => {
                                  */
 
                                 let userdata = {
+
                                     title: values.jobtitle,
                                     location: values.jobLocation,
                                     industry: values.jobIndustry,
@@ -104,11 +105,12 @@ const Postmodal = () => {
                                     start_time: values.startTime,
                                     end_time: values.endTime,
                                     payment_status: "pending"
-                                };
+                     };
 
                                 console.log(userdata);
 
-          
+
+     
                             }
                             }
                         >
@@ -216,6 +218,7 @@ const Postmodal = () => {
                                         </div>
                                         <div className="col-8">
                                             <button type="submit" className="btn proceed-btn" data-bs-toggle="modal" data-bs-target="#paymentMethodModal" >Proceed to Payment</button>
+
                                         </div>
                                     </div>
                                 </Form>

@@ -794,7 +794,11 @@ const Main = () => {
                         </div>
                       </div>
                     </div>
+<<<<<<< HEAD
 
+=======
+                  
+>>>>>>> bf1ab8d6de2b1bbbfd7db3d87049d9d68ada6e3f
                   </div>
 
                 </div>
@@ -888,6 +892,7 @@ const Main = () => {
                   >
                     {({ errors, touched }) => (
                       <Form className="form_settings" >
+<<<<<<< HEAD
                         <div className="row">
                           <div className="col-12 mb-3">
                             <label htmlFor="feedbacktype" className="form-label mb-0">Feedback Type</label>
@@ -900,6 +905,8 @@ const Main = () => {
                             {touched.feedbacktype && errors.feedbacktype && (<div className="errors">{errors.feedbacktype}</div>)}
                           </div>
                         </div>
+=======
+>>>>>>> bf1ab8d6de2b1bbbfd7db3d87049d9d68ada6e3f
                         <div className="my-2">
                           <Field name="feedback" className="form-control" as="textarea" placeholder="We'd love to hear from you" />
                           {/* If this field has been touched, and it contains an error, display it */}
@@ -952,11 +959,19 @@ const Main = () => {
                       </h2>
                       <div id="collapseThree" className="accordion-collapse collapse" data-bs-parent="#accordionExample2">
                         <div className="accordion-body">
+<<<<<<< HEAD
                           <a href="#"> <FontAwesomeIcon icon={faInstagram} /> <span className="text-dark">Instagram</span> <FontAwesomeIcon className="socialmedia-icon" icon={faChevronRight} /></a>
                           <br />
                           <a href="#"> <FontAwesomeIcon icon={faFacebook} /> <span className="text-dark">Facebook</span>  <FontAwesomeIcon className="socialmedia-icon" icon={faChevronRight} /></a>
                           <br />
                           <a href="#"> <FontAwesomeIcon icon={faTiktok} /> <span className="text-dark">Tiktok</span>  <FontAwesomeIcon className="socialmedia-icon" icon={faChevronRight} /></a>
+=======
+                          <a href="#"> <FontAwesomeIcon icon={faInstagram}/> <span className="text-dark">Instagram</span> <FontAwesomeIcon className="socialmedia-icon" icon={faChevronRight} /></a>
+                          <br />
+                          <a href="#"> <FontAwesomeIcon icon={faFacebook}/> <span className="text-dark">Facebook</span>  <FontAwesomeIcon className="socialmedia-icon" icon={faChevronRight} /></a>
+                          <br />
+                          <a href="#"> <FontAwesomeIcon icon={faTiktok}/> <span className="text-dark">Tiktok</span>  <FontAwesomeIcon className="socialmedia-icon" icon={faChevronRight} /></a>
+>>>>>>> bf1ab8d6de2b1bbbfd7db3d87049d9d68ada6e3f
                         </div>
                       </div>
                     </div>

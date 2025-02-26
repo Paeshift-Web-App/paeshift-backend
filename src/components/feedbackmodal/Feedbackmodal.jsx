@@ -21,8 +21,12 @@ import * as Yup from "yup";
 
 
 const Schema = Yup.object().shape({
+<<<<<<< HEAD
     feedback: Yup.string().required("Required").min(2, "Too short!"),
     feedbacktype: Yup.string().required("Required"),
+=======
+    feedback: Yup.string().required("Required").min(2, "Too short!").required("Required"),
+>>>>>>> bf1ab8d6de2b1bbbfd7db3d87049d9d68ada6e3f
 });
 
 
@@ -61,12 +65,31 @@ const Feedbackmodal = () => {
                                 </p>
                             </div>
                         </div>
+<<<<<<< HEAD
 
+=======
+                        <div className="row rating mt-2">
+                            <div className="col-7">
+                                <h4>Worker Rating</h4>
+                                <span>Nice Experience</span>
+                            </div>
+                            <div className="col-5 star-ratings">
+                                <FontAwesomeIcon icon={faStar} className="rating-star" />
+                                <FontAwesomeIcon icon={faStar} className="rating-star" />
+                                <FontAwesomeIcon icon={faStar} className="rating-star" />
+                                <FontAwesomeIcon icon={faStar} className="rating-star" />
+                                <FontAwesomeIcon icon={faStar} className="rating-star" />
+                            </div>
+                        </div>
+>>>>>>> bf1ab8d6de2b1bbbfd7db3d87049d9d68ada6e3f
 
 
                         <Formik
                             initialValues={{
+<<<<<<< HEAD
                                 feedbacktype: "",
+=======
+>>>>>>> bf1ab8d6de2b1bbbfd7db3d87049d9d68ada6e3f
                                 feedback: ""
                             }}
 
@@ -142,6 +165,7 @@ const Feedbackmodal = () => {
                                 <Form >
                                     <div className="row">
                                         <div className="col-12 mb-3">
+<<<<<<< HEAD
                                         <label htmlFor="feedbacktype" className="form-label mb-0">Feedback Type</label>
                                             <Field as="select" name="feedbacktype" id="feedbacktype" className="form-control" >
                                                 <option value="">Choose type of Feedback</option>
@@ -167,6 +191,8 @@ const Feedbackmodal = () => {
                                     </div>
                                     <div className="row">
                                         <div className="col-12 mb-3">
+=======
+>>>>>>> bf1ab8d6de2b1bbbfd7db3d87049d9d68ada6e3f
                                             <Field as="textarea" name="feedback" id="feedback" className="form-control" placeholder="We’d love to hear from you..." row="" >
                                             </Field>
                                             <span className="text-count" >0/2000</span>

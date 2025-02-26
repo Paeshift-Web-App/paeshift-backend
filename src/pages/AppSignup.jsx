@@ -102,6 +102,10 @@ const Signup = () => {
 
                     console.log(userdata);
 
+<<<<<<< HEAD
+=======
+                    // let baseURL = "http://127.0.0.1:8000/jobs/signup";
+>>>>>>> bf1ab8d6de2b1bbbfd7db3d87049d9d68ada6e3f
                     let getUsersURL = "http://127.0.0.1:8000/jobs/all-users";
                     try {
                       let allUser = await Axios.get(`${getUsersURL}`);

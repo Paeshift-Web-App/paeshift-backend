@@ -40,6 +40,7 @@ const ThirdParty = () => {
     const [profile, setProfile] = useState(null)
     const roleValue = useParams();
 
+<<<<<<< HEAD
     const onLoginStart = useCallback((response) => {
             // setProvider(provider)
             // setProfile(data)
@@ -48,6 +49,11 @@ const ThirdParty = () => {
             // alert('login start')
         }
     , [])
+=======
+    const onLoginStart = useCallback(() => {
+        alert('login start')
+    }, [])
+>>>>>>> bf1ab8d6de2b1bbbfd7db3d87049d9d68ada6e3f
 
     const onLogoutSuccess = useCallback(() => {
         setProfile(null)
@@ -169,6 +175,7 @@ const ThirdParty = () => {
                                 <button className="btn primary-btn-outline mb-2 btn-signup" onClick={() => login()} > <img src={igoogle} alt="Google" className="me-2" /> Sign up with Google </button>
                                 <LoginSocialFacebook
                                     isOnlyGetToken
+<<<<<<< HEAD
                                     appId='607654518584001'
                                     // onLoginStart={onLoginStart}
                                     onResolve={onLoginStart}
@@ -176,6 +183,18 @@ const ThirdParty = () => {
                                         console.log(err)
                                     }}
                                     scope="email,public_profile"
+=======
+                                    appId={'607654518584001'}
+                                    onLoginStart={onLoginStart}
+                                    onResolve={({ provider, data }) => {
+                                        setProvider(provider)
+                                        setProfile(data)
+                                        // console.log(data)
+                                    }}
+                                    onReject={(err) => {
+                                        console.log(err)
+                                    }}
+>>>>>>> bf1ab8d6de2b1bbbfd7db3d87049d9d68ada6e3f
                                 >
                                     {/* <FacebookLoginButton className="btn primary-btn-outline w-100 mb-2" /> */}
                                     <button className="btn primary-btn-outline mb-2 btn-signup"> <img src={ifacebook} alt="Facebook" className="me-2" /> Sign up with Facebook </button>
@@ -183,9 +202,15 @@ const ThirdParty = () => {
                                 </LoginSocialFacebook>
                                 <LoginSocialApple
                                     client_id="adffgfg"
+<<<<<<< HEAD
                                     scope="email,public_profile"
                                     redirect_uri={REDIRECT_URI}
                                     // onLoginStart={onLoginStart}
+=======
+                                    scope={'name email'}
+                                    redirect_uri={REDIRECT_URI}
+                                    onLoginStart={onLoginStart}
+>>>>>>> bf1ab8d6de2b1bbbfd7db3d87049d9d68ada6e3f
                                     onResolve={({ provider, data }) => {
                                         setProvider(provider);
                                         setProfile(data);
