@@ -46,9 +46,6 @@ class JobSubCategory(models.Model):
 # ------------------------------------------------------
 # 2) JOB MODEL
 # ------------------------------------------------------
-from django.db import models
-from django.contrib.auth import get_user_model
-User = get_user_model()
 
 class Job(models.Model):
     STATUS_CHOICES = [

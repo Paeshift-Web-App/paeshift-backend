@@ -97,12 +97,12 @@ const Postmodal = () => {
               onSubmit={async (values, { setSubmitting, resetForm }) => {
                 // Map form fields to backend payload
                 const jobData = {
-                  title: values.jobtitle,
+                  jobtitle: values.jobtitle,
                   location: values.jobLocation,
                   industry: values.jobIndustry,
                   subcategory: values.jobSubCategory,
                   rate: Number(values.jobRate),
-                  applicants_needed: Number(values.noOfApplicants),
+                  no_of_applicants: Number(values.noOfApplicants),
                   job_type: values.jobType === "1" ? "single_day" : "multiple_days",
                   shift_type: values.shiftType === "day" ? "day_shift" : "night_shift",
                   date: values.jobDate,

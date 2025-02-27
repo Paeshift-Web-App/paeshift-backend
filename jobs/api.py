@@ -24,7 +24,7 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
 from ninja import Router
 from .models import Job, JobIndustry, JobSubCategory
-from .schemas import CreateJobSchema
+from .schemas import *
 
 router = Router()
 User = get_user_model()
@@ -199,11 +199,11 @@ def get_related_object(model, field, value):
         )
         return None, error
     
-@router.get("/job-industries/", response=list[JobIndustrySchema])
+@router.get("/job-industries/", response=list[IndustrySchema])
 def get_job_industries(request):
     return JobIndustry.objects.all()
 
-@router.get("/job-subcategories/", response=list[JobSubCategorySchema])
+@router.get("/job-subcategories/", response=list[SubCategorySchema])
 def get_job_subcategories(request):
     return JobSubCategory.objects.all()
 
@@ -221,12 +221,12 @@ def create_job(request, payload: CreateJobSchema):
         return {"error": "Invalid subcategory provided"}, 400
 
     job = Job.objects.create(
-        jobtitle=payload.title,
+        title=payload.title,
         location=payload.location,
         industry=industry_instance,      # now passing the instance
         sub_category=subcategory_instance,  # passing the instance too
         rate=payload.rate,
-        no_of_applicants=payload.applicants_needed,
+        applicants_needed=payload.applicants_needed,
         job_type=payload.job_type,
         shift_type=payload.shift_type,
         job_date=payload.date,
