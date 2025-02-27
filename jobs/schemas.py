@@ -63,19 +63,28 @@ class JobDetailSchema(JobListSchema):
 
 class CreateJobSchema(Schema):
     title: str
-    industry: Optional[str] = None         # Industry name as string
-    subcategory: Optional[str] = None        # Subcategory name as string
+    industry: Optional[str] = None
+    subcategory: Optional[str] = None
     applicants_needed: Optional[int] = 1
     job_type: Optional[str] = "single_day"
     shift_type: Optional[str] = "day_shift"
-    date: str                                # Format: "YYYY-MM-DD"
-    start_time: str                          # Format: "HH:MM"
-    end_time: str                            # Format: "HH:MM"
+    date: str
+    start_time: str
+    end_time: str
     duration: Optional[str] = None
     rate: Optional[float] = None
     location: Optional[str] = None
     payment_status: Optional[str] = "Pending"
 
+
+class JobIndustrySchema(Schema):
+    id: int
+    name: str
+
+class JobSubCategorySchema(Schema):
+    id: int
+    name: str
+    industry_id: int  # Relates subcategory to its industry
 # -------------------------------------------------------
 # 5) Application Schemas
 # -------------------------------------------------------

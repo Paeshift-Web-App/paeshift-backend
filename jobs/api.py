@@ -199,8 +199,13 @@ def get_related_object(model, field, value):
         )
         return None, error
     
-    
+@router.get("/job-industries/", response=list[JobIndustrySchema])
+def get_job_industries(request):
+    return JobIndustry.objects.all()
 
+@router.get("/job-subcategories/", response=list[JobSubCategorySchema])
+def get_job_subcategories(request):
+    return JobSubCategory.objects.all()
 
 @router.post("/create-job")
 def create_job(request, payload: CreateJobSchema):
@@ -216,15 +221,10 @@ def create_job(request, payload: CreateJobSchema):
         job_date=payload.date,
         start_time=payload.start_time,
         end_time=payload.end_time,
-        duration=payload.duration,
-        payment_status=payload.payment_status
+        duration=payload.duration or "2hrs",
+        payment_status=payload.payment_status,
     )
-    return {"message": "Job Created Successfully"}
-
-
-
-
-
+    return {"message": "Job Created Successfully", "job_id": job.id}
 # def create_job(request, payload: CreateJobSchema):
 #     """
 #     API to create a job.

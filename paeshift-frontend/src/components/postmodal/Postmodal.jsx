@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import Axios from "axios";
@@ -10,8 +10,8 @@ import "./Postmodal.css";
 const Schema = Yup.object().shape({
   jobtitle: Yup.string().min(2, "Too short!").required("Required"),
   jobLocation: Yup.string().min(2, "Too short!").required("Required"),
-  jobIndustry: Yup.string().min(2, "Too short!").required("Required"),
-  jobSubCategory: Yup.string().min(2, "Too short!").required("Required"),
+  jobIndustry: Yup.string().required("Required"),
+  jobSubCategory: Yup.string().required("Required"),
   jobRate: Yup.number().required("Required"),
   noOfApplicants: Yup.number().required("Required"),
   jobType: Yup.string().required("Required"),
@@ -22,6 +22,39 @@ const Schema = Yup.object().shape({
 });
 
 const Postmodal = () => {
+  const [industries, setIndustries] = useState([]);
+  const [subcategories, setSubcategories] = useState([]);
+  const [selectedIndustry, setSelectedIndustry] = useState("");
+
+  // Fetch job industries and subcategories on component mount
+  useEffect(() => {
+    const fetchIndustries = async () => {
+      try {
+        const response = await Axios.get("http://127.0.0.1:8000/jobs/job-industries/");
+        setIndustries(response.data);
+      } catch (error) {
+        console.error("Error fetching industries:", error);
+      }
+    };
+
+    const fetchSubcategories = async () => {
+      try {
+        const response = await Axios.get("http://127.0.0.1:8000/jobs/job-subcategories/");
+        setSubcategories(response.data);
+      } catch (error) {
+        console.error("Error fetching subcategories:", error);
+      }
+    };
+
+    fetchIndustries();
+    fetchSubcategories();
+  }, []);
+
+  // Filter subcategories based on the selected industry.
+  const filteredSubcategories = subcategories.filter(
+    (sub) => String(sub.industry_id) === selectedIndustry
+  );
+
   return (
     <div
       className="modal fade come-from-modal right"
@@ -38,12 +71,7 @@ const Postmodal = () => {
             <h1 className="modal-title fs-5" id="staticBackdropLabel">
               Create Job Request
             </h1>
-            <button
-              type="button"
-              className="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
+            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div className="modal-body mb-0 pb-0">
             <div className="title">
@@ -69,10 +97,8 @@ const Postmodal = () => {
               }}
               validationSchema={Schema}
               onSubmit={async (values, { setSubmitting, resetForm }) => {
-                // Map form fields to backend payload.
-                // Note: We are sending the industry value as a string;
-                // the backend will convert it to a JobIndustry instance.
-                let jobData = {
+                // Map form fields to backend payload
+                const jobData = {
                   title: values.jobtitle,
                   location: values.jobLocation,
                   industry: values.jobIndustry,
@@ -90,9 +116,9 @@ const Postmodal = () => {
 
                 console.log("Job data:", jobData);
                 try {
-                  // Ensure this URL matches your Django Ninja mounting point.
+                  // Updated URL - ensure it matches your Django mount point
                   const response = await Axios.post(
-                    "http://127.0.0.1:8000/jobs/create-job",
+                    "http://127.0.0.1:8000/create-job",
                     jobData,
                     { headers: { "Content-Type": "application/json" } }
                   );
@@ -107,103 +133,91 @@ const Postmodal = () => {
                 }
               }}
             >
-              {({ errors, touched, isSubmitting }) => (
+              {({ errors, touched, isSubmitting, handleChange, setFieldValue }) => (
                 <Form className="post_form" id="post_form">
                   <div className="row form_row">
+                    {/* Job Title */}
                     <div className="col-12 col-md-6 mb-2">
                       <label htmlFor="jobtitle" className="form-label mb-0">
                         Write a title for your Job
                       </label>
-                      <Field
-                        name="jobtitle"
-                        className="form-control"
-                        placeholder="30 letters Max"
-                      />
+                      <Field name="jobtitle" className="form-control" placeholder="30 letters Max" />
                       {touched.jobtitle && errors.jobtitle && (
                         <div className="errors">{errors.jobtitle}</div>
                       )}
                     </div>
+                    {/* Job Location */}
                     <div className="col-12 col-md-6 mb-2">
                       <label htmlFor="jobLocation" className="form-label mb-0">
                         Where will the job take place?
                       </label>
                       <span className="location">
-                        <Field
-                          name="jobLocation"
-                          id="jobLocation"
-                          className="form-control"
-                          placeholder="Location"
-                        />
-                        <FontAwesomeIcon
-                          icon={faLocationDot}
-                          className="location-icon"
-                        />
+                        <Field name="jobLocation" id="jobLocation" className="form-control" placeholder="Location" />
+                        <FontAwesomeIcon icon={faLocationDot} className="location-icon" />
                       </span>
                       {touched.jobLocation && errors.jobLocation && (
                         <div className="errors">{errors.jobLocation}</div>
                       )}
                     </div>
+                    {/* Job Industry (dynamic) */}
                     <div className="col-12 mb-2">
                       <label htmlFor="jobIndustry" className="form-label mb-0">
                         Job Industry
                       </label>
-                      <Field
-                        as="select"
-                        name="jobIndustry"
-                        id="jobIndustry"
-                        className="form-control"
-                      >
-                        <option value="">Select Job industry</option>
-                        <option value="Technology">Technology</option>
-                        <option value="Hospitality">Hospitality</option>
-                        <option value="Tv & Accessories">Tv & Accessories</option>
-                        <option value="Electrical">Electrical</option>
+                      <Field name="jobIndustry">
+                        {({ field, form }) => (
+                          <select
+                            {...field}
+                            id="jobIndustry"
+                            className="form-control"
+                            onChange={(e) => {
+                              form.handleChange(e);
+                              setSelectedIndustry(e.target.value);
+                              // Reset subcategory when industry changes
+                              form.setFieldValue("jobSubCategory", "");
+                            }}
+                          >
+                            <option value="">Select Job industry</option>
+                            {industries.map((industry) => (
+                              <option key={industry.id} value={industry.id}>
+                                {industry.name}
+                              </option>
+                            ))}
+                          </select>
+                        )}
                       </Field>
                       {touched.jobIndustry && errors.jobIndustry && (
                         <div className="errors">{errors.jobIndustry}</div>
                       )}
                     </div>
+                    {/* Job Subcategory (filtered by selected industry) */}
                     <div className="col-12 mb-2">
                       <label htmlFor="jobSubCategory" className="form-label mb-0">
                         Sub Category (select at most 6)
                       </label>
-                      <Field
-                        as="select"
-                        name="jobSubCategory"
-                        id="jobSubCategory"
-                        className="form-control"
-                      >
-                        <option value="">
-                          Select the sub category of the job industry
-                        </option>
-                        <option value="Air Conditioner Installation">
-                          Air Conditioner Installation
-                        </option>
-                        <option value="Furniture Assembly">
-                          Furniture Assembly
-                        </option>
-                        <option value="Home Repair Services">
-                          Home Repair Services
-                        </option>
-                        <option value="Locks Installation">
-                          Locks Installation
-                        </option>
+                      <Field name="jobSubCategory">
+                        {({ field }) => (
+                          <select {...field} id="jobSubCategory" className="form-control">
+                            <option value="">Select Subcategory</option>
+                            {filteredSubcategories.map((subcategory) => (
+                              <option key={subcategory.id} value={subcategory.id}>
+                                {subcategory.name}
+                              </option>
+                            ))}
+                          </select>
+                        )}
                       </Field>
                       {touched.jobSubCategory && errors.jobSubCategory && (
                         <div className="errors">{errors.jobSubCategory}</div>
                       )}
                     </div>
+                    {/* Job Rate and Applicants Needed */}
                     <div className="row m-0 mb-2 p-0">
                       <div className="col-6 form-group">
                         <label htmlFor="jobRate" className="form-label mb-0">
                           Job rate per hour
                         </label>
-                        <Field
-                          type="number"
-                          id="jobRate"
-                          name="jobRate"
-                          className="form-control"
-                        />
+                        <Field type="number" id="jobRate" name="jobRate" className="form-control" />
                         {touched.jobRate && errors.jobRate && (
                           <div className="errors">{errors.jobRate}</div>
                         )}
@@ -212,23 +226,18 @@ const Postmodal = () => {
                         <label htmlFor="noOfApplicants" className="form-label mb-0">
                           Applicants Needed
                         </label>
-                        <Field
-                          type="number"
-                          id="noOfApplicants"
-                          name="noOfApplicants"
-                          className="form-control"
-                        />
+                        <Field type="number" id="noOfApplicants" name="noOfApplicants" className="form-control" />
                         {touched.noOfApplicants && errors.noOfApplicants && (
                           <div className="errors">{errors.noOfApplicants}</div>
                         )}
                       </div>
                     </div>
+                    {/* Second part of the form */}
                     <div className="title">
                       <span>2/2</span>
                       <h3>Estimate the Timeline/Scope of your job</h3>
                       <p>
-                        This information helps us recommend the right applicant for
-                        your job.
+                        This information helps us recommend the right applicant for your job.
                       </p>
                     </div>
                     <div className="row m-0 mb-2 p-0">
@@ -292,13 +301,13 @@ const Postmodal = () => {
                   </div>
                   <div className="row m-0 p-0">
                     <div className="col-4 px-1">
-                      <button type="button" name="preview-btn" className="btn preview-btn">
+                      <button type="button" className="btn preview-btn">
                         Preview
                       </button>
                     </div>
                     <div className="col-8">
-                      <button type="submit" name="submit" className="btn proceed-btn">
-                        Proceed to Payment
+                      <button type="submit" className="btn proceed-btn" disabled={isSubmitting}>
+                        {isSubmitting ? "Submitting..." : "Proceed to Payment"}
                       </button>
                     </div>
                   </div>
