@@ -219,8 +219,14 @@ def create_job(request, payload: CreateJobSchema):
         subcategory_instance = JobSubCategory.objects.get(id=payload.subcategory)
     except JobSubCategory.DoesNotExist:
         return {"error": "Invalid subcategory provided"}, 400
-
+    user_id = request.session.get("_auth_user_id")
+    if not user_id:
+        return JsonResponse({"error": "Unauthorized access."}, status=401)
+    
+    user = get_object_or_404(User, id=user_id)
     job = Job.objects.create(
+        client=user,
+        
         title=payload.title,
         location=payload.location,
         industry=industry_instance,      # now passing the instance
@@ -237,12 +243,12 @@ def create_job(request, payload: CreateJobSchema):
     )
     return {"message": "Job Created Successfully", "job_id": job.id}
 
+
+
+
+
 # def create_job(request, payload: CreateJobSchema):
-#     """
-#     API to create a job.
-#     Expects date in "YYYY-MM-DD" and times in "HH:MM" format.
-#     """
-#     # Retrieve logged-in user
+
 #     user_id = request.session.get("_auth_user_id")
 #     if not user_id:
 #         return JsonResponse({"error": "Unauthorized access."}, status=401)
