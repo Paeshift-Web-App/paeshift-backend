@@ -62,10 +62,10 @@ class JobDetailSchema(JobListSchema):
 
 
 class CreateJobSchema(Schema):
-    title: str
+    jobtitle: str
     industry: Optional[str] = None
     subcategory: Optional[str] = None
-    applicants_needed: Optional[int] = 1
+    no_of_applicants: Optional[int] = 1
     job_type: Optional[str] = "single_day"
     shift_type: Optional[str] = "day_shift"
     date: str

@@ -209,11 +209,22 @@ def get_job_subcategories(request):
 
 @router.post("/create-job")
 def create_job(request, payload: CreateJobSchema):
+    # Convert the industry and subcategory IDs to model instances
+    try:
+        industry_instance = JobIndustry.objects.get(id=payload.industry)
+    except JobIndustry.DoesNotExist:
+        return {"error": "Invalid industry provided"}, 400
+
+    try:
+        subcategory_instance = JobSubCategory.objects.get(id=payload.subcategory)
+    except JobSubCategory.DoesNotExist:
+        return {"error": "Invalid subcategory provided"}, 400
+
     job = Job.objects.create(
         jobtitle=payload.title,
         location=payload.location,
-        industry=payload.industry,
-        sub_category=payload.subcategory,
+        industry=industry_instance,      # now passing the instance
+        sub_category=subcategory_instance,  # passing the instance too
         rate=payload.rate,
         no_of_applicants=payload.applicants_needed,
         job_type=payload.job_type,
@@ -225,6 +236,7 @@ def create_job(request, payload: CreateJobSchema):
         payment_status=payload.payment_status,
     )
     return {"message": "Job Created Successfully", "job_id": job.id}
+
 # def create_job(request, payload: CreateJobSchema):
 #     """
 #     API to create a job.

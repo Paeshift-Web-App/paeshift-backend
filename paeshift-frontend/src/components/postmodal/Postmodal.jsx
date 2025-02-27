@@ -77,9 +77,7 @@ const Postmodal = () => {
             <div className="title">
               <span>1/2</span>
               <h3>Let’s start with main details</h3>
-              <p>
-                This will help your job posts stand out to the right applicants.
-              </p>
+              <p>This will help your job posts stand out to the right applicants.</p>
             </div>
             <Formik
               initialValues={{
@@ -116,9 +114,9 @@ const Postmodal = () => {
 
                 console.log("Job data:", jobData);
                 try {
-                  // Updated URL - ensure it matches your Django mount point
+                  // NOTE: Update the POST URL to match your server route.
                   const response = await Axios.post(
-                    "http://127.0.0.1:8000/create-job",
+                    "http://127.0.0.1:8000/jobs/create-job",
                     jobData,
                     { headers: { "Content-Type": "application/json" } }
                   );
@@ -236,9 +234,7 @@ const Postmodal = () => {
                     <div className="title">
                       <span>2/2</span>
                       <h3>Estimate the Timeline/Scope of your job</h3>
-                      <p>
-                        This information helps us recommend the right applicant for your job.
-                      </p>
+                      <p>This information helps us recommend the right applicant for your job.</p>
                     </div>
                     <div className="row m-0 mb-2 p-0">
                       <div className="col-6">
