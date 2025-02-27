@@ -90,7 +90,7 @@ class Job(models.Model):
     rate = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
 
     # Additional fields
-    image = models.CharField(max_length=255, blank=True, null=True)
+    # image = models.CharField(max_length=255, blank=True, null=True)
     location = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

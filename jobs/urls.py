@@ -11,5 +11,5 @@ jobs_api.add_router("", jobs_router)
 
 urlpatterns = [
     # All endpoints from jobs_router are now available under this path
-    # path("", jobs_api.urls),  # e.g. /jobs/... in your main urls.py
+    path("", jobs_api.urls),  # e.g. /jobs/... in your main urls.py
 ]

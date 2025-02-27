@@ -29,11 +29,24 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
 ]
 
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
+SESSION_COOKIE_SECURE = False  # True in production
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = False  # Allow JS to read CSRF token
+CORS_ALLOW_HEADERS = [
+    "authorization",
+    "content-type",
+    "X-CSRFToken",
+]  # Allow custom h
+
+
+
 # -----------------------------
 # INSTALLED APPS
 # -----------------------------
 INSTALLED_APPS = [
-    # "corsheaders",            # Uncomment if using corsheaders
+    "corsheaders",            # Uncomment if using corsheaders
     # "jazzmin",                # Optional admin theme
 
     'django.contrib.sites',  # ✅ Keep only one instance of this
@@ -72,13 +85,18 @@ INSTALLED_APPS = [
 ]
 SITE_ID = 3  # Placeholder
 
+# ✅ Enable session authentication
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
-    ),
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication",  # ✅ Important for session-based auth
+        "rest_framework.authentication.TokenAuthentication",  # ✅ If using token-based auth
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",  # ✅ Requires authentication
+    ],
 }
 
-
+CSRF_COOKIE_SECURE = False
 SESSION_COOKIE_SECURE = False
 # -----------------------------
 # AUTH BACKENDS & SITE_ID

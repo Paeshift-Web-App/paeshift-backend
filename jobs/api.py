@@ -17,7 +17,17 @@ import os
 from datetime import datetime
 from .models import *
 from .schemas import *
+import os
+from datetime import datetime
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from django.contrib.auth import get_user_model
+from ninja import Router
+from .models import Job, JobIndustry, JobSubCategory
+from .schemas import CreateJobSchema
 
+router = Router()
+User = get_user_model()
 router = Router()
 User = get_user_model()
 
@@ -57,7 +67,7 @@ def whoami(request):
     return {
         "user_id": request.user.id,
         "username": request.user.username,
-        "role": request.session.get("user_role", "unknown")
+        # "role": request.session.get("role", "unknown")
     }
 
 @router.post("/login")
@@ -173,17 +183,7 @@ def update_profile(request, first_name: str = None, last_name: str = None,
 # ----------------------------------------------------------------------
 # Job Endpoints
 # ----------------------------------------------------------------------
-import os
-from datetime import datetime
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
-from django.contrib.auth import get_user_model
-from ninja import Router
-from .models import Job, JobIndustry, JobSubCategory
-from .schemas import CreateJobSchema
 
-router = Router()
-User = get_user_model()
 
 def get_related_object(model, field, value):
     """
@@ -198,66 +198,86 @@ def get_related_object(model, field, value):
             {"error": f"{model.__name__} with {field} '{value}' does not exist."}, status=400
         )
         return None, error
+    
+    
+
 
 @router.post("/create-job")
 def create_job(request, payload: CreateJobSchema):
-    """
-    POST /jobs/create-job - Creates a new job.
-    Expects date in "YYYY-MM-DD" and times in "HH:MM" format.
-    """
-    # Retrieve the logged-in user from the session.
-    user_id = request.session.get("_auth_user_id")
-    if not user_id:
-        return JsonResponse({"error": "User session not found."}, status=401)
-    user = get_object_or_404(User, id=user_id)
-    
-    # Convert date and time.
-    try:
-        job_date = datetime.strptime(payload.date, "%Y-%m-%d").date()
-    except ValueError as e:
-        return JsonResponse({"error": f"Invalid date format: {str(e)}"}, status=400)
-    
-    try:
-        start_time = datetime.strptime(payload.start_time, "%H:%M").time()
-        end_time = datetime.strptime(payload.end_time, "%H:%M").time()
-    except ValueError as e:
-        return JsonResponse({"error": f"Invalid time format: {str(e)}"}, status=400)
-    
-    # Get related Industry and SubCategory objects (if provided)
-    industry, error = (get_related_object(JobIndustry, "name", payload.industry)
-                       if payload.industry else (None, None))
-    if error:
-        return error
-    subcategory, error = (get_related_object(JobSubCategory, "name", payload.subcategory)
-                          if payload.subcategory else (None, None))
-    if error:
-        return error
-
-    # Create the new Job record.
-    new_job = Job.objects.create(
-        client=user,
-        title=payload.title,
-        industry=industry,
-        subcategory=subcategory,
-        applicants_needed=payload.applicants_needed,
+    job = Job.objects.create(
+        jobtitle=payload.title,
+        location=payload.location,
+        industry=payload.industry,
+        sub_category=payload.subcategory,
+        rate=payload.rate,
+        no_of_applicants=payload.applicants_needed,
         job_type=payload.job_type,
         shift_type=payload.shift_type,
-        date=job_date,
-        start_time=start_time,
-        end_time=end_time,
+        job_date=payload.date,
+        start_time=payload.start_time,
+        end_time=payload.end_time,
         duration=payload.duration,
-        rate=payload.rate,
-        location=payload.location,
-        image=payload.image,
-        payment_status=payload.payment_status,
-    )                                          
-    return JsonResponse(
-        {"success": True, "message": "Job created successfully", "job_id": new_job.id},
-        status=201
+        payment_status=payload.payment_status
     )
+    return {"message": "Job Created Successfully"}
 
 
-# jobs/api.py (continued from previous version)
+
+
+
+# def create_job(request, payload: CreateJobSchema):
+#     """
+#     API to create a job.
+#     Expects date in "YYYY-MM-DD" and times in "HH:MM" format.
+#     """
+#     # Retrieve logged-in user
+#     user_id = request.session.get("_auth_user_id")
+#     if not user_id:
+#         return JsonResponse({"error": "Unauthorized access."}, status=401)
+    
+#     user = get_object_or_404(User, id=user_id)
+
+#     # Convert date and time
+#     try:
+#         job_date = datetime.strptime(payload.date, "%Y-%m-%d").date()
+#         start_time = datetime.strptime(payload.start_time, "%H:%M").time()
+#         end_time = datetime.strptime(payload.end_time, "%H:%M").time()
+#     except ValueError as e:
+#         return JsonResponse({"error": f"Invalid date/time format: {str(e)}"}, status=400)
+
+#     # Get Industry and SubCategory (if provided)
+#     industry = get_object_or_404(JobIndustry, name=payload.industry) if payload.industry else None
+#     subcategory = get_object_or_404(JobSubCategory, name=payload.subcategory) if payload.subcategory else None
+
+#     # Create the Job
+#     new_job = Job.objects.create(
+#         # client=user,
+#         title=payload.title,
+#         industry=industry,
+#         subcategory=subcategory,
+#         applicants_needed=payload.applicants_needed,
+#         job_type=payload.job_type,
+#         shift_type=payload.shift_type,
+#         date=job_date,
+#         start_time=start_time,
+#         end_time=end_time,
+#         duration=payload.duration,
+#         rate=payload.rate,
+#         location=payload.location,
+#         payment_status=payload.payment_status,
+#     )
+
+#     return JsonResponse({"success": True, "message": "Job created successfully", "job_id": new_job.id}, status=201)
+
+
+
+
+
+
+
+
+
+
 
 # Add these imports if not already present
 from typing import List, Optional
