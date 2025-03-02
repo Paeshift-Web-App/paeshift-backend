@@ -207,94 +207,85 @@ def get_job_industries(request):
 def get_job_subcategories(request):
     return JobSubCategory.objects.all()
 
-@router.post("/create-job")
-def create_job(request, payload: CreateJobSchema):
-    # Convert the industry and subcategory IDs to model instances
-    try:
-        industry_instance = JobIndustry.objects.get(id=payload.industry)
-    except JobIndustry.DoesNotExist:
-        return {"error": "Invalid industry provided"}, 400
-
-    try:
-        subcategory_instance = JobSubCategory.objects.get(id=payload.subcategory)
-    except JobSubCategory.DoesNotExist:
-        return {"error": "Invalid subcategory provided"}, 400
-    user_id = request.session.get("_auth_user_id")
-    if not user_id:
-        return JsonResponse({"error": "Unauthorized access."}, status=401)
-    
-    user = get_object_or_404(User, id=user_id)
-    job = Job.objects.create(
-        client=user,
-        
-        title=payload.title,
-        location=payload.location,
-        industry=industry_instance,      # now passing the instance
-        sub_category=subcategory_instance,  # passing the instance too
-        rate=payload.rate,
-        applicants_needed=payload.applicants_needed,
-        job_type=payload.job_type,
-        shift_type=payload.shift_type,
-        job_date=payload.date,
-        start_time=payload.start_time,
-        end_time=payload.end_time,
-        duration=payload.duration or "2hrs",
-        payment_status=payload.payment_status,
-    )
-    return {"message": "Job Created Successfully", "job_id": job.id}
-
-
-
-
-
 # def create_job(request, payload: CreateJobSchema):
+#     # Convert the industry and subcategory IDs to model instances
+#     try:
+#         industry_instance = JobIndustry.objects.get(id=payload.industry)
+#     except JobIndustry.DoesNotExist:
+#         return {"error": "Invalid industry provided"}, 400
 
+#     try:
+#         subcategory_instance = JobSubCategory.objects.get(id=payload.subcategory)
+#     except JobSubCategory.DoesNotExist:
+#         return {"error": "Invalid subcategory provided"}, 400
+    
 #     user_id = request.session.get("_auth_user_id")
 #     if not user_id:
 #         return JsonResponse({"error": "Unauthorized access."}, status=401)
     
 #     user = get_object_or_404(User, id=user_id)
-
-#     # Convert date and time
-#     try:
-#         job_date = datetime.strptime(payload.date, "%Y-%m-%d").date()
-#         start_time = datetime.strptime(payload.start_time, "%H:%M").time()
-#         end_time = datetime.strptime(payload.end_time, "%H:%M").time()
-#     except ValueError as e:
-#         return JsonResponse({"error": f"Invalid date/time format: {str(e)}"}, status=400)
-
-#     # Get Industry and SubCategory (if provided)
-#     industry = get_object_or_404(JobIndustry, name=payload.industry) if payload.industry else None
-#     subcategory = get_object_or_404(JobSubCategory, name=payload.subcategory) if payload.subcategory else None
-
-#     # Create the Job
-#     new_job = Job.objects.create(
-#         # client=user,
+#     job = Job.objects.create(
+#         client=user,
 #         title=payload.title,
-#         industry=industry,
-#         subcategory=subcategory,
+#         location=payload.location,
+#         industry=industry_instance,      # now passing the instance
+#         sub_category=subcategory_instance,  # passing the instance too
+#         rate=payload.rate,
 #         applicants_needed=payload.applicants_needed,
 #         job_type=payload.job_type,
 #         shift_type=payload.shift_type,
-#         date=job_date,
-#         start_time=start_time,
-#         end_time=end_time,
-#         duration=payload.duration,
-#         rate=payload.rate,
-#         location=payload.location,
+#         job_date=payload.date,
+#         start_time=payload.start_time,
+#         end_time=payload.end_time,
+#         duration=payload.duration or "2hrs",
 #         payment_status=payload.payment_status,
 #     )
-
-#     return JsonResponse({"success": True, "message": "Job created successfully", "job_id": new_job.id}, status=201)
-
+#     return {"message": "Job Created Successfully", "job_id": job.id}
 
 
 
 
+@router.post("/create-job")
 
+def create_job(request, payload: CreateJobSchema):
 
+    user_id = request.session.get("_auth_user_id")
+    if not user_id:
+        return JsonResponse({"error": "Unauthorized access."}, status=401)
+    
+    user = get_object_or_404(User, id=user_id)
 
+    # Convert date and time
+    try:
+        job_date = datetime.strptime(payload.date, "%Y-%m-%d").date()
+        start_time = datetime.strptime(payload.start_time, "%H:%M").time()
+        end_time = datetime.strptime(payload.end_time, "%H:%M").time()
+    except ValueError as e:
+        return JsonResponse({"error": f"Invalid date/time format: {str(e)}"}, status=400)
 
+    # Get Industry and SubCategory (if provided)
+    industry = get_object_or_404(JobIndustry, name=payload.industry) if payload.industry else None
+    subcategory = get_object_or_404(JobSubCategory, name=payload.subcategory) if payload.subcategory else None
+
+    # Create the Job
+    new_job = Job.objects.create(
+        # client=user,
+        title=payload.title,
+        industry=industry,
+        subcategory=subcategory,
+        applicants_needed=payload.applicants_needed,
+        job_type=payload.job_type,
+        shift_type=payload.shift_type,
+        date=job_date,
+        start_time=start_time,
+        end_time=end_time,
+        duration=payload.duration,
+        rate=payload.rate,
+        location=payload.location,
+        payment_status=payload.payment_status,
+    )
+
+    return JsonResponse({"success": True, "message": "Job created successfully", "job_id": new_job.id}, status=201)
 
 
 # Add these imports if not already present
