@@ -207,46 +207,7 @@ def get_job_industries(request):
 def get_job_subcategories(request):
     return JobSubCategory.objects.all()
 
-# def create_job(request, payload: CreateJobSchema):
-#     # Convert the industry and subcategory IDs to model instances
-#     try:
-#         industry_instance = JobIndustry.objects.get(id=payload.industry)
-#     except JobIndustry.DoesNotExist:
-#         return {"error": "Invalid industry provided"}, 400
-
-#     try:
-#         subcategory_instance = JobSubCategory.objects.get(id=payload.subcategory)
-#     except JobSubCategory.DoesNotExist:
-#         return {"error": "Invalid subcategory provided"}, 400
-    
-#     user_id = request.session.get("_auth_user_id")
-#     if not user_id:
-#         return JsonResponse({"error": "Unauthorized access."}, status=401)
-    
-#     user = get_object_or_404(User, id=user_id)
-#     job = Job.objects.create(
-#         client=user,
-#         title=payload.title,
-#         location=payload.location,
-#         industry=industry_instance,      # now passing the instance
-#         sub_category=subcategory_instance,  # passing the instance too
-#         rate=payload.rate,
-#         applicants_needed=payload.applicants_needed,
-#         job_type=payload.job_type,
-#         shift_type=payload.shift_type,
-#         job_date=payload.date,
-#         start_time=payload.start_time,
-#         end_time=payload.end_time,
-#         duration=payload.duration or "2hrs",
-#         payment_status=payload.payment_status,
-#     )
-#     return {"message": "Job Created Successfully", "job_id": job.id}
-
-
-
-
 @router.post("/create-job")
-
 def create_job(request, payload: CreateJobSchema):
 
     user_id = request.session.get("_auth_user_id")
@@ -287,9 +248,6 @@ def create_job(request, payload: CreateJobSchema):
 
     return JsonResponse({"success": True, "message": "Job created successfully", "job_id": new_job.id}, status=201)
 
-
-# Add these imports if not already present
-from typing import List, Optional
 
 # Existing imports and helper functions remain above this point
 # Adding new helper function for job serialization
