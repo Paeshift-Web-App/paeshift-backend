@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLocationDot } from "@fortawesome/free-solid-svg-icons";
 import "./Postmodal.css";
 
-// Validation schema for form fields.
+// Validation schema for form fields
 const Schema = Yup.object().shape({
   jobtitle: Yup.string().min(2, "Too short!").required("Required"),
   jobLocation: Yup.string().min(2, "Too short!").required("Required"),
@@ -20,6 +20,22 @@ const Schema = Yup.object().shape({
   startTime: Yup.string().required("Required"),
   endTime: Yup.string().required("Required"),
 });
+
+// Helper function to get CSRF token from cookies
+const getCookie = (name) => {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== "") {
+    const cookies = document.cookie.split(";");
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === name + "=") {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+};
 
 const Postmodal = () => {
   const [industries, setIndustries] = useState([]);
@@ -50,7 +66,7 @@ const Postmodal = () => {
     fetchSubcategories();
   }, []);
 
-  // Filter subcategories based on the selected industry.
+  // Filter subcategories based on the selected industry
   const filteredSubcategories = subcategories.filter(
     (sub) => String(sub.industry_id) === selectedIndustry
   );
@@ -71,7 +87,12 @@ const Postmodal = () => {
             <h1 className="modal-title fs-5" id="staticBackdropLabel">
               Create Job Request
             </h1>
-            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <button
+              type="button"
+              className="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
           </div>
           <div className="modal-body mb-0 pb-0">
             <div className="title">
@@ -97,35 +118,42 @@ const Postmodal = () => {
               onSubmit={async (values, { setSubmitting, resetForm }) => {
                 // Map form fields to backend payload
                 const jobData = {
-                  jobtitle: values.jobtitle,
+                  title: values.jobtitle,
                   location: values.jobLocation,
                   industry: values.jobIndustry,
                   subcategory: values.jobSubCategory,
                   rate: Number(values.jobRate),
-                  no_of_applicants: Number(values.noOfApplicants),
+                  applicants_needed: Number(values.noOfApplicants),
                   job_type: values.jobType === "1" ? "single_day" : "multiple_days",
                   shift_type: values.shiftType === "day" ? "day_shift" : "night_shift",
-                  date: values.jobDate,
-                  start_time: values.startTime,
-                  end_time: values.endTime,
-                  duration: "2hrs", // Fixed duration or adjust as needed
-                  payment_status: "Pending",
+                  date: values.jobDate, // Expected as 'YYYY-MM-DD'
+                  start_time: values.startTime, // Expected as 'HH:MM'
+                  end_time: values.endTime, // Expected as 'HH:MM'
+                  duration: "2hrs", // Fixed value
+                  payment_status: "Pending", // Fixed value
                 };
 
                 console.log("Job data:", jobData);
                 try {
-                  // NOTE: Update the POST URL to match your server route.
                   const response = await Axios.post(
                     "http://127.0.0.1:8000/jobs/create-job",
                     jobData,
-                    { headers: { "Content-Type": "application/json" } }
+                    {
+                      headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": getCookie("csrftoken"), // Include CSRF token
+                      },
+                    }
                   );
                   console.log(response.data);
-                  alert("Job Created Successfully!");
+                  alert(`Job Created Successfully! ID: ${response.data.job_id}`);
                   resetForm();
                 } catch (error) {
                   console.error("Job creation error:", error);
-                  alert("Job Creation Failed!");
+                  alert(
+                    "Job Creation Failed: " +
+                      (error.response?.data?.error || "Unknown error")
+                  );
                 } finally {
                   setSubmitting(false);
                 }
@@ -139,7 +167,11 @@ const Postmodal = () => {
                       <label htmlFor="jobtitle" className="form-label mb-0">
                         Write a title for your Job
                       </label>
-                      <Field name="jobtitle" className="form-control" placeholder="30 letters Max" />
+                      <Field
+                        name="jobtitle"
+                        className="form-control"
+                        placeholder="30 letters Max"
+                      />
                       {touched.jobtitle && errors.jobtitle && (
                         <div className="errors">{errors.jobtitle}</div>
                       )}
@@ -150,7 +182,12 @@ const Postmodal = () => {
                         Where will the job take place?
                       </label>
                       <span className="location">
-                        <Field name="jobLocation" id="jobLocation" className="form-control" placeholder="Location" />
+                        <Field
+                          name="jobLocation"
+                          id="jobLocation"
+                          className="form-control"
+                          placeholder="Location"
+                        />
                         <FontAwesomeIcon icon={faLocationDot} className="location-icon" />
                       </span>
                       {touched.jobLocation && errors.jobLocation && (
@@ -191,7 +228,7 @@ const Postmodal = () => {
                     {/* Job Subcategory (filtered by selected industry) */}
                     <div className="col-12 mb-2">
                       <label htmlFor="jobSubCategory" className="form-label mb-0">
-                        Sub Category (select at most 6)
+                        Sub Category
                       </label>
                       <Field name="jobSubCategory">
                         {({ field }) => (
@@ -215,7 +252,12 @@ const Postmodal = () => {
                         <label htmlFor="jobRate" className="form-label mb-0">
                           Job rate per hour
                         </label>
-                        <Field type="number" id="jobRate" name="jobRate" className="form-control" />
+                        <Field
+                          type="number"
+                          id="jobRate"
+                          name="jobRate"
+                          className="form-control"
+                        />
                         {touched.jobRate && errors.jobRate && (
                           <div className="errors">{errors.jobRate}</div>
                         )}
@@ -224,7 +266,12 @@ const Postmodal = () => {
                         <label htmlFor="noOfApplicants" className="form-label mb-0">
                           Applicants Needed
                         </label>
-                        <Field type="number" id="noOfApplicants" name="noOfApplicants" className="form-control" />
+                        <Field
+                          type="number"
+                          id="noOfApplicants"
+                          name="noOfApplicants"
+                          className="form-control"
+                        />
                         {touched.noOfApplicants && errors.noOfApplicants && (
                           <div className="errors">{errors.noOfApplicants}</div>
                         )}
@@ -234,14 +281,22 @@ const Postmodal = () => {
                     <div className="title">
                       <span>2/2</span>
                       <h3>Estimate the Timeline/Scope of your job</h3>
-                      <p>This information helps us recommend the right applicant for your job.</p>
+                      <p>
+                        This information helps us recommend the right applicant for your
+                        job.
+                      </p>
                     </div>
                     <div className="row m-0 mb-2 p-0">
                       <div className="col-6">
                         <label htmlFor="jobType" className="form-label mb-0">
                           Type of Job
                         </label>
-                        <Field as="select" name="jobType" id="jobType" className="form-control">
+                        <Field
+                          as="select"
+                          name="jobType"
+                          id="jobType"
+                          className="form-control"
+                        >
                           <option value="">Select job type</option>
                           <option value="1">A day job</option>
                           <option value="2">Multiple</option>
@@ -254,7 +309,12 @@ const Postmodal = () => {
                         <label htmlFor="shiftType" className="form-label mb-0">
                           Type of Shift
                         </label>
-                        <Field as="select" name="shiftType" id="shiftType" className="form-control">
+                        <Field
+                          as="select"
+                          name="shiftType"
+                          id="shiftType"
+                          className="form-control"
+                        >
                           <option value="">Select shift type</option>
                           <option value="day">Day Shift</option>
                           <option value="night">Night Shift</option>
@@ -268,7 +328,12 @@ const Postmodal = () => {
                       <label htmlFor="jobDate" className="form-label mb-0">
                         Job Date
                       </label>
-                      <Field type="date" name="jobDate" id="jobDate" className="form-control" />
+                      <Field
+                        type="date"
+                        name="jobDate"
+                        id="jobDate"
+                        className="form-control"
+                      />
                       {touched.jobDate && errors.jobDate && (
                         <div className="errors">{errors.jobDate}</div>
                       )}
@@ -278,7 +343,12 @@ const Postmodal = () => {
                         <label htmlFor="startTime" className="form-label mb-0">
                           Start Time:
                         </label>
-                        <Field type="time" name="startTime" id="startTime" className="form-control" />
+                        <Field
+                          type="time"
+                          name="startTime"
+                          id="startTime"
+                          className="form-control"
+                        />
                         {touched.startTime && errors.startTime && (
                           <div className="errors">{errors.startTime}</div>
                         )}
@@ -287,7 +357,12 @@ const Postmodal = () => {
                         <label htmlFor="endTime" className="form-label mb-0">
                           End Time:
                         </label>
-                        <Field type="time" name="endTime" id="endTime" className="form-control" />
+                        <Field
+                          type="time"
+                          name="endTime"
+                          id="endTime"
+                          className="form-control"
+                        />
                         {touched.endTime && errors.endTime && (
                           <div className="errors">{errors.endTime}</div>
                         )}
@@ -302,7 +377,11 @@ const Postmodal = () => {
                       </button>
                     </div>
                     <div className="col-8">
-                      <button type="submit" className="btn proceed-btn" disabled={isSubmitting}>
+                      <button
+                        type="submit"
+                        className="btn proceed-btn"
+                        disabled={isSubmitting}
+                      >
                         {isSubmitting ? "Submitting..." : "Proceed to Payment"}
                       </button>
                     </div>

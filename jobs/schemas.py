@@ -63,18 +63,18 @@ class JobDetailSchema(JobListSchema):
 
 class CreateJobSchema(Schema):
     title: str
-    industry: Optional[str] = None
-    subcategory: Optional[str] = None
-    applicants_needed: Optional[int] = 1
-    job_type: Optional[str] = "single_day"
-    shift_type: Optional[str] = "day_shift"
-    date: str
-    start_time: str
-    end_time: str
-    duration: Optional[str] = None
-    rate: Optional[float] = None
-    location: Optional[str] = None
-    payment_status: Optional[str] = "Pending"
+    industry: str  # Can be ID or name
+    subcategory: str  # Can be ID or name
+    applicants_needed: int
+    job_type: str
+    shift_type: str
+    date: str  # Expected format: "YYYY-MM-DD"
+    start_time: str  # Expected format: "HH:MM"
+    end_time: str  # Expected format: "HH:MM"
+    duration: str
+    rate: float
+    location: str
+    payment_status: str
 
 # -------------------------------------------------------
 # 5) Application Schemas

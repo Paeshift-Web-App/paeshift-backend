@@ -9,15 +9,8 @@
   <!-- Font Awesome for icons -->
   <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
   <style>
-    .errors {
-      color: red;
-      font-size: 0.9em;
-    }
-    .location-icon {
-      margin-left: -30px;
-      position: relative;
-      top: 8px;
-    }
+    .errors { color: red; font-size: 0.9em; }
+    .location-icon { margin-left: -30px; position: relative; top: 8px; }
   </style>
 </head>
 <body>
@@ -102,7 +95,22 @@
   <!-- Axios CDN -->
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script>
-    // Wait for the DOM to load
+    // Helper function to get CSRF token from cookies
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
     document.addEventListener("DOMContentLoaded", function () {
       const industrySelect = document.getElementById("jobIndustry");
       const subcategorySelect = document.getElementById("jobSubCategory");
@@ -110,13 +118,13 @@
       const messageDiv = document.getElementById("message");
       let allSubcategories = [];
 
-      // Fetch industries from the backend
+      // Fetch industries
       axios.get("http://127.0.0.1:8000/jobs/job-industries/")
         .then(function(response) {
           response.data.forEach(industry => {
             const option = document.createElement("option");
-            option.value = industry.id;
-            option.textContent = industry.name;
+            option.value = industry.id;  // Assuming IndustrySchema includes 'id'
+            option.textContent = industry.name;  // Assuming IndustrySchema includes 'name'
             industrySelect.appendChild(option);
           });
         })
@@ -125,10 +133,11 @@
           messageDiv.textContent = "Error loading industries.";
         });
 
-      // Fetch subcategories from the backend
+      // Fetch subcategories
       axios.get("http://127.0.0.1:8000/jobs/job-subcategories/")
         .then(function(response) {
           allSubcategories = response.data;
+          // Assuming SubCategorySchema includes 'id', 'name', and 'industry_id'
         })
         .catch(function(error) {
           console.error("Error fetching subcategories:", error);
@@ -138,13 +147,12 @@
       // Filter subcategories when industry changes
       industrySelect.addEventListener("change", function () {
         const selectedIndustryId = this.value;
-        // Clear subcategory dropdown
         subcategorySelect.innerHTML = '<option value="">Select Subcategory</option>';
         const filtered = allSubcategories.filter(sub => String(sub.industry_id) === selectedIndustryId);
         filtered.forEach(subcategory => {
           const option = document.createElement("option");
-          option.value = subcategory.id;
-          option.textContent = subcategory.name;
+          option.value = subcategory.id;  // Assuming SubCategorySchema includes 'id'
+          option.textContent = subcategory.name;  // Assuming SubCategorySchema includes 'name'
           subcategorySelect.appendChild(option);
         });
       });
@@ -152,26 +160,28 @@
       // Handle form submission
       jobForm.addEventListener("submit", function(e) {
         e.preventDefault();
-        // Convert the form data to an object
         const formData = new FormData(jobForm);
         const jobData = {};
         formData.forEach((value, key) => {
           jobData[key] = value;
         });
-        // Ensure numeric values are numbers
         jobData.rate = Number(jobData.rate);
         jobData.applicants_needed = Number(jobData.applicants_needed);
-        
-        console.log("Job data:", jobData);
-        // POST to the job creation endpoint
-        axios.post("http://127.0.0.1:8000/create-job", jobData, { headers: { "Content-Type": "application/json" } })
-          .then(function(response) {
-            messageDiv.textContent = "Job Created Successfully! ID: " + response.data.job_id;
-          })
-          .catch(function(error) {
-            console.error("Job creation error:", error);
-            messageDiv.textContent = "Job Creation Failed!";
-          });
+
+        axios.post("http://127.0.0.1:8000/jobs/create-job", jobData, {
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCookie("csrftoken")  // Required for Django CSRF
+          }
+        })
+        .then(function(response) {
+          messageDiv.textContent = "Job Created Successfully! ID: " + response.data.job_id;
+          jobForm.reset();  // Clear form on success
+        })
+        .catch(function(error) {
+          console.error("Job creation error:", error);
+          messageDiv.textContent = "Job Creation Failed: " + (error.response?.data?.error || "Unknown error");
+        });
       });
     });
   </script>

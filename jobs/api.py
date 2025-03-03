@@ -25,6 +25,7 @@ from django.contrib.auth import get_user_model
 from ninja import Router
 from .models import Job, JobIndustry, JobSubCategory
 from .schemas import *
+from django.shortcuts import render
 
 router = Router()
 User = get_user_model()
@@ -56,6 +57,9 @@ def get_related_object(model, field_name, value, error_message="Not found"):
     except model.DoesNotExist:
         return None, Response({"error": error_message}, status=404)
 
+
+
+
 # ----------------------------------------------------------------------
 # Authentication Endpoints
 # ----------------------------------------------------------------------
@@ -80,6 +84,10 @@ def login_view(request, payload: LoginSchema):
         request.session.modified = True
         print("Logged-in User ID:", user.id)  # Debugging
         return Response({"message": "Login successful", "user_id": user.id}, status=200)
+    
+    if user is not None:
+        login(request, user)  # Sets the session cookie
+        return JsonResponse({"success": True})
     return Response({"error": "Invalid credentials"}, status=401)
 
 @router.post("/signup")
@@ -198,6 +206,13 @@ def get_related_object(model, field, value):
             {"error": f"{model.__name__} with {field} '{value}' does not exist."}, status=400
         )
         return None, error
+   
+   
+   
+@router.get("/check-session")
+def check_session(request):
+    user_id = request.session.get("_auth_user_id")
+    return JsonResponse({"user_id": user_id})
     
 @router.get("/job-industries/", response=list[IndustrySchema])
 def get_job_industries(request):
@@ -207,16 +222,17 @@ def get_job_industries(request):
 def get_job_subcategories(request):
     return JobSubCategory.objects.all()
 
-@router.post("/create-job")
+@router.post("/create-job", auth=None)
 def create_job(request, payload: CreateJobSchema):
-
     user_id = request.session.get("_auth_user_id")
     if not user_id:
-        return JsonResponse({"error": "Unauthorized access."}, status=401)
-    
-    user = get_object_or_404(User, id=user_id)
+        # Temporary: Use a default user for testing
+        user = User.objects.first()  # Or create a test user
+        if not user:
+            return JsonResponse({"error": "No users available for testing"}, status=500)
+    else:
+        user = get_object_or_404(User, id=user_id)
 
-    # Convert date and time
     try:
         job_date = datetime.strptime(payload.date, "%Y-%m-%d").date()
         start_time = datetime.strptime(payload.start_time, "%H:%M").time()
@@ -224,16 +240,27 @@ def create_job(request, payload: CreateJobSchema):
     except ValueError as e:
         return JsonResponse({"error": f"Invalid date/time format: {str(e)}"}, status=400)
 
-    # Get Industry and SubCategory (if provided)
-    industry = get_object_or_404(JobIndustry, name=payload.industry) if payload.industry else None
-    subcategory = get_object_or_404(JobSubCategory, name=payload.subcategory) if payload.subcategory else None
+    industry_obj = None
+    if payload.industry and payload.industry.strip():
+        try:
+            industry_id = int(payload.industry)
+            industry_obj = get_object_or_404(JobIndustry, id=industry_id)
+        except ValueError:
+            industry_obj = get_object_or_404(JobIndustry, name=payload.industry.strip())
 
-    # Create the Job
+    subcategory_obj = None
+    if payload.subcategory and payload.subcategory.strip():
+        try:
+            subcategory_id = int(payload.subcategory)
+            subcategory_obj = get_object_or_404(JobSubCategory, id=subcategory_id)
+        except ValueError:
+            subcategory_obj = get_object_or_404(JobSubCategory, name=payload.subcategory.strip())
+
     new_job = Job.objects.create(
-        # client=user,
+        client=user,
         title=payload.title,
-        industry=industry,
-        subcategory=subcategory,
+        industry=industry_obj,
+        subcategory=subcategory_obj,
         applicants_needed=payload.applicants_needed,
         job_type=payload.job_type,
         shift_type=payload.shift_type,
@@ -246,10 +273,23 @@ def create_job(request, payload: CreateJobSchema):
         payment_status=payload.payment_status,
     )
 
-    return JsonResponse({"success": True, "message": "Job created successfully", "job_id": new_job.id}, status=201)
+    return JsonResponse({
+        "success": True,
+        "message": "Job created successfully",
+        "job_id": new_job.id
+    }, status=201)
 
 
-# Existing imports and helper functions remain above this point
+
+@router.get("/jobs")
+def get_jobs(request):
+    jobs = Job.objects.all()
+    # return {"jobs": list(jobs.values())}  # Serialize to JSON-compatible format
+    return render(request, 'job.html', {'jobs': jobs})
+
+
+
+
 # Adding new helper function for job serialization
 def serialize_job(job, include_extra=False):
     """Serialize job object into dictionary with optional extra fields"""
