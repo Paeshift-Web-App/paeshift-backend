@@ -63,16 +63,38 @@ def get_related_object(model, field_name, value, error_message="Not found"):
 # ----------------------------------------------------------------------
 # Authentication Endpoints
 # ----------------------------------------------------------------------
+from django.contrib.auth import get_user_model
+from django.http import JsonResponse
+
+User = get_user_model()
+
+from django.http import JsonResponse
+
 @router.get("/whoami")
 def whoami(request):
     """GET /jobs/whoami - Returns user's ID, username, and role"""
-    if not request.user.is_authenticated:
-        return {"error": "Not logged in"}
-    return {
-        "user_id": request.user.id,
-        "username": request.user.username,
-        # "role": request.session.get("role", "unknown")
-    }
+    
+    user_id = request.session.get("_auth_user_id")
+    if not user_id:
+        # Temporary: Use a default user for testing
+        user = User.objects.first()  # Or create a test user
+        if not user:
+            return JsonResponse({"error": "No users available for testing"}, status=500)
+    else:
+        user = get_object_or_404(User, id=user_id)
+
+    try:
+        profile = Profile.objects.get(user=user)  # Get user's profile
+        role = profile.role
+    except Profile.DoesNotExist:
+        role = "No role assigned"
+
+    return JsonResponse({
+        "user_id": user.id,
+        "username": user.username,
+        "role": role,
+    })
+
 
 @router.post("/login")
 def login_view(request, payload: LoginSchema):
@@ -81,6 +103,8 @@ def login_view(request, payload: LoginSchema):
     if user:
         login(request, user)
         request.session["user_id"] = user.id
+        # request.session["role"] = user.role
+        
         request.session.modified = True
         print("Logged-in User ID:", user.id)  # Debugging
         return Response({"message": "Login successful", "user_id": user.id}, status=200)
@@ -99,7 +123,9 @@ def signup_view(request, payload: SignupSchema):
             email=payload.email,
             password=payload.password,
             first_name=payload.first_name,
-            last_name=payload.last_name
+            last_name=payload.last_name,
+            # role=payload.role
+            
         )
         user.backend = get_backends()[0].__class__.__name__
         login(request, user)
@@ -109,6 +135,9 @@ def signup_view(request, payload: SignupSchema):
         return Response({"error": "Email already exists"}, status=400)
     except Exception as e:
         return Response({"error": f"Unexpected error: {str(e)}"}, status=500)
+
+
+
 
 @router.post("/logout")
 def logout_view(request):
@@ -293,7 +322,7 @@ from django.http import JsonResponse
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 @router.get("/clientjobs", auth=None)
-def get_client_jobs(request, page: int = Query(1, gt=0), page_size: int = Query(10, gt=0)):
+def get_client_jobs(request, page: int = Query(1, gt=0), page_size: int = Query(50, gt=0)):
     # Ensure the user is authenticated
     user_id = request.session.get("_auth_user_id")
     if not user_id:

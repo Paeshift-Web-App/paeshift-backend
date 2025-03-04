@@ -42,7 +42,7 @@ const Main = () => {
   const [jobs, setJobs] = useState();
 
 
-  // useEffect(() => {
+  useEffect(() => {
 
     Axios.get("http://localhost:8000/jobs/clientjobs")
       .then((response) => {
@@ -50,9 +50,10 @@ const Main = () => {
         console.log(response.data.jobs);
       })
       .catch((error) => console.error(error));
-    // },[])
+    },[])
   // console.log(user.data)
-  
+  // const userrole = sessionStorage.get("role"); 
+  // console.log(userrole)
 
 
   return (

@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React from "react";
+import React, { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { sidebarRoutes } from "./Sidebarroutes";
 import { applicantSidebarRoutes } from "./Sidebarroutes";
@@ -11,6 +11,7 @@ import { faArrowRightFromBracket } from "@fortawesome/free-solid-svg-icons";
 import { faClose } from "@fortawesome/free-solid-svg-icons/faClose";
 import { userInfo } from "../../atoms/User.jsx";
 import { useRecoilValue, useRecoilState } from "recoil";
+import Axios from "axios";
 
 import "./Sidebar.css";
 
@@ -20,7 +21,16 @@ const Sidebar = () => {
   let user = useRecoilValue(userInfo);
 
   let [signout, setSignout] = useRecoilState(userInfo);
+  let [profile, setProfile] = useState("");
+
   let redir = useNavigate()
+
+  Axios.get("http://localhost:8000/jobs/whoami")
+  .then((response) => {
+    // setProfile(response.data);
+    console.log(response);
+  })
+  .catch((error) => console.error(error));
 
   const handleLogout = () => {
     setSignout({ isLoggedIn: false, data: {} })
