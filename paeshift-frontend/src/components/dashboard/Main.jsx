@@ -44,16 +44,15 @@ const Main = () => {
 
   // useEffect(() => {
 
-  //   Axios.get("http://localhost:8000/dashboard")
-  //     .then((response) => {
-  //       setProduct(response.data);
-  //     })
-  //     .catch((error) => console.error(error));
-
-
-
-
+    Axios.get("http://localhost:8000/jobs/clientjobs")
+      .then((response) => {
+        setJobs(response.data.jobs);
+        console.log(response.data.jobs);
+      })
+      .catch((error) => console.error(error));
+    // },[])
   // console.log(user.data)
+  
 
 
   return (
@@ -141,8 +140,9 @@ const Main = () => {
             <h3>Your Recent Job Requests</h3>
             <span><button type="button" data-bs-toggle="modal" data-bs-target="#jobrequestModal" >See More</button></span>
           </div>
+          
           <div className="cards p-0">
-            {JobsData && JobsData.filter((item) => {
+            {jobs && jobs.filter((item) => {
               return searchWork.toLowerCase() === "" ? item : item.title.toLowerCase().includes(searchWork.toLowerCase());
             }).map((item, key) => {
 
@@ -154,7 +154,7 @@ const Main = () => {
                         <img className="prof" src={ProfileImage} alt="profile" />
                       </span>
                       <span>
-                        <h4>{item.name}</h4>
+                        <h4>{item.client__username}</h4>
                         <img src={Stars} alt="profile" /> <span className="rate_score">4.98</span>
                       </span>
                     </span>
@@ -163,16 +163,16 @@ const Main = () => {
                     </span>
                   </div>
                   <div className="duration">
-                    <h3>{item.duration} Contract </h3> <span className="time_post">{item.date_posted}</span>
+                    <h3>{item.duration} Contract </h3> <span className="time_post">{item.date}</span>
                   </div>
                   <span className="title">
                     <h3>{item.title}</h3>
                   </span>
-                  <h4>{item.date}. {item.time}</h4>
+                  <h4>{item.date}. {item.start_time}</h4>
                   <span className="address text-truncate">{item.location}</span>
                   <div className="price">
                     <span>
-                      <h6>₦{item.amount}/hr</h6>
+                      <h6>₦{item.rate}/hr</h6>
                       <p>{item.no_of_application} applicant needed</p>
                     </span>
                     <span>

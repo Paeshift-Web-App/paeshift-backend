@@ -157,6 +157,7 @@ def get_profile(request):
     profile = getattr(user, "profile", None)
     pic_url = profile.profile_pic.url if (profile and profile.profile_pic) else ""
     return {
+        "name": f"{user.first_name} {user.last_name}",  # Include full name
         "first_name": user.first_name,
         "last_name": user.last_name,
         "email": user.email,
@@ -281,11 +282,67 @@ def create_job(request, payload: CreateJobSchema):
 
 
 
-@router.get("/jobs")
+from ninja import Router, Query
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
+from jobs.models import Job
+from django.contrib.auth import get_user_model
+
+from django.http import JsonResponse
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+
+@router.get("/clientjobs", auth=None)
+def get_client_jobs(request, page: int = Query(1, gt=0), page_size: int = Query(10, gt=0)):
+    # Ensure the user is authenticated
+    user_id = request.session.get("_auth_user_id")
+    if not user_id:
+        # Temporary: Use a default user for testing
+        user = User.objects.first()  # Or create a test user
+        if not user:
+            return JsonResponse({"error": "No users available for testing"}, status=500)
+    else:
+        user = get_object_or_404(User, id=user_id)
+    
+    # Filter jobs using the authenticated user's id
+    qs = Job.objects.filter(client_id=user.id).order_by("-date")
+    
+    # Paginate the queryset
+    paginator = Paginator(qs, page_size)
+    try:
+        jobs_page = paginator.page(page)
+    except PageNotAnInteger:
+        jobs_page = paginator.page(1)
+    except EmptyPage:
+        # Return an empty list if page is out-of-range
+        jobs_page = []
+
+    # Convert the page of jobs into a list of dictionaries
+    jobs_data = list(jobs_page.object_list.values(
+        "id",
+        "title",
+        "client__username",
+        "duration",
+        "date",
+        "start_time",
+        "end_time",
+        "location",
+        "rate",
+        "applicants_needed"
+    ))
+    
+    return JsonResponse({
+        "jobs": jobs_data,
+        "page": page,
+        "total_pages": paginator.num_pages,
+        "total_jobs": paginator.count,
+    })
+
+
+@router.get("/alljobs")
 def get_jobs(request):
     jobs = Job.objects.all()
-    # return {"jobs": list(jobs.values())}  # Serialize to JSON-compatible format
-    return render(request, 'job.html', {'jobs': jobs})
+    return {"jobs": list(jobs.values("id", "title", "client__username", "duration", "date", "start_time", "end_time", "location", "rate", "applicants_needed"))}
 
 
 

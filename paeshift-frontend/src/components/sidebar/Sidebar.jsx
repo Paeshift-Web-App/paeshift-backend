@@ -27,7 +27,7 @@ const Sidebar = () => {
     redir("../")
   }
   // console.log(user);
-  console.log(user.data.role);
+  // console.log(user.data.role);
   return (
     <section className="container_sidebar">
       <nav id="sidebarMenu" className="col-12 col-md-4 col-lg-3 col-xl-2 d-lg-block sidebar collapse p-3 p-md-1 p-lg-3 pt-4" >
