@@ -1,43 +1,15 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Track Job #1</title>
-</head>
-<body>
-<h1>Tracking Job #1</h1>
-
-<script>
-  const jobId = 1;
-  const wsUrl = `ws://127.0.0.1:8000/ws/job/${jobId}/location/`;
-  const socket = new WebSocket(wsUrl);
-
-  socket.onopen = () => {
-    console.log("Connected to job location WebSocket for job #" + jobId);
-  };
-
-  socket.onmessage = (event) => {
-    const data = JSON.parse(event.data);
-    console.log("Broadcast from server:", data);
-    // e.g. update a map marker or show the last known address
-  };
-
-  socket.onclose = () => {
-    console.log("WebSocket disconnected for job #" + jobId);
-  };
-
-  // Send location every 5 seconds
-  setInterval(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((pos) => {
-        const payload = {
-          latitude: pos.coords.latitude,
-          longitude: pos.coords.longitude
-        };
-        socket.send(JSON.stringify(payload));
-      });
-    }
-  }, 5000);
-</script>
-</body>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Paeshift</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+  </body>
 </html>

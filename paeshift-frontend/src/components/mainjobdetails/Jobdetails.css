@@ -5,13 +5,18 @@
 
 
 .page_title {
+  /* width: 90%; */
+  /* display: flex; */
+  /* justify-content: space-between; */
   margin-top: 1rem;
   margin-bottom: 1rem;
+  /* align-items: center; */
+
 }
 
 .page_title h1 {
   font-weight: bold;
-  font-size: 1.2rem;
+  font-size: 1.5rem;
 }
 
 
@@ -20,21 +25,10 @@
 }
 
 
-.page_title
- .payment-btn {
-  display: flex;
-  justify-content: space-between;
-  
- }
 
-.page_title .payment-btn button {
-font-size: 12px;
-font-weight: 500;
-line-height: 14.4px;
-color: var(--primary-purple);
-justify-self: center;align-self: center;
-background-color: transparent;
-}
+
+
+
 
 
 
@@ -79,10 +73,6 @@ background-color: transparent;
 }
 
 .container__data .map_wrapper img {
-  width: 100%;
-}
-
-.container__data .map_wrapper .img {
   width: 100%;
 }
 
@@ -202,30 +192,6 @@ background-color: transparent;
 
 }
 
-.container__data .container_bottom .applicant_details {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.container__data .container_bottom h4 {
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 14.4px;
-  margin: 0;
-}
-
-.container__data .container_bottom button.view-btn {
-  font-size: 8px;
-  font-weight: 700;
-  line-height: 9.6px;
-  padding: 10px 16px;
-  border-radius: 8px;
-  opacity: 0.5px;
-  background-color: var(--primary-purple);
-  color: var(--color-text-white);
-}
-
 
 
 .container__data .buttons {
@@ -271,3 +237,4 @@ background-color: transparent;
   font-size: 2rem;
   margin-bottom: 0.2rem;
 } */
+

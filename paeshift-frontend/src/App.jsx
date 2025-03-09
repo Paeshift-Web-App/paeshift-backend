@@ -1,17 +1,15 @@
-import { useState } from 'react'
-
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import JobDetail from "./components/jobdetail/JobDetail"; // The file below
 
 function App() {
- 
-
   return (
-      <div>
-        <div className="row">
-          <div className="col-12 fs-1">Hello</div>
-        </div>
-       
-      </div>
-  )
+    <Router>
+      <Routes>
+        {/* ...other routes... */}
+        <Route path="/jobs/:jobId" element={<JobDetail />} />
+      </Routes>
+    </Router>
+  );
 }
 
-export default App
+export default App;

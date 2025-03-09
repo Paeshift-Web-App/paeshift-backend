@@ -4,7 +4,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 import { faBookmark } from "@fortawesome/free-regular-svg-icons";
 
-import GoogleMapReact from "google-map-react";
 
 
 import Stars from "../../assets/images/stars.png";
@@ -14,15 +13,14 @@ import ProfileImage from "../../assets/images/profile.png";
 import MapImage from "../../assets/images/map.png";
 import Walletmodal from "../walletmodal/Walletmodal";
 import Profilemodal from "../profile/Profilemodal";
-import Applicantmodal from "../applicantmodal/Applicantmodal";
-import PaymentDetailsmodal from "../paymentdetailsmodal/PaymentDetailsmodal";
 
 
 
 // import { userInfo } from "../../atoms/User.jsx";
 // import { useRecoilValue } from "recoil";
 
-const AnyReactComponent = ({ text }) => <div>{text}</div>;
+
+
 
 const Main = () => {
   // let user = useRecoilValue(userInfo);
@@ -31,13 +29,7 @@ const Main = () => {
   const [admins, setAdmins] = useState();
   const [users, setUsers] = useState();
 
-  const defaultProps = {
-    center: {
-      lat: 11.3970071,
-      lng: 5.4847741,
-    },
-    zoom: 8,
-  };
+
 
   function applyJob() {
     // swal("Application Successful!", "Your application has been successfully submitted. The client will review your details and get back to you shortly.", "success", { button: true, timer: 1500 })
@@ -87,12 +79,11 @@ const Main = () => {
             <FontAwesomeIcon icon={faChevronLeft} />
           </a>
         </div>
-        <div className="col-10 payment-btn">
+        <div className="col-10">
           <h1 className="mb-0">Job Details</h1>
-          <button type="button" className="mb-0 me-1" data-bs-toggle="modal" data-bs-target="#paymentDetailsModal">View Payment Detail</button>
         </div>
         <div className="col-1 p-0">
-          <button className="navbar-toggler position-absolute d-lg-none collapsed mt-1" type="button"
+          <button className="navbar-toggler position-absolute d-lg-none collapsed" type="button"
             data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation"
           >
             <FontAwesomeIcon className="icon-bars" icon={faBars} />
@@ -101,16 +92,8 @@ const Main = () => {
       </div>
       <section className="container container__data">
         <div className="row m-0 p-0 map_wrapper">
-          {/* <div className="col-12 m-0 p-0" style={{ height: '100vh', width: '100%' }}> */}
-          <div className="col-12 m-0 p-0 img" >
+          <div className="col-12 m-0 p-0">
             <img src={MapImage} alt="MapImage" />
-            {/* <GoogleMapReact
-              bootstrapURLKeys={{ key: "AIzaSyAMDoXjU2XFWN1vKFPxAVimw_teBjVBpQA" }}
-              defaultCenter={defaultProps.center}
-              defaultZoom={defaultProps.zoom}
-            >
-              <AnyReactComponent lat={11.3970071} lng={5.4847741} text="Google Map" />
-            </GoogleMapReact> */}
           </div>
         </div>
         <div className="row mt-3 px-3">
@@ -128,25 +111,6 @@ const Main = () => {
               </span>
               <span className="top_cta">
                 <button className="btn" data-bs-toggle="modal" data-bs-target="#profileModal">View Profile</button>
-              </span>
-            </div>
-          </div>
-        </div>
-        <div className="row mt-3 px-3">
-          <div className="col-12 job_details">
-            <h4 className="">Worker(s)</h4>
-            <div className="card_top">
-              <span className="profile_info">
-                <span>
-                  <img className="prof" src={ProfileImage} alt="profile" />
-                </span>
-                <span>
-                  <h4>Eniola Lucas</h4>
-                  <img src={Stars} alt="profile" /> <span className="rate_score">4.98</span>
-                </span>
-              </span>
-              <span className="top_cta">
-                <button className="btn" data-bs-toggle="modal" data-bs-target="#profileModal">Feedback Worker</button>
               </span>
             </div>
           </div>
@@ -181,23 +145,13 @@ const Main = () => {
             </div>
           </div>
         </section>
-        <section className="container_bottom">
-          <div className="row">
-            <div className="col-12 applicant_details">
-              <h4>2 Applicant(s) Applied</h4>
-              <button className="btn view-btn" data-bs-toggle="modal" data-bs-target="#applicantModal">View Applicants</button>
-            </div>
-          </div>
-        </section>
         <section className="buttons">
           <button className="btn saved">Saved &nbsp; <FontAwesomeIcon icon={faBookmark} className="icon-saved" /> </button>
-          <button className="btn apply-btn" onClick={() => applyJob()}>Apply Now</button>
+          <button className="btn apply-btn" onClick={()=>applyJob()}>Apply Now</button>
         </section>
       </section>
       <div className="row">
         <Profilemodal />
-        <Applicantmodal />
-        <PaymentDetailsmodal />
       </div>
     </main >
   )

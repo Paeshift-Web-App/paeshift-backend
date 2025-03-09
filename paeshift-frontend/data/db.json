@@ -1,4 +1,56 @@
 {
+  "Admin": [
+    {
+      "first_name": "Taofeeq",
+      "last_name": "Ogunsanya",
+      "userName": "Admin",
+      "id": "taofeeq@gmail.com",
+      "contact": "+63 983 0962 971",
+      "password": "123456",
+      "role": "sadmin",
+      "image": "http://dummyimage.com/157x158.png/dddddd/000000"
+    },
+    {
+      "first_name": "Khadijah",
+      "last_name": "Rasaq",
+      "userName": "Admin",
+      "id": "khadijah@gmail.com",
+      "contact": "+63 983 0962 979",
+      "password": "123456",
+      "role": "admin",
+      "image": "http://dummyimage.com/122x180.png/cc0000/ffffff"
+    },
+    {
+      "first_name": "Okeomasilachi",
+      "last_name": "Onyedibia",
+      "userName": "Admin",
+      "id": "okeoma@gmail.com",
+      "contact": "+63 983 0962 971",
+      "password": "123456",
+      "role": "admin",
+      "image": "http://dummyimage.com/206x105.png/ff4444/ffffff"
+    },
+    {
+      "first_name": "Aliyu",
+      "last_name": "Musas",
+      "userName": "Admin",
+      "id": "aliyu@gmail.com",
+      "contact": "+63 983 0962 971",
+      "password": "123456",
+      "role": "admin",
+      "image": "http://dummyimage.com/206x105.png/ff4444/ffffff"
+    },
+    {
+      "id": "admin@example.com",
+      "first_name": "New",
+      "last_name": "Admin",
+      "userName": "newadmin",
+      "contact": "+23481 8923 4444",
+      "password": "New",
+      "role": "admin",
+      "image": "../images/avatar.png"
+    }
+  ],
   "Users": [
     {
       "id": "newu@example.com",
@@ -22,7 +74,7 @@
       "lastName": "OGUNSANYA",
       "email": "infoasixtech@gmail.com",
       "role": "applicant",
-      "password": "Abcd12345@"
+      "password": "Abcd1234@"
     },
     {
       "id": "bdf7",
@@ -33,9 +85,6 @@
       "password": "Abcd1234@"
     }
   ],
-
-
-
   "Jobs": [
     {
       "name": "Eniola Lucas",
