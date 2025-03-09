@@ -9,15 +9,15 @@ Paystack Credentials
 
 
 git add .
-git commit -m "Rolde done lfg"
-git push origin backend
+git commit -m "save and unsave jobs"
+git push origin main
 
 
 git pull https://github.com/Paeshift-Web-App/paeshift-frontend/tree/main
 
 daphne -b 0.0.0.0 -p 8000 payshift.asgi:application --websocket_timeout 60
 
-git push -f origin backend
+git push -f origin main
 git push origin backend --force
 git push origin backend --force-with-lease
 

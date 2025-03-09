@@ -110,7 +110,7 @@ PAYSTACK_SECRET_KEY = "sk_test_xxxxxxxxxxxxxxxxxxxxxxx"
 PAYSTACK_PUBLIC_KEY = "pk_test_xxxxxxxxxxxxxxxxxxxxxxx"
 
 
-AUTH_USER_MODEL = "jobs.User"  # Adjust "jobs" to your app name
+# AUTH_USER_MODEL = "jobs.User"  # Adjust "jobs" to your app name
 
 
 # -----------------------------
