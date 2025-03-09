@@ -10,7 +10,7 @@ Paystack Credentials
 
 git add .
 git commit -m "Rolde done lfg"
-git push origin main
+git push origin backend
 
 
 git pull https://github.com/Paeshift-Web-App/paeshift-frontend/tree/main
