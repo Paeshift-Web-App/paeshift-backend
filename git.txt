@@ -9,7 +9,7 @@ Paystack Credentials
 
 
 git add .
-git commit -m "Role sorted"
+git commit -m "Rolde done lfg"
 git push origin main
 
 
