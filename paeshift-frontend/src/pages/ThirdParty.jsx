@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react'
-import {Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import brandLogo from "../assets/images/logo-sm.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck, faChevronLeft, faCircle, faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
@@ -38,11 +38,15 @@ const REDIRECT_URI = window.location.href;
 const ThirdParty = () => {
     const [provider, setProvider] = useState('')
     const [profile, setProfile] = useState(null)
+    const roleValue = useParams();
+    let redir = useNavigate();
 
     const onLoginStart = useCallback(() => {
-        alert('login start')
+        // alert('login start')
     }, [])
-
+    // const onLoginFailure = useCallback((error) => {
+    //     console.error('login failure', error)
+    // }, [])
     const onLogoutSuccess = useCallback(() => {
         setProfile(null)
         setProvider('')
@@ -64,7 +68,66 @@ const ThirdParty = () => {
                         },
                     }
                 );
-                console.log(res);
+                console.log(res.data);
+               let values = res.data;
+
+                // same shape as initial values
+                /**
+                 * Steps to create a new user
+                 * get data
+                 * sed to db in object format
+                 */
+
+                let userdata = {
+                    first_name: values.given_name,
+                    last_name: values.family_name,
+                    email: values.email,
+                    role: roleValue.role,
+                    password: values.sub,
+                    confirm_password: values.sub,
+                };
+
+                console.log(userdata);
+
+                // let baseURL = "http://127.0.0.1:8000/jobs/signup";
+                let getUsersURL = "http://127.0.0.1:8000/jobs/all-users";
+                try {
+                    let allUser = await Axios.get(`${getUsersURL}`);
+                    // console.log(allUser.data.users); 
+                    allUser = allUser.data.users;
+
+
+                    let isUnique = false;
+                    allUser.forEach((each) => {
+                        if (each.email === values.email) {
+                            isUnique = true;
+                        }
+                    });
+
+                    // use the typed email to check if the email already exist
+                    if (!isUnique) {
+                        let result = await Axios.post("http://127.0.0.1:8000/jobs/signup", userdata);
+                        result = result.data.message;
+
+
+                        if (result === "success") {
+                            swal("Registeration Successful!", " ", "success", { button: false, timer: 1500 });
+                            redir("../dashboard");
+                        }
+                        else {
+                            swal("Registeration Failed!", " ", "error", { button: false, timer: 1500 })
+                        }
+
+                    } else {
+                        swal("User already exit!", " ", "error", { button: false, timer: 1500 })
+                        // swal("Registeration Failed!", " ", "error", { button: false, timer: 1500 })
+                    }
+                    // if unique email allow to signup else dont
+                } catch (error) {
+                    console.error(error);
+                }
+
+
             } catch (err) {
                 console.log(err);
             }
@@ -72,8 +135,6 @@ const ThirdParty = () => {
     });
 
 
-
-   
 
     return (
 
@@ -85,7 +146,8 @@ const ThirdParty = () => {
                 <div className="bg-card">
                     <div className="row">
                         <div className="col-3">
-                            <Link to="/select" className='text-dark'>
+                            <Link to="/welcomeclear
+                            " className='text-dark'>
                                 <FontAwesomeIcon icon={faChevronLeft} />
                             </Link>
                         </div>
@@ -101,32 +163,19 @@ const ThirdParty = () => {
                                 <p>Kindly choose your sign up option to create new account</p>
                             </div>
                             <div className="body">
-                                <Link to="/signup" className="btn primary-btn-outline mb-2 btn-signup"> <img src={iemail} alt="Email" className="me-2" /> Sign up with Email </Link>
+                                <Link to={`/asignup/${roleValue.role}`} className="btn primary-btn-outline mb-2 btn-signup"> <img src={iemail} alt="Email" className="me-2" /> Sign up with Email </Link>
+                                {/* <Link to={`http://localhost:8000/accounts/facebook/login`} className="btn primary-btn-outline mb-2 btn-signup"> <img src={iemail} alt="Email" className="me-2" /> Sign up with Fcaebook </Link> */}
                                 <button className="btn primary-btn-outline mb-2 btn-signup" onClick={() => login()} > <img src={igoogle} alt="Google" className="me-2" /> Sign up with Google </button>
-                                {/* <LoginSocialGoogle
-                                    isOnlyGetToken
-                                    client_id={'796224650682-uuudhogl202q8lgh0d01kul7i86j2f25.apps.googleusercontent.com'}
-                                    onLoginStart={onLoginStart}
-                                    onResolve={({ provider, data }) => {
-                                        setProvider(provider)
-                                        setProfile(data)
-                                    }}
-                                    onReject={(err) => {
-                                        console.log(err)
-                                    }}
-                                >
-                                     <GoogleLoginButton className="btn primary-btn-outline w-100 mb-2" /> 
-                                    <button className="btn primary-btn-outline w-100 mb-2" > <img src={igoogle} alt="Google" className="me-2" /> Sign up with Google </button>
-
-                                </LoginSocialGoogle> */}
                                 <LoginSocialFacebook
                                     isOnlyGetToken
-                                    appId={'607654518584001'}
+                                    appId={'1574866086563315'}
                                     onLoginStart={onLoginStart}
                                     onResolve={({ provider, data }) => {
                                         setProvider(provider)
                                         setProfile(data)
-                                        // console.log(data)
+                                        console.log(data)
+                                        console.log(provider)
+
                                     }}
                                     onReject={(err) => {
                                         console.log(err)
@@ -136,6 +185,8 @@ const ThirdParty = () => {
                                     <button className="btn primary-btn-outline mb-2 btn-signup"> <img src={ifacebook} alt="Facebook" className="me-2" /> Sign up with Facebook </button>
 
                                 </LoginSocialFacebook>
+
+
                                 <LoginSocialApple
                                     client_id="adffgfg"
                                     scope={'name email'}
@@ -152,7 +203,7 @@ const ThirdParty = () => {
                                     <button className="btn primary-btn-outline mb-2 btn-signup"> <img src={iapple} alt="Apple" className="me-2" /> Sign up with Apple </button>
                                 </LoginSocialApple>
 
-                                <p className="mt-4">Already have an account? <Link href="#" >Sign In to my account</Link></p>
+                                <p className="mt-4">Already have an account? <Link to="../signin" >Sign In to my account</Link></p>
                             </div>
                         </div>
                     </div>

@@ -10,7 +10,7 @@ Paystack Credentials
 
 git add .
 git commit -m "Role sorted"
-git push origin backend
+git push origin main
 
 
 git pull https://github.com/Paeshift-Web-App/paeshift-frontend/tree/main

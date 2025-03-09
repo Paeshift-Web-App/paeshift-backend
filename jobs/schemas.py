@@ -1,47 +1,83 @@
 from ninja import Schema
 from datetime import datetime
 from decimal import Decimal
+from typing import Optional
 
 # -------------------------------------------------------
-# 1) Authentication Schemas
+# 1) Location Schema
+# -------------------------------------------------------
+class LocationSchema(Schema):
+    latitude: float
+    longitude: float
+
+
+# -------------------------------------------------------
+# 2) Authentication Schemas
 # -------------------------------------------------------
 class LoginSchema(Schema):
     email: str
     password: str
 
 class SignupSchema(Schema):
-    firstName: str
-    lastName: str
+    first_name: str
+    last_name: str
     email: str
     password: str
-    confirmPassword: str
+    confirm_password: str
+    role: str
 
 
 # -------------------------------------------------------
-# 2) Job Schemas
+# 3) User Schema
+# -------------------------------------------------------
+class UserSchema(Schema):
+    id: int
+    first_name: str
+    last_name: str
+    email: str
+    role : str
+
+
+# -------------------------------------------------------
+# 4) Job Schemas
 # -------------------------------------------------------
 class JobListSchema(Schema):
     id: int
     title: str
-    description: str = None
+    description: Optional[str] = None
     client_name: str
     status: str
-    date: str = None
-    time: str = None
-    duration: str = None
-    amount: Decimal = None
-    image: str = None
-    location: str = None
+    date: Optional[str] = None
+    time: Optional[str] = None
+    duration: Optional[str] = None
+    amount: Decimal = 0.0
+    image: Optional[str] = None
+    location: Optional[str] = None
     date_posted: str
     no_of_application: int
 
 class JobDetailSchema(JobListSchema):
-    applicant_name: str = None
+    applicant_name: Optional[str] = None
     payment_status: str
 
 
+class CreateJobSchema(Schema):
+    title: str
+    industry: str  # Can be ID or name
+    subcategory: str  # Can be ID or name
+    applicants_needed: int
+    job_type: str
+    shift_type: str
+    date: str  # Expected format: "YYYY-MM-DD"
+    start_time: str  # Expected format: "HH:MM"
+    end_time: str  # Expected format: "HH:MM"
+    duration: str
+    rate: float
+    location: str
+    payment_status: str
+
 # -------------------------------------------------------
-# 3) Application Schemas
+# 5) Application Schemas
 # -------------------------------------------------------
 class ApplicationListSchema(Schema):
     id: int
@@ -50,25 +86,31 @@ class ApplicationListSchema(Schema):
     is_accepted: bool
     applied_at: datetime
 
+class CreateApplicationSchema(Schema):
+    job_id: int
+
 
 # -------------------------------------------------------
-# 4) Saved Jobs Schema
+# 6) Saved Jobs Schema
 # -------------------------------------------------------
 class SavedJobSchema(Schema):
     id: int
     job_id: int
     title: str
     status: str
-    date: str = None
-    time: str = None
-    duration: str = None
-    amount: Decimal = None
-    location: str = None
+    date: Optional[str] = None
+    time: Optional[str] = None
+    duration: Optional[str] = None
+    amount: Decimal = 0.0
+    location: Optional[str] = None
     saved_at: datetime
+
+class CreateSavedJobSchema(Schema):
+    job_id: int
 
 
 # -------------------------------------------------------
-# 5) Payment Schema
+# 7) Payment Schemas
 # -------------------------------------------------------
 class PaymentSchema(Schema):
     job_id: int
@@ -77,7 +119,7 @@ class PaymentSchema(Schema):
 class PaymentDetailSchema(Schema):
     id: int
     payer_name: str
-    recipient_name: str = None
+    recipient_name: Optional[str] = None
     original_amount: Decimal
     service_fee: Decimal
     final_amount: Decimal
@@ -86,11 +128,61 @@ class PaymentDetailSchema(Schema):
 
 
 # -------------------------------------------------------
-# 6) Rating Schema
+# 8) Rating Schema
 # -------------------------------------------------------
+
 class RatingSchema(Schema):
     reviewer_id: int
     reviewed_id: int
     rating: int  # Store rating as a percentage (0-100%)
-    feedback: str = None
+    feedback: Optional[str] = None
     created_at: datetime
+
+class RatingCreateSchema(Schema):
+    reviewed_id: int
+    rating: int
+    feedback: Optional[str] = None
+
+
+
+# -------------------------------------------------------
+# 9) Profile Schema
+# -------------------------------------------------------
+class ProfileSchema(Schema):
+    user: UserSchema
+    phone_number: Optional[str] = None
+    location: Optional[str] = None
+    created_at: datetime
+
+class UpdateProfileSchema(Schema):
+    phone_number: Optional[str] = None
+    location: Optional[str] = None
+
+
+class DisputeCreateSchema(Schema):
+    user: UserSchema
+
+
+class DisputeUpdateSchema(Schema):
+    user: UserSchema
+    
+
+class PaymentCreateSchema(Schema):
+    user: UserSchema
+    
+
+class PaymentCreateSchema(Schema):
+    user: UserSchema
+    
+class PaymentUpdateSchema(Schema):
+    user: UserSchema
+  
+  
+class IndustrySchema(Schema):
+    id: int
+    name: str
+
+class SubCategorySchema(Schema):
+    id: int
+    name: str
+    industry_id: int  # or industry: IndustrySchema if you want nested detail
