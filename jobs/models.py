@@ -47,6 +47,7 @@ class JobSubCategory(models.Model):
 # 2) JOB MODEL
 # ------------------------------------------------------
 
+
 class Job(models.Model):
     STATUS_CHOICES = [
         ('upcoming', 'Upcoming'),
@@ -56,7 +57,7 @@ class Job(models.Model):
     ]
     JOB_TYPE_CHOICES = [
         ('single_day', 'Single Day'),
-        ('multiple_days', 'Multiple Days'),
+        ('multiple_days', 'Weekly'),
     ]
     SHIFT_TYPE_CHOICES = [
         ('day_shift', 'Day Shift'),
@@ -107,7 +108,90 @@ class Job(models.Model):
     def no_of_applications(self):
         """Returns the total number of applications for this job."""
         return self.applications.count()
-# ------------------------------------------------------
+
+
+# class JobApplication(models.Model):
+#     job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name="applications")
+#     applicant = models.ForeignKey(User, on_delete=models.CASCADE, related_name="applied_jobs")
+#     status = models.CharField(max_length=20, choices=[("pending", "Pending"), ("accepted", "Accepted"), ("rejected", "Rejected")])
+#     applied_at = models.DateTimeField(auto_now_add=True)
+
+
+# class JobAssignment(models.Model):
+#     job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name="assigned_workers")
+#     worker = models.ForeignKey(User, on_delete=models.CASCADE, related_name="assigned_jobs")
+#     assigned_at = models.DateTimeField(auto_now_add=True)
+
+
+
+
+
+
+# from django.db import models
+# from django.contrib.auth.models import User
+
+# class Job(models.Model):
+#     STATUS_CHOICES = [
+#         ('upcoming', 'Upcoming'),
+#         ('ongoing', 'Ongoing'),
+#         ('completed', 'Completed'),
+#         ('canceled', 'Canceled'),
+#     ]
+#     JOB_TYPE_CHOICES = [
+#         ('single_day', 'Single Day'),
+#         ('multiple_days', 'Multiple Days'),
+#     ]
+#     SHIFT_TYPE_CHOICES = [
+#         ('day_shift', 'Day Shift'),
+#         ('night_shift', 'Night Shift'),
+#     ]
+#     PAYMENT_STATUS_CHOICES = [
+#         ("Pending", "Pending"),
+#         ("Completed", "Completed"),
+#         ("Failed", "Failed")
+#     ]
+    
+#     # Job details
+#     title = models.CharField(max_length=255)
+#     industry = models.ForeignKey("JobIndustry", on_delete=models.CASCADE, blank=True, null=True)
+#     subcategory = models.ForeignKey("JobSubCategory", on_delete=models.CASCADE, blank=True, null=True)
+#     applicants_needed = models.PositiveIntegerField(default=1)
+#     job_type = models.CharField(max_length=20, choices=JOB_TYPE_CHOICES, default='single_day')
+#     shift_type = models.CharField(max_length=20, choices=SHIFT_TYPE_CHOICES, default='day_shift')
+#     client = models.ForeignKey(User, on_delete=models.CASCADE, related_name="jobs", blank=True, null=True)
+#     applicants = models.ManyToManyField(User, related_name="applied_jobs", blank=True)
+    
+#     # Scheduling
+#     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='upcoming')
+#     date = models.DateField(blank=True, null=True)
+#     start_time = models.TimeField(blank=True, null=True)
+#     end_time = models.TimeField(blank=True, null=True)
+#     duration = models.DurationField(blank=True, null=True)  # Changed to DurationField
+#     rate = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+
+#     # Additional fields
+#     location = models.CharField(max_length=255, blank=True, null=True)
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     is_deleted = models.BooleanField(default=False)  # Soft delete functionality
+
+#     # Location tracking
+#     last_latitude = models.FloatField(null=True, blank=True)
+#     last_longitude = models.FloatField(null=True, blank=True)
+#     last_address = models.CharField(max_length=255, blank=True)
+#     last_location_update = models.DateTimeField(null=True, blank=True)
+
+#     # Payment status
+#     payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default="Pending")
+
+#     def __str__(self):
+#         return f"{self.title} - {self.status}"
+
+#     @property
+#     def no_of_applications(self):
+#         """Returns the total number of applicants for this job."""
+#         return self.applicants.count()
+
+# # ------------------------------------------------------
 # 3) SAVED JOBS
 # ------------------------------------------------------
 class SavedJob(models.Model):
@@ -239,7 +323,7 @@ class Rating(models.Model):
         on_delete=models.CASCADE,
         related_name="received_ratings"
     )
-    rating = models.PositiveIntegerField()  # e.g., 1-5 or 1-10 scale
+    rating = models.FloatField(default=5.0)  
     feedback = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

@@ -13,6 +13,7 @@ jobs_api.add_router("", jobs_router)
 urlpatterns = [
     path("", jobs_api.urls), 
     path('jobs/', jobs, name='jobs'),  # Maps /jobs/ to the jobs view
+
     
 ]
 # from django.urls import path

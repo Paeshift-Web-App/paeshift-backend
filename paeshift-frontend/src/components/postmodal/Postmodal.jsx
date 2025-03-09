@@ -368,7 +368,7 @@ const Postmodal = () => {
                         )}
                       </div>
                     </div>
-                    <p>Job Duration: 2hrs</p>
+                    <p>Job Duration: 2hrs {errors.jobDuration}</p>
                   </div>
                   <div className="row m-0 p-0">
                     <div className="col-4 px-1">

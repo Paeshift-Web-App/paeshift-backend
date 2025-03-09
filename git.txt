@@ -1,6 +1,15 @@
+Public Key 
+Secret Key (for server-side authentication)
+Webhook Secret (for verifying webhook events)
+
+Paystack Credentials
+
+
+
+
 
 git add .
-git commit -m "Jobs craeted"
+git commit -m "Role sorted"
 git push origin main
 
 

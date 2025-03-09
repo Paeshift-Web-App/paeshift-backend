@@ -105,6 +105,14 @@ AUTHENTICATION_BACKENDS = [
 # SITE_ID = 1  # Ensure this matches the Site entry in your admin
 
 
+# Paystack API Keys (Replace with actual values)
+PAYSTACK_SECRET_KEY = "sk_test_xxxxxxxxxxxxxxxxxxxxxxx"
+PAYSTACK_PUBLIC_KEY = "pk_test_xxxxxxxxxxxxxxxxxxxxxxx"
+
+
+AUTH_USER_MODEL = "jobs.User"  # Adjust "jobs" to your app name
+
+
 # -----------------------------
 # ALLAUTH CONFIG
 # -----------------------------

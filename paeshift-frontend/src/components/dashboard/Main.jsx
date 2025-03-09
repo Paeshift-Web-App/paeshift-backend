@@ -41,6 +41,17 @@ const Main = () => {
   const [users, setUsers] = useState();
   const [jobs, setJobs] = useState();
 
+  let [profile, setProfile] = useState("");
+
+  useEffect(() => {
+    Axios.get("http://localhost:8000/jobs/whoami")
+    .then((response) => {
+      setProfile(response.data);
+      console.log(response.data);
+    })
+    .catch((error) => console.error(error));
+
+    },[])
 
   useEffect(() => {
 
@@ -92,14 +103,14 @@ const Main = () => {
             </div>
           </div>
           <div className="col-7 col-md-8 col-xl-10 ps-xl-5 ">
-            <h3>Esther Grace</h3>
-            <p>Employer</p>
+            <h3>{profile.username}</h3>
+            <p>{profile.role} </p>
             <p>Rating</p>
             <span>
-              <img src={Stars} alt="profile" /> <span className="rate_score">4.98</span>
+              <img src={Stars} alt="profile" /> <span className="rate_score">{profile.rating}</span>
             </span>
             <p>Email Address</p>
-            <h4>eniolalucas@gmail.com</h4>
+            <h4>{profile.email}</h4>
           </div>
           <div className="col-12 col-md-4 col-xl-2"></div>
           <div className="col-12 col-md-8 col-xl-10 p-0 ps-xl-5">
@@ -155,7 +166,7 @@ const Main = () => {
                         <img className="prof" src={ProfileImage} alt="profile" />
                       </span>
                       <span>
-                        <h4>{item.client__username}</h4>
+                        <h4>{item.client__username} {item.client__firstname} {item.client__lastname}</h4>
                         <img src={Stars} alt="profile" /> <span className="rate_score">4.98</span>
                       </span>
                     </span>

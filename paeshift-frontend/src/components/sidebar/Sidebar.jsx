@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React, { useState } from "react";
+import React, { useState ,useEffect} from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { sidebarRoutes } from "./Sidebarroutes";
 import { applicantSidebarRoutes } from "./Sidebarroutes";
@@ -25,12 +25,15 @@ const Sidebar = () => {
 
   let redir = useNavigate()
 
-  Axios.get("http://localhost:8000/jobs/whoami")
-  .then((response) => {
-    // setProfile(response.data);
-    console.log(response);
-  })
-  .catch((error) => console.error(error));
+  useEffect(() => {
+    Axios.get("http://localhost:8000/jobs/whoami")
+    .then((response) => {
+      setProfile(response.data);
+      console.log(response.data);
+    })
+    .catch((error) => console.error(error));
+
+    },[])
 
   const handleLogout = () => {
     setSignout({ isLoggedIn: false, data: {} })
@@ -114,8 +117,8 @@ const Sidebar = () => {
                 <img src={ProfileImage} alt="profile" />
               </div>
               <div className="profile-info">
-                <h2>Eniola Lucas</h2>
-                <p>Applicant</p>
+                <h2>{profile.username}</h2>
+                <p>{profile.role}</p>
               </div>
             </div>
             <ul className="nav flex-column logout-link">

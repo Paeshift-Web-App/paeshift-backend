@@ -18,7 +18,6 @@ from datetime import datetime
 from .models import *
 from .schemas import *
 import os
-from datetime import datetime
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
@@ -26,9 +25,18 @@ from ninja import Router
 from .models import Job, JobIndustry, JobSubCategory
 from .schemas import *
 from django.shortcuts import render
+from django.conf import settings
+import uuid
+from ninja import Router, Query
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
+from jobs.models import Job
+from django.contrib.auth import get_user_model
 
-router = Router()
-User = get_user_model()
+from django.http import JsonResponse
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+
 router = Router()
 User = get_user_model()
 
@@ -63,12 +71,7 @@ def get_related_object(model, field_name, value, error_message="Not found"):
 # ----------------------------------------------------------------------
 # Authentication Endpoints
 # ----------------------------------------------------------------------
-from django.contrib.auth import get_user_model
-from django.http import JsonResponse
-
-User = get_user_model()
-
-from django.http import JsonResponse
+from django.db.models import Avg
 
 @router.get("/whoami")
 def whoami(request):
@@ -76,24 +79,40 @@ def whoami(request):
     
     user_id = request.session.get("_auth_user_id")
     if not user_id:
-        # Temporary: Use a default user for testing
-        user = User.objects.first()  # Or create a test user
+        user = User.objects.first()  # Use a test user if session is missing
         if not user:
             return JsonResponse({"error": "No users available for testing"}, status=500)
     else:
         user = get_object_or_404(User, id=user_id)
 
-    try:
-        profile = Profile.objects.get(user=user)  # Get user's profile
-        role = profile.role
-    except Profile.DoesNotExist:
-        role = "No role assigned"
+    # ✅ Check if Profile exists, if not create it
+    profile, created = Profile.objects.get_or_create(user=user, defaults={"role": "No role assigned"})
+
+    # ✅ Fetch the role from Profile
+    role = profile.role if profile else "No role assigned"
+
+    # ✅ Compute average rating efficiently
+    # average_rating = Rating.objects.filter(reviewed=user).aggregate(avg_rating=Avg("rating"))["avg_rating"] or 0.0
+    average_rating = Rating.objects.filter(reviewed=user).aggregate(avg_rating=Avg("rating"))["avg_rating"] or 5.0  # Default to 5
 
     return JsonResponse({
         "user_id": user.id,
         "username": user.username,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "email": user.email,
         "role": role,
+        "rating": round(average_rating, 2),
     })
+
+
+
+
+
+
+
+
+
 
 
 @router.post("/login")
@@ -114,6 +133,8 @@ def login_view(request, payload: LoginSchema):
         return JsonResponse({"success": True})
     return Response({"error": "Invalid credentials"}, status=401)
 
+
+
 @router.post("/signup")
 def signup_view(request, payload: SignupSchema):
     """POST /jobs/signup - Creates a new user and profile"""
@@ -124,12 +145,16 @@ def signup_view(request, payload: SignupSchema):
             password=payload.password,
             first_name=payload.first_name,
             last_name=payload.last_name,
-            # role=payload.role
             
         )
         user.backend = get_backends()[0].__class__.__name__
         login(request, user)
+        
+         # Create Profile
         Profile.objects.create(user=user, role=payload.role)
+        # ✅ Create an initial rating of 5 for the user
+        Rating.objects.create(reviewed=user, reviewer=user, rating=5.0)
+        
         return Response({"message": "success"}, status=200)
     except IntegrityError:
         return Response({"error": "Email already exists"}, status=400)
@@ -252,12 +277,36 @@ def get_job_industries(request):
 def get_job_subcategories(request):
     return JobSubCategory.objects.all()
 
+
+@router.post("/payment")
+def payment(request):
+    return render(request, 'payment.html')
+
+
+
+
+
+
+
+from django.conf import settings
+
+# Get Paystack credentials safely
+PAYSTACK_SECRET_KEY = getattr(settings, "PAYSTACK_SECRET_KEY", None)
+PAYSTACK_PUBLIC_KEY = getattr(settings, "PAYSTACK_PUBLIC_KEY", None)
+
+if not PAYSTACK_SECRET_KEY:
+    raise ValueError("PAYSTACK_SECRET_KEY is missing in settings.py")
+
+PAYSTACK_INITIALIZE_URL = "https://api.paystack.co/transaction/initialize"
+PAYSTACK_VERIFY_URL = "https://api.paystack.co/transaction/verify/"
+import requests
+
+
 @router.post("/create-job", auth=None)
 def create_job(request, payload: CreateJobSchema):
     user_id = request.session.get("_auth_user_id")
     if not user_id:
-        # Temporary: Use a default user for testing
-        user = User.objects.first()  # Or create a test user
+        user = User.objects.first()  # Temporary test user
         if not user:
             return JsonResponse({"error": "No users available for testing"}, status=500)
     else:
@@ -286,6 +335,7 @@ def create_job(request, payload: CreateJobSchema):
         except ValueError:
             subcategory_obj = get_object_or_404(JobSubCategory, name=payload.subcategory.strip())
 
+    # Create the job with "Pending" status until payment is confirmed
     new_job = Job.objects.create(
         client=user,
         title=payload.title,
@@ -300,26 +350,76 @@ def create_job(request, payload: CreateJobSchema):
         duration=payload.duration,
         rate=payload.rate,
         location=payload.location,
-        payment_status=payload.payment_status,
+        payment_status="Pending",
+        status="pending",
     )
+
+    # Generate unique transaction reference
+    transaction_ref = str(uuid.uuid4())
+
+    # Prepare Paystack payment request
+    payment_data = {
+        "email": user.email,
+        "amount": int(payload.rate * 100),  # Convert to kobo
+        "reference": transaction_ref,
+        "callback_url": "http://localhost:8000/jobs/payment",
+        "metadata": {"job_id": new_job.id},
+    }
+
+    headers = {"Authorization": f"Bearer {PAYSTACK_SECRET_KEY}", "Content-Type": "application/json"}
+    response = requests.post(PAYSTACK_INITIALIZE_URL, json=payment_data, headers=headers)
+
+    if response.status_code != 200:
+        return JsonResponse({"error": "Payment initialization failed"}, status=400)
+
+    response_data = response.json()
 
     return JsonResponse({
         "success": True,
-        "message": "Job created successfully",
-        "job_id": new_job.id
+        "message": "Job created successfully. Proceed to payment.",
+        "job_id": new_job.id,
+        "payment_url": response_data["data"]["authorization_url"],
+        "transaction_ref": transaction_ref
     }, status=201)
 
 
+# @router.get("/verify-payment/")
+# def verify_payment(request, reference: str):
+#     """Verifies payment and updates job status."""
+#     headers = {"Authorization": f"Bearer {PAYSTACK_SECRET_KEY}"}
+#     response = requests.get(f"{PAYSTACK_VERIFY_URL}{reference}", headers=headers)
 
-from ninja import Router, Query
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.shortcuts import get_object_or_404
-from django.http import JsonResponse
-from jobs.models import Job
-from django.contrib.auth import get_user_model
+#     if response.status_code != 200:
+#         return JsonResponse({"error": "Payment verification failed"}, status=400)
 
-from django.http import JsonResponse
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+#     response_data = response.json()
+
+#     if response_data["data"]["status"] == "success":
+#         job_id = response_data["data"]["metadata"]["job_id"]
+#         job = get_object_or_404(Job, id=job_id)
+
+#         job.status = "upcoming"
+#         job.payment_status = "Completed"
+#         job.save()
+
+#         return JsonResponse({"message": "Payment successful. Job is now active."})
+
+#     return JsonResponse({"error": "Payment failed or not verified"}, status=400)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 @router.get("/clientjobs", auth=None)
 def get_client_jobs(request, page: int = Query(1, gt=0), page_size: int = Query(50, gt=0)):
