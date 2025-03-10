@@ -364,27 +364,26 @@ def create_job(request, payload: CreateJobSchema):
     transaction_ref = str(uuid.uuid4())
 
     # Prepare Paystack payment request
-    payment_data = {
-        "email": user.email,
-        "amount": int(payload.rate * 100),  # Convert to kobo
-        "reference": transaction_ref,
-        "callback_url": "http://localhost:8000/jobs/payment",
-        "metadata": {"job_id": new_job.id},
-    }
+    # payment_data = {
+    #     "email": user.email,
+    #     "amount": int(payload.rate * 100),  # Convert to kobo
+    #     "reference": transaction_ref,
+    #     "callback_url": "http://localhost:8000/jobs/payment",
+    #     "metadata": {"job_id": new_job.id},
+    # }
 
-    headers = {"Authorization": f"Bearer {PAYSTACK_SECRET_KEY}", "Content-Type": "application/json"}
-    response = requests.post(PAYSTACK_INITIALIZE_URL, json=payment_data, headers=headers)
+    # headers = {"Authorization": f"Bearer {PAYSTACK_SECRET_KEY}", "Content-Type": "application/json"}
+    # response = requests.post(PAYSTACK_INITIALIZE_URL, json=payment_data, headers=headers)
 
-    if response.status_code != 200:
-        return JsonResponse({"error": "Payment initialization failed"}, status=400)
+    # if response.status_code != 200:
+    #     return JsonResponse({"error": "Payment initialization failed"}, status=400)
 
-    response_data = response.json()
+    # response_data = response.json()
 
     return JsonResponse({
         "success": True,
         "message": "Job created successfully. Proceed to payment.",
         "job_id": new_job.id,
-        "payment_url": response_data["data"]["authorization_url"],
         "transaction_ref": transaction_ref
     }, status=201)
 
@@ -490,9 +489,11 @@ def serialize_job(job, include_extra=False):
         "title": job.title,
         "status": job.status,
         "date": str(job.date) if job.date else "",
-        "time": str(job.time) if job.time else "",
+        "start_time": str(job.start_time) if job.start_time else "",
+        "end_time": str(job.end_time) if job.end_time else "",
+        
         "duration": job.duration,
-        "amount": str(job.amount),
+        "rate": str(job.rate),
         "location": job.location
     }
     if include_extra:
@@ -500,10 +501,11 @@ def serialize_job(job, include_extra=False):
             "employerName": job.client.first_name if job.client else "Anonymous",
             "applicantNeeded": job.applicants_needed,  # Assuming this field exists
             "startDate": str(job.date) if job.date else "",
-            "startTime": str(job.time) if job.time else ""
+            "startTime": str(job.start_time) if job.start_time else "",
+            "endTime": str(job.end_time) if job.end_time else ""
+            
         })
     return base_data
-
 # ----------------------------------------------------------------------
 # Job Endpoints (continued)
 # ----------------------------------------------------------------------
@@ -522,11 +524,6 @@ def list_accepted_applications(request):
         "no_of_application": app.job.no_of_application
     } for app in apps_qs]
 
-@router.get("/{job_id}")
-def job_detail(request, job_id: int):
-    """GET /jobs/<job_id> - Returns details for a single job"""
-    job = get_object_or_404(Job, id=job_id)
-    return serialize_job(job, include_extra=True)
 
 @router.get("/industries", response=List[IndustrySchema])
 def list_industries(request):
@@ -576,15 +573,11 @@ def unsave_job(request, job_id: int):
 
 from django.contrib.auth.models import AnonymousUser
 
-@router.get("/saved-jobs")
+@router.get("/saved-jobs", tags=["Jobs"])  # Static route first
 def list_saved_jobs(request):
     """GET /jobs/saved-jobs - Lists all saved jobs for the current user"""
-    
-    user_id = request.session.get("_auth_user_id")
-    if not user_id:
-        user = User.objects.first()  # Use a test user if session is missing
-        if not user:
-            return JsonResponse({"error": "No users available for testing"}, status=500)
+    if isinstance(request.user, AnonymousUser) or not request.user.is_authenticated:
+        return JsonResponse({"error": "You must be logged in to view saved jobs"}, status=401)
 
     saved_records = SavedJob.objects.filter(user=request.user).select_related("job")
 
@@ -592,17 +585,21 @@ def list_saved_jobs(request):
         {
             "saved_job_id": record.id,
             "saved_at": record.saved_at.strftime("%Y-%m-%d %H:%M:%S"),
-            "job": {
-                "id": record.job.id,
-                "title": record.job.title,
-                "company": record.job.company,
-                "location": record.job.location
-            }
+            "job": serialize_job(record.job)
         }
         for record in saved_records
     ]
 
     return JsonResponse({"saved_jobs": saved_jobs_list}, status=200)
+
+
+@router.get("/{job_id}", response=JobDetailSchema)  # Dynamic route after
+def job_detail(request, job_id: int):
+    """GET /jobs/<job_id> - Returns details for a single job"""
+    job = get_object_or_404(Job, id=job_id)
+    return serialize_job(job, include_extra=True)
+
+
 
 # ----------------------------------------------------------------------
 # Location Update Endpoint

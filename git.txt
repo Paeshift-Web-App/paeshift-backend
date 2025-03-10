@@ -9,7 +9,7 @@ Paystack Credentials
 
 
 git add .
-git commit -m "save and unsave jobs"
+git commit -m "list jobs jobs"
 git push origin main
 
 
