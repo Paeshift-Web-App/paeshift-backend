@@ -59,6 +59,7 @@ class JobListSchema(Schema):
 class JobDetailSchema(JobListSchema):
     applicant_name: Optional[str] = None
     payment_status: str
+    created_at: Optional[str] = None
 
 
 class CreateJobSchema(Schema):
@@ -132,17 +133,27 @@ class PaymentDetailSchema(Schema):
 # -------------------------------------------------------
 
 class RatingSchema(Schema):
+    """
+    Full rating details, e.g. when returning rating objects to the frontend.
+    """
     reviewer_id: int
     reviewed_id: int
-    rating: int  # Store rating as a percentage (0-100%)
+    rating: float
     feedback: Optional[str] = None
     created_at: datetime
 
 class RatingCreateSchema(Schema):
+    """
+    Incoming payload to create a new rating:
+      {
+        "reviewed_id": 123,
+        "rating": 5,
+        "feedback": "Optional text..."
+      }
+    """
     reviewed_id: int
-    rating: int
+    rating: float
     feedback: Optional[str] = None
-
 
 
 # -------------------------------------------------------

@@ -3,8 +3,11 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 import os
 from jobchat.models import *  
+# jobs/models.py (or wherever your models live)
+from django.db import models
 
 User = get_user_model()
+
 
 def user_profile_pic_path(instance, filename):
     """
@@ -312,32 +315,27 @@ class Payment(models.Model):
 # ------------------------------------------------------
 # 8) RATING
 # ------------------------------------------------------
+
+User = get_user_model()
+
 class Rating(models.Model):
-    reviewer = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name="given_ratings"
-    )
-    reviewed = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name="received_ratings"
-    )
-    rating = models.FloatField(default=5.0)  
-    feedback = models.TextField(blank=True, null=True)
+    reviewer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="given_ratings")
+    reviewed = models.ForeignKey(User, on_delete=models.CASCADE, related_name="received_ratings")
+    rating = models.PositiveIntegerField()  # e.g. 1–5
+    feedback = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.reviewer} rated {self.reviewed} - {self.rating}"
+        return f"{self.reviewer} -> {self.reviewed} ({self.rating})"
 
-    @staticmethod
-    def get_average_rating(user):
-        qs = Rating.objects.filter(reviewed=user)
-        if qs.exists():
-            total = sum(r.rating for r in qs)
-            return round(total / qs.count(), 2)
-        return 0
 
+    # @staticmethod
+    # def get_average_rating(user: User) -> float:
+    #     qs = Rating.objects.filter(reviewed=user)
+    #     if qs.exists():
+    #         total = sum(r.rating for r in qs)
+    #         return round(total / qs.count(), 2)
+    #     return 0.0
 
 # ------------------------------------------------------
 # 9) PROFILE

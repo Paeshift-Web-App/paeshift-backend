@@ -16,9 +16,3 @@ urlpatterns = [
 
     
 ]
-# from django.urls import path
-
-# app_name = 'myapp'  # Optional: Namespace for URL names
-
-# urlpatterns = [
-# ]

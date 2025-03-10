@@ -14,8 +14,8 @@ def signup_redirect(request):
     return redirect("/accounts/google/login/")
 
 urlpatterns = [
-    path("", include("socialauth.urls")),  # ✅ SocialAuth as root URL
     path("admin/", admin.site.urls),
+    path("", include("socialauth.urls")),  # ✅ SocialAuth as root URL
     path("accounts/", include("allauth.urls")),  # ✅ Django-Allauth for authentication
     path("accounts/signup/", signup_redirect, name="account_signup"),  # ✅ Force Google signup
     path("jobs/", include("jobs.urls")),  # ✅ Job-related routes
