@@ -215,7 +215,7 @@ const Main = () => {
                     </div>
                     <div className="row">
                       <div className="col-6 pe-0"><p>Amount:</p></div>
-                      <div className="col-6"><h4>₦{item.amount}.00</h4></div>
+                      <div className="col-6"><h4>₦{item.rate}.00</h4></div>
                     </div>
                     {
                       item.status === 'upcoming' ?
