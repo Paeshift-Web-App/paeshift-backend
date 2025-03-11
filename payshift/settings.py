@@ -55,7 +55,7 @@ INSTALLED_APPS = [
     "socialauth",          # Your main Django app
     "channels",                # For Django Channels
     "daphne",
-    # 'payment',
+    'payment',
     "rest_framework",
     "rest_framework_simplejwt",
     
@@ -108,7 +108,7 @@ AUTHENTICATION_BACKENDS = [
 # Paystack API Keys (Replace with actual values)
 PAYSTACK_SECRET_KEY = "sk_test_xxxxxxxxxxxxxxxxxxxxxxx"
 PAYSTACK_PUBLIC_KEY = "pk_test_xxxxxxxxxxxxxxxxxxxxxxx"
-
+FLUTTERWAVE_SECRET_KEY = os.environ.get('FLUTTERWAVE_SECRET_KEY', 'FLWSECK-your_flutterwave_key')
 
 # AUTH_USER_MODEL = "jobs.User"  # Adjust "jobs" to your app name
 

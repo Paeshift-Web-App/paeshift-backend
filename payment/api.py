@@ -1,194 +1,173 @@
-# payment/api.py
-from ninja import Router
+# api.py
+import random
+import requests
+from ninja import NinjaAPI, Schema
+from django.conf import settings
+from django.shortcuts import render
+from django.http import HttpResponse
+api = NinjaAPI()
 
-payment_router = Router()
+# ---------------------
+# Paystack Endpoints
+# ---------------------
+@api.get("/payment-page")
+def payment_page(request):
+    return render(request, "payment.html", {})
 
-# @payment_router.get("/test")
-# def payment_test(request):
-#     return {"msg": "Payment test success"}
+class PaystackPaymentRequest(Schema):
+    amount: int  # Amount in Naira
+    email: str
 
-# @login_required(login_url='/login')
-# def addtocart(request):
-#     if request.method == 'POST':
-#         refrence = str(uuid.uuid4())
-#         pid = request.POST['itemid']
-#         checkout = request.POST['check_out']
-#         checkin = request.POST['check_in']
-#         item = Rooms.objects.get(pk=pid)
-#         reservation = Reservation.objects.filter(user__username= request.user.username, paid_order=False)  
-#         if reservation:
-            
-#             order = Reservation.objects.filter(user__username=request.user.username, room_id=item.id,check_in = checkin,check_out = checkout).first()
-#             if order:
-                
-#                 order.check_in = checkin
-#                 order.check_out = checkout
-#                 if order.check_in > checkout or order.check_out < checkin:
-#                     order.save()
-#                     messages.success(request, 'Your booking is successful!')
-#                 else:
-#                     messages.info(request, 'The room is not available for the dates you specified, kindly choose another date. Thank you')
-#                     return redirect('rooms')
-                
-#             else:
-#                     # this runs when a new item is added to the basket 
-#                 newitem = Reservation()
-#                 newitem.user = request.user
-#                 newitem.room =item
-#                 newitem.order_no = reservation[0].order_no
-#                 newitem.paid_order = False
-#                 newitem.description = item.description
-#                 newitem.check_in = checkin
-#                 newitem.check_out = checkout
-#                 newitem.save() 
-#                 messages.success(request, 'Room added to bookings !')      
-                     
-#         else:
-#             # this is when a basket is to be created for the first time 
-#             newbasket = Reservation()
-#             newbasket.user = request.user
-#             newbasket.room =item
-#             newbasket.order_no = refrence
-#             newbasket.paid_order = False
-#             newbasket.description = item.description
-#             newbasket.check_in = checkin
-#             newbasket.check_out = checkout
-#             newbasket.save() 
-#             messages.success(request, 'Room added to bookings !')
-#     return redirect('reservation')
+@api.post("/paystack/initialize")
+def paystack_initialize(request, payload: PaystackPaymentRequest):
+    """
+    Initialize a Paystack payment.
+    """
+    amount_in_kobo = payload.amount * 100  # Convert Naira to kobo
+    headers = {
+        "Authorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}",
+        "Content-Type": "application/json",
+    }
+    payload_data = {
+        "email": payload.email,
+        "amount": amount_in_kobo,
+    }
+    url = "https://api.paystack.co/transaction/initialize"
+    response = requests.post(url, headers=headers, json=payload_data)
+    return response.json()
 
-# @login_required(login_url='/login')
-# def reservation(request):
-#     reservation = Reservation.objects.filter(user__username=request.user.username, paid_order=False)
-    
-#     for item in reservation:
-#         time = (item.check_out - item.check_in).days
-#         item.nights = time
-#         item.save()
-        
-#     subtotal=0
-#     vat=0
-#     total=0
+@api.get("/paystack/verify")
+def paystack_verify(request, reference: str):
+    """
+    Verify a Paystack transaction using its reference.
+    """
+    if not reference:
+        return {"error": "Missing reference"}
+    headers = {
+        "Authorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}",
+    }
+    url = f"https://api.paystack.co/transaction/verify/{reference}"
+    response = requests.get(url, headers=headers)
+    return response.json()
 
-#     for item in reservation:
-#         subtotal += item.room.price * item.nights 
+# ---------------------
+# Flutterwave Endpoints
+# ---------------------
 
-#     vat=0.075 *subtotal
+class FlutterwavePaymentRequest(Schema):
+    amount: float  # Allows for decimals if needed
+    email: str
+    currency: str = "NGN"
 
-#     total=subtotal + vat
+@api.post("/flutterwave/initialize")
+def flutterwave_initialize(request, payload: FlutterwavePaymentRequest):
+    """
+    Initialize a Flutterwave payment.
+    """
+    # Generate a random transaction reference
+    tx_ref = "MC-" + str(random.randint(1000000, 9999999))
+    payload_data = {
+        "tx_ref": tx_ref,
+        "amount": payload.amount,
+        "currency": payload.currency,
+        "redirect_url": "http://yourdomain.com/flutterwave/callback",  # Change to your callback URL
+        "customer": {
+            "email": payload.email,
+        },
+        "customizations": {
+            "title": "Payment for Items",
+            "description": "Payment for purchasing items",
+        }
+    }
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {settings.FLUTTERWAVE_SECRET_KEY}"
+    }
+    url = "https://api.flutterwave.com/v3/payments"
+    response = requests.post(url, headers=headers, json=payload_data)
+    return response.json()
 
-#     context={
-#         'reservation':reservation,
-#         'subtotal':subtotal,
-#         'vat':vat,
-#         'total':total
-#     }
-#     return render(request, 'reservation.html',context)
-
-# @login_required(login_url='/login')
-# def checkout(request):
-#     reservation = Reservation.objects.filter(user__username = request.user.username,paid_order=False)
- 
-#     for item in reservation:
-#         time = (item.check_out - item.check_in).days
-#         item.nights = time
-#         item.save()
-
-#     subtotal = 0
-#     vat = 0
-#     total = 0
-
-#     for item in reservation:
-#         subtotal += item.room.price * item.nights
-
-#     vat = 0.075 * subtotal
-
-#     total = subtotal + vat
+@api.get("/flutterwave/callback")
+def flutterwave_callback(request, tx_ref: str, status: str, transaction_id: str):
+    """
+    Handle Flutterwave's redirect after payment.
+    Optionally, verify the payment with Flutterwave's verify endpoint here.
+    """
+    return {"tx_ref": tx_ref, "status": status, "transaction_id": transaction_id}
 
 
-#     context = {
-#         'reservation': reservation,
-#         'total': total,
-#         'subtotal': subtotal,
-#         'reservation_code':reservation[0].order_no
-#     }
 
-#     return render(request, 'checkout.html', context)
 
-# @login_required(login_url='/login')
-# def deleteitem(request):
-#     itemid=request.POST['itemid']
-#     Reservation.objects.filter(pk=itemid).delete()
-#     messages.success(request, 'room deleted')
-#     return redirect('reservation')
+# # ------------------------------------------------------------------------------
+# # C) PAYMENT SYSTEM
+# # ------------------------------------------------------------------------------
+# @router.post("/jobs/{job_id}/payments", tags=["Payments"])
+# def create_payment(request, job_id: int, payload: PaymentCreateSchema):
+#     """
+#     POST /jobs/{job_id}/payments
+#     Creates a payment record for a given job.
+#     """
+#     if not request.user.is_authenticated:
+#         return Response({"error": "Not logged in"}, status=401)
 
-# @login_required(login_url='/login')
-# def increase(request):
-#     check_in=request.POST['check_in']
-#     check_out=request.POST['check_out']
-#     valid=request.POST['valid']
-#     updates =Reservation.objects.get(pk=valid)  
-#     updates.check_in =check_in
-#     updates.check_out =check_out
-#     if  updates.check_in > check_out or updates.check_out < check_in:
-#         updates.save()
-#         messages.success(request, 'Your booking dates update is successful!')
-#     else:
-#         messages.info(request, 'The room is not available for the dates you specified, kindly choose another date. Thank you')
-#         return redirect('rooms')
-    
-#     return redirect('reservation')
+#     job = get_object_or_404(Job, pk=job_id)
 
-# @login_required(login_url='/login')
-# def placeorder(request):
-#     if request.method == 'POST':
-#         api_key = 'sk_test_9f72c94a11fc5b98c9d69e66a128c2db475dc288'
-#         curl = 'https://api.paystack.co/transaction/initialize'
-#         # cburl = 'http://44.201.133.147/completed'
-#         cburl= 'http://localhost:8000/completed/'
-#         total = float(request.POST['total']) * 100
-#         reservation_code = request.POST['reservation_code']
-#         pay_code = str(uuid.uuid4())
-#         user = User.objects.get(username=request.user.username)
-#         first_name = request.POST['first_name']
-#         last_name = request.POST['last_name']
-#         phone = request.POST['phone']
-        
-#         # collect data that you will send to paystack
-#         headers = {'Authorization': f'Bearer {api_key}'}
-#         data = {'reference': pay_code, 'email': user.email,'amount':int(total), 'callback_url': cburl, 'order_number': reservation_code}
+#     # For instance, the user paying is the client, or it might be a different logic
+#     # Possibly ensure job.client == request.user, or something similar
+#     payment = Payment.objects.create(
+#         payer=request.user,  # or job.client
+#         recipient=None,      # set a recipient if you have logic for who gets paid
+#         job=job,
+#         original_amount=payload.original_amount,
+#         service_fee=payload.service_fee,
+#         final_amount=payload.final_amount,
+#         pay_code=payload.pay_code  # or auto-generate if needed
+#     )
+#     return {"message": "Payment created", "payment_id": payment.id}
 
-#         # make a call to paystack
-#         try:
-#             r = requests.post(curl, headers=headers, json=data)
-#         except Exception:
-#             messages.error(request, 'Network busy, try again')
-#         else:
-#             transback = json.loads(r.text)
-#             rd_url = transback['data']['authorization_url']
 
-#             paid = Payment()
-#             paid.user = user
-#             paid.amount = total
-#             paid.order_no = reservation_code
-#             paid.pay_code = pay_code
-#             paid.paid_order = True
-#             paid.first_name = first_name  
-#             paid.last_name = last_name
-#             paid.phone = phone
-#             paid.save()
+# @router.get("/jobs/{job_id}/payments", tags=["Payments"])
+# def list_payments_for_job(request, job_id: int):
+#     """
+#     GET /jobs/{job_id}/payments
+#     Returns a list of payment records for the specified job.
+#     """
+#     job = get_object_or_404(Job, pk=job_id)
+#     payments = job.payments.all()
 
-#             reserve = Reservation.objects.filter(user__username=request.user, paid_order=False)
-#             for item in reserve:
-#                 item.paid_order = True
-#                 item.amount = total/100
-#                 item.save()
+#     data = []
+#     for p in payments:
+#         data.append({
+#             "id": p.id,
+#             "payer": p.payer.username,
+#             "recipient": p.recipient.username if p.recipient else None,
+#             "original_amount": str(p.original_amount),
+#             "service_fee": str(p.service_fee),
+#             "final_amount": str(p.final_amount),
+#             "pay_code": p.pay_code,
+#             "payment_status": p.payment_status,
+#             "created_at": p.created_at.isoformat(),
+#             "confirmed_at": p.confirmed_at.isoformat() if p.confirmed_at else None
+#         })
+#     return data
 
-#                 book = Rooms.objects.get(pk=item.room.id)
-#                 book.paid_order = True
-#                 book.available = False
-#                 book.booked = True
-#                 book.save()
-            
-#             return redirect(rd_url)
-#     return redirect('checkout')
+
+# @router.put("/payments/{payment_id}", tags=["Payments"])
+# def update_payment(request, payment_id: int, payload: PaymentUpdateSchema):
+#     """
+#     PUT /jobs/payments/{payment_id}
+#     Allows updating a payment’s status or details.
+#     """
+#     if not request.user.is_authenticated:
+#         return Response({"error": "Not logged in"}, status=401)
+
+#     payment = get_object_or_404(Payment, pk=payment_id)
+
+#     # Possibly check if request.user is the payer or an admin. Exclude admin logic if not needed
+#     if payload.payment_status:
+#         payment.payment_status = payload.payment_status
+#     if payload.refund_requested is not None:
+#         payment.refund_requested = payload.refund_requested
+
+#     payment.save()
+#     return {"message": "Payment updated", "payment_id": payment.id}

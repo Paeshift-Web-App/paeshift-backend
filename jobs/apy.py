@@ -56,7 +56,6 @@ if not PAYSTACK_SECRET_KEY:
 
 PAYSTACK_INITIALIZE_URL = "https://api.paystack.co/transaction/initialize"
 PAYSTACK_VERIFY_URL = "https://api.paystack.co/transaction/verify/"
-router = Router(tags=["Jobs"])  # attach the router to "Jobs" or "Ratings"
 
 # ----------------------------------------------------------------------
 # Helper Functions
@@ -471,11 +470,7 @@ def get_client_jobs(request, page: int = Query(1, gt=0), page_size: int = Query(
         "end_time",
         "location",
         "rate",
-        "applicants_needed",
-        "status",
-        "pay_status"
-        
-        
+        "applicants_needed"
     ))
     
     return JsonResponse({
@@ -656,8 +651,8 @@ def update_location(request, job_id: int, payload: LocationSchema):
 # Rating Endpoints
 # ----------------------------------------------------------------------
 
+router = Router(tags=["Jobs"])  # attach the router to "Jobs" or "Ratings"
 
-# router = Router(tags=["Jobs"])  # attach the router to "Jobs" or "Ratings"
 @router.post("/ratings", tags=["Ratings"])
 def create_rating(request, payload: RatingCreateSchema):
     """
@@ -688,22 +683,39 @@ def create_rating(request, payload: RatingCreateSchema):
 
 
 
+
 @router.get("/ratings/{user_id}", tags=["Ratings"])
 def get_user_ratings(request, user_id: int):
-    """GET /jobs/ratings/{user_id} - Retrieves all ratings for a user"""
+    """
+    GET /jobs/ratings/{user_id}
+    Retrieves all ratings for a specific user, plus average rating.
+    """
+    # Example: check if user is authenticated
+    if isinstance(request.user, AnonymousUser) or not request.user.is_authenticated:
+        return Response({"error": "Not logged in"}, status=401)
+
     reviewed_user = get_object_or_404(User, pk=user_id)
-    all_ratings = Rating.objects.filter(reviewed=reviewed_user)
-    return {
-        "user_id": reviewed_user.id,
-        "username": reviewed_user.username,
-        "average_rating": Rating.get_average_rating(reviewed_user),
-        "ratings": [{
+
+    all_ratings = Rating.objects.filter(reviewed=reviewed_user).select_related("reviewer")
+    data_list = []
+    for r in all_ratings:
+        data_list.append({
             "id": r.id,
             "reviewer": r.reviewer.username,
             "rating": r.rating,
             "feedback": r.feedback,
             "created_at": r.created_at.isoformat()
-        } for r in all_ratings]
+        })
+
+    # Compute average rating via your model’s helper
+    avg_rating = Rating.get_average_rating(reviewed_user)
+
+    # Return a simple dict; Ninja will serialize to JSON automatically
+    return {
+        "user_id": reviewed_user.id,
+        "username": reviewed_user.username,
+        "average_rating": avg_rating,
+        "ratings": data_list
     }
 
 # ----------------------------------------------------------------------

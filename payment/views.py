@@ -1,3 +1,6 @@
 from django.shortcuts import render
+from .models import Payment
 
-# Create your views here.
+def payment_page(request):
+    payments = Payment.objects.all()
+    return render(request, "payments.html", {"payments": payments})

@@ -84,6 +84,7 @@ class Job(models.Model):
     
     # Scheduling
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='upcoming')
+    pay_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='Pending')
     date = models.DateField(blank=True, null=True)
     start_time = models.TimeField(blank=True, null=True)
     end_time = models.TimeField(blank=True, null=True)
@@ -267,62 +268,17 @@ class Dispute(models.Model):
         return f"Dispute #{self.id} - {self.title} ({self.status})"
 
 
-# ------------------------------------------------------
-# 7) PAYMENT
-# ------------------------------------------------------
-class Payment(models.Model):
-    STATUS_CHOICES = [
-        ("Pending", "Pending"),
-        ("Completed", "Completed"),
-        ("Refunded", "Refunded"),
-        ("Failed", "Failed"),
-    ]
-
-    payer = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name="payments_made"
-    )
-    recipient = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name="payments_received",
-        null=True,
-        blank=True
-    )
-    job = models.ForeignKey(
-        Job,
-        on_delete=models.CASCADE,
-        related_name="payments"
-    )
-    original_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    service_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    final_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    pay_code = models.CharField(max_length=100, unique=True)
-    payment_status = models.CharField(
-        max_length=20,
-        choices=STATUS_CHOICES,
-        default="Pending"
-    )
-    created_at = models.DateTimeField(auto_now_add=True)
-    confirmed_at = models.DateTimeField(null=True, blank=True)
-    refund_requested = models.BooleanField(default=False)
-
-    def __str__(self):
-        return f"Payment {self.pay_code} - {self.payer.email} - {self.payment_status}"
-
 
 # ------------------------------------------------------
 # 8) RATING
 # ------------------------------------------------------
 
-User = get_user_model()
 
 class Rating(models.Model):
     reviewer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="given_ratings")
     reviewed = models.ForeignKey(User, on_delete=models.CASCADE, related_name="received_ratings")
     rating = models.PositiveIntegerField()  # e.g. 1–5
-    feedback = models.TextField(blank=True)
+    feedback = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

@@ -97,15 +97,15 @@ const Main = () => {
     // buttons;
   } 
 
-  // useEffect(() => {
+  useEffect(() => {
 
-  //   Axios.get("http://localhost:8000/Products")
-  //     .then((response) => {
-  //       setProduct(response.data);
-  //     })
-  //     .catch((error) => console.error(error));
-
-
+    Axios.get("http://localhost:8000/jobs/clientjobs")
+      .then((response) => {
+        setJobs(response.data.jobs);
+        console.log(response.data.jobs);
+      })
+      .catch((error) => console.error(error));
+    },[])
 
   //   Axios.get("http://localhost:8000/Admin")
   //     .then((response) => {
@@ -174,8 +174,8 @@ const Main = () => {
           <div className="cards jobs">
 
 
-            {JobsData &&
-              JobsData.filter((item) => {
+            {jobs &&
+              jobs.filter((item) => {
                 return searchWork.toLowerCase() === "" ? item.status.toLowerCase().includes(filterState.toLowerCase()) : item.title.toLowerCase().includes(searchWork.toLowerCase());
               }).map((item, key) => {
                 return (

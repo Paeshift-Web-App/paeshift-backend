@@ -90,19 +90,6 @@ class LocationHistoryAdmin(admin.ModelAdmin):
     search_fields = ("user__username", "job__title")
     readonly_fields = ("timestamp",)
 
-@admin.register(Payment)
-class PaymentAdmin(admin.ModelAdmin):
-    list_display = (
-        "payer",
-        "recipient",
-        "job",
-        "original_amount",
-        "payment_status",
-        "created_at",
-    )
-    list_filter = ("payment_status", "created_at")
-    search_fields = ("payer__username", "recipient__username", "job__title", "pay_code")
-    readonly_fields = ("created_at", "confirmed_at")
 
 @admin.register(Rating)
 class RatingAdmin(admin.ModelAdmin):
