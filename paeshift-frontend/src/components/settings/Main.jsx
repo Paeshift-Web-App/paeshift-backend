@@ -63,6 +63,7 @@ const Schema = Yup.object().shape({
 
 const Main = () => {
   let user = useRecoilValue(userInfo);
+  let [profile, setProfile] = useState("");
 
   let [show, setShow] = useState('password');
   let [show1, setShow1] = useState('password');
@@ -81,6 +82,15 @@ const Main = () => {
     setShowSlide(1);
   }
 
+  useEffect(() => {
+
+    Axios.get("http://localhost:8000/jobs/whoami")
+      .then((response) => {
+        setProfile(response.data);
+        console.log(response.data);
+      })
+      .catch((error) => console.error(error));
+    },[])
 
 
   // Filter Feature 
@@ -131,8 +141,8 @@ const Main = () => {
                 <img className="prof" src={ProfileImage} alt="profile" />
               </span>
               <span>
-                <h4>Eniola Lucas</h4>
-                <h4 className="rate_score">Worker</h4>
+                <h4>{profile.first_name} {profile.last_name}</h4>
+                <h4 className="rate_score">{profile.role}</h4>
               </span>
             </div>
             <ul className="tabs">

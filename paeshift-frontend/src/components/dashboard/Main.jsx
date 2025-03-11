@@ -103,7 +103,7 @@ const Main = () => {
             </div>
           </div>
           <div className="col-7 col-md-8 col-xl-10 ps-xl-5 ">
-            <h3>{profile.username}</h3>
+            <h3>{profile.first_name} {profile.last_name}</h3>
             <p>{profile.role} </p>
             <p>Rating</p>
             <span>
