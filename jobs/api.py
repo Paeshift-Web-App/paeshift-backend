@@ -99,10 +99,9 @@ def get_related_object(model, field, value):
 # ----------------------------------------------------------------------
 # Authentication Endpoints
 # ----------------------------------------------------------------------
-
 @router.get("/whoami")
 def whoami(request):
-    """GET /jobs/whoami - Returns user's ID, username, and role"""
+    """GET /jobs/whoami - Returns user's ID, username, role, and reviews"""
     
     user_id = request.session.get("_auth_user_id")
     if not user_id:
@@ -112,15 +111,17 @@ def whoami(request):
     else:
         user = get_object_or_404(User, id=user_id)
 
-    # ✅ Check if Profile exists, if not create it
-    profile, created = Profile.objects.get_or_create(user=user, defaults={"role": "No role assigned"})
+    # Ensure Profile exists
+    profile, _ = Profile.objects.get_or_create(user=user, defaults={"role": "No role assigned"})
+    
+    # Get user's role
+    role = profile.role or "No role assigned"
 
-    # ✅ Fetch the role from Profile
-    role = profile.role if profile else "No role assigned"
+    # Compute average rating
+    average_rating = Rating.objects.filter(reviewed=user).aggregate(avg_rating=Avg("rating"))["avg_rating"] or 5.0  
 
-    # ✅ Compute average rating efficiently
-    # average_rating = Rating.objects.filter(reviewed=user).aggregate(avg_rating=Avg("rating"))["avg_rating"] or 0.0
-    average_rating = Rating.objects.filter(reviewed=user).aggregate(avg_rating=Avg("rating"))["avg_rating"] or 5.0  # Default to 5
+    # Fetch all reviews for the user and serialize them
+    user_reviews = Rating.objects.filter(reviewed=user).values("reviewer__username", "rating", "feedback", "created_at")
 
     return JsonResponse({
         "user_id": user.id,
@@ -129,10 +130,9 @@ def whoami(request):
         "last_name": user.last_name,
         "email": user.email,
         "role": role,
+        "user_reviews": list(user_reviews),  # Convert QuerySet to list for JSON serialization
         "rating": round(average_rating, 2),
     })
-
-
 
 
 

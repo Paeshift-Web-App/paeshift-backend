@@ -92,7 +92,7 @@ const Main = () => {
       .catch((error) => console.error(error));
     },[])
 
-
+  
   // Filter Feature 
   const filterFunction = (e) => {
     const buttons = document.getElementsByClassName('filter-btn');

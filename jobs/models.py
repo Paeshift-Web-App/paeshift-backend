@@ -285,14 +285,6 @@ class Rating(models.Model):
         return f"{self.reviewer} -> {self.reviewed} ({self.rating})"
 
 
-    # @staticmethod
-    # def get_average_rating(user: User) -> float:
-    #     qs = Rating.objects.filter(reviewed=user)
-    #     if qs.exists():
-    #         total = sum(r.rating for r in qs)
-    #         return round(total / qs.count(), 2)
-    #     return 0.0
-
 # ------------------------------------------------------
 # 9) PROFILE
 # ------------------------------------------------------
@@ -318,7 +310,6 @@ class Profile(models.Model):
     role = models.CharField(
         max_length=20,
         choices=ROLE_CHOICES,
-        default="client",
         blank=True
     )
 

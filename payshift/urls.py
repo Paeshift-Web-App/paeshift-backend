@@ -20,6 +20,6 @@ urlpatterns = [
     path("jobchat/", include("jobchat.urls")),  # ✅ Job-related routes
     path("payment/", include("payment.urls")),  # ✅ payment routes
    
-    # path("api/", api.urls),                      # The single API
+    path("api/", api.urls),                      # The single API
 
 ]
