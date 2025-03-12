@@ -6,10 +6,11 @@ from ninja import Router, Schema
 from django.http import JsonResponse
 from django.shortcuts import render
 
+from jobs.models import User, Profile
 from .models import Payment
-from jobs.models import *  # Ensure User model is imported
 
 router = Router(tags=["Payments"])
+
 
 # ✅ Schema for initiating payments
 class InitiatePaymentSchema(Schema):
@@ -96,7 +97,7 @@ def process_flutterwave_payment(payload, pay_code, callback_url):
 @router.get("/verify-payment")
 def verify_payment(request, reference: str, user_id: int, payment_method: str):
     """
-    Verifies the payment with Paystack or Flutterwave and updates the user's Wallet balance.
+    Verifies the payment with Paystack or Flutterwave and updates the user's wallet balance.
     """
     if payment_method == "paystack":
         verify_url = f"https://api.paystack.co/transaction/verify/{reference}"
@@ -111,13 +112,19 @@ def verify_payment(request, reference: str, user_id: int, payment_method: str):
     response_data = response.json()
 
     if response.status_code == 200 and response_data.get("data") and response_data["data"].get("status") == "success":
-        amount = float(response_data["data"]["amount"]) / 100  # Convert Kobo to Naira
+        # Extract payment amount
+        amount = response_data["data"]["amount"]
+        if payment_method == "paystack":
+            amount = amount / 100  # Convert from Kobo to Naira for Paystack
 
         try:
             with transaction.atomic():
                 user = User.objects.get(id=user_id)
-                wallet, _ = Wallet.objects.get_or_create(user=user)
-                wallet.add_funds(amount)
+                profile = Profile.objects.get(user=user)
+
+                # Update balance
+                profile.balance += amount
+                profile.save()
 
                 # Save payment record
                 Payment.objects.create(
@@ -128,9 +135,11 @@ def verify_payment(request, reference: str, user_id: int, payment_method: str):
                     payment_method=payment_method,
                 )
 
-            return JsonResponse({"message": "Payment verified. Wallet updated.", "new_balance": wallet.balance})
+            return JsonResponse({"message": "Payment verified. Wallet updated.", "new_balance": profile.balance})
         except User.DoesNotExist:
             return JsonResponse({"error": "User not found"}, status=404)
+        except Profile.DoesNotExist:
+            return JsonResponse({"error": "Profile not found for user"}, status=404)
         except Exception as e:
             return JsonResponse({"error": "Failed to update wallet", "details": str(e)}, status=500)
 

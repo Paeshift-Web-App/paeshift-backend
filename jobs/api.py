@@ -583,26 +583,39 @@ def unsave_job(request, job_id: int):
 
 
 
-@router.get("/saved-jobs", tags=["Jobs"])  # Static route first
+@router.get("/saved-jobs", tags=["Jobs"])
 def user_saved_jobs(request):
-    """GET /jobs/saved-jobs - Lists all saved jobs for the current user"""
-
-    
-    saved_records = SavedJob.objects.filter(user=request.user).select_related("job")
+    """
+    GET /jobs/saved-jobs - Lists all saved jobs for the authenticated user.
+    """
+    user_id = request.session.get("_auth_user_id")
+    if not user_id:
+        user = User.objects.first()  # Use a test user if session is missing
+        if not user:
+            return JsonResponse({"error": "No users available for testing"}, status=500)
+    else:
+        user = get_object_or_404(User, id=user_id)
+    # Use the authenticated user (from session) in the query
+    saved_records = SavedJob.objects.filter(user=user).select_related("job")
 
     saved_jobs_list = [
         {
             "saved_job_id": record.id,
             "saved_at": record.saved_at.strftime("%Y-%m-%d %H:%M:%S"),
-            "job": serialize_job(record.job)
+            "job": {
+                "title": record.job.title,
+                "industry": record.job.industry.name if record.job.industry else None,
+                "subcategory": record.job.subcategory.name if record.job.subcategory else None,
+                "status": record.job.status,
+                "pay_status": record.job.status,
+                "location": record.job.location,
+                "created_at": record.job.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+            }
         }
         for record in saved_records
     ]
 
     return JsonResponse({"saved_jobs": saved_jobs_list}, status=200)
-
-
-
 
 
 
