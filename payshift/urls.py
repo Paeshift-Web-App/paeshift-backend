@@ -2,24 +2,23 @@ from django.contrib import admin
 from django.urls import path, include
 from django.shortcuts import redirect
 from ninja import NinjaAPI
-from socialauth.views import home
+from payment.api import router as payment_router  # Import the router from the payment app
 
-# ✅ Initialize API
-api = NinjaAPI() 
+api = NinjaAPI()
 
-# ✅ Redirect users to Google signup instead of showing "Sign Up Closed"
-def signup_redirect(request):
-    return redirect("/accounts/google/login/")
+# ✅ Register the payment router with NinjaAPI
+api.add_router("/payments", payment_router)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", include("socialauth.urls")),  # ✅ SocialAuth as root URL
-    path("accounts/", include("allauth.urls")),  # ✅ Django-Allauth for authentication
-    path("accounts/signup/", signup_redirect, name="account_signup"),  # ✅ Force Google signup
-    path("jobs/", include("jobs.urls")),  # ✅ Job-related routes
-    path("jobchat/", include("jobchat.urls")),  # ✅ Job-Chat/Map/Websocket-related routes
-    path("payment/", include("payment.urls")),  # ✅ payment routes
-   
-    path("api/", api.urls),                      # The single API
+    path("", include("socialauth.urls")),  
+    path("accounts/", include("allauth.urls")),  
+    path("accounts/signup/", lambda request: redirect("/accounts/google/login/"), name="account_signup"),  
+    # path("accounts/signup/", signup_redirect, name="account_signup"),  # ✅ Force Google signup
+    path("jobs/", include("jobs.urls")),  
+    path("jobchat/", include("jobchat.urls")),  
+    path("payment/", include("payment.urls")),  
 
+    path("api/", api.urls),  # ✅ Register API
 ]
+

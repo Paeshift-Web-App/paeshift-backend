@@ -105,16 +105,11 @@ AUTHENTICATION_BACKENDS = [
 # SITE_ID = 1  # Ensure this matches the Site entry in your admin
 
 
-# Paystack API Keys (Replace with actual values)
-# PAYSTACK_SECRET_KEY = os.getenv("PAYSTACK_SECRET_KEY", "sk_test_ef9e10ac4bf5dcd69617a61636d21c88528afb1d")
-# PAYSTACK_PUBLIC_KEY = os.getenv("PAYSTACK_PUBLIC_KEY", "pk_test_01db91d9678ee0d25483a7d0bc9783951938b45d")
 PAYSTACK_SECRET_KEY = "sk_test_ef9e10ac4bf5dcd69617a61636d21c88528afb1d"
 PAYSTACK_PUBLIC_KEY = "pk_test_01db91d9678ee0d25483a7d0bc9783951938b45d"
 
-
-FLUTTERWAVE_SECRET_KEY = os.environ.get('FLUTTERWAVE_SECRET_KEY', 'FLWSECK-your_flutterwave_key')
-# AUTH_USER_MODEL = "jobs.User"  # Adjust "jobs" to your app name
-
+FLUTTERWAVE_SECRET_KEY = "FLWSECK_TEST-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+FLUTTERWAVE_PUBLIC_KEY = "FLWPUBK_TEST-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 
 # -----------------------------
 # ALLAUTH CONFIG
