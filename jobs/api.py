@@ -585,11 +585,10 @@ def unsave_job(request, job_id: int):
 
 
 @router.get("/saved-jobs", tags=["Jobs"])  # Static route first
-def list_saved_jobs(request):
+def user_saved_jobs(request):
     """GET /jobs/saved-jobs - Lists all saved jobs for the current user"""
-    user, error = authenticated_user_or_error(request, "You must be logged in to unsave jobs")
-    if error:
-        return error
+
+    
     saved_records = SavedJob.objects.filter(user=request.user).select_related("job")
 
     saved_jobs_list = [
@@ -657,8 +656,8 @@ def update_location(request, job_id: int, payload: LocationSchema):
 # ----------------------------------------------------------------------
 
 
-# router = Router(tags=["Jobs"])  # attach the router to "Jobs" or "Ratings"
-@router.post("/ratings", tags=["Ratings"])
+# router = Router(tags=["Jobs"])/  # attach the router to "Jobs" or "Ratings"
+@router.post("/ratings", tags=["Ratings"], )
 def create_rating(request, payload: RatingCreateSchema):
     """
     POST /jobs/ratings
@@ -709,21 +708,47 @@ def get_user_ratings(request, user_id: int):
 # ----------------------------------------------------------------------
 # Dispute Endpoints
 # ----------------------------------------------------------------------
+
+class DisputeCreateSchema(Schema):
+    user: UserSchema
+
 @router.post("/jobs/{job_id}/disputes", tags=["Disputes"])
 def create_dispute(request, job_id: int, payload: DisputeCreateSchema):
-    """POST /jobs/{job_id}/disputes - Creates a dispute for a job"""
+    """Creates a dispute for a job"""
+    
+    # Debugging Step: Print received payload
+    print("Received Payload:", payload.dict()) 
+
     user, error = authenticated_user_or_error(request)
     if error:
-        return error
+        return JsonResponse({"error": error}, status=401)
+
     job = get_object_or_404(Job, pk=job_id)
+
+    # Check if dispute already exists for this job and user
+    existing_dispute = Dispute.objects.filter(job=job, created_by=user).first()
+    if existing_dispute:
+        return JsonResponse({"error": "You have already raised a dispute for this job."}, status=400)
+
+    # Ensure payload has correct attributes
+    if not hasattr(payload, "title") or not hasattr(payload, "description"):
+        return JsonResponse({"error": "Invalid dispute data"}, status=422)
+
     dispute = Dispute.objects.create(
         job=job,
         created_by=user,
-        title=payload.title,
-        description=payload.description
+        title=payload.title.strip(),
+        description=payload.description.strip(),
     )
-    return {"message": "Dispute created", "dispute_id": dispute.id}
 
+    return JsonResponse(
+        {
+            "message": "Dispute created successfully.",
+            "dispute_id": dispute.id,
+            "status": dispute.status,
+        },
+        status=201
+    )
 
 
 

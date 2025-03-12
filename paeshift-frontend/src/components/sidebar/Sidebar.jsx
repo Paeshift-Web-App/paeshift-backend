@@ -29,7 +29,7 @@ const Sidebar = () => {
     Axios.get("http://localhost:8000/jobs/whoami")
     .then((response) => {
       setProfile(response.data);
-      console.log(response.data);
+      // console.log(response.data);
     })
     .catch((error) => console.error(error));
 

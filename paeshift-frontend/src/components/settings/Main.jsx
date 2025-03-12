@@ -64,6 +64,8 @@ const Schema = Yup.object().shape({
 const Main = () => {
   let user = useRecoilValue(userInfo);
   let [profile, setProfile] = useState("");
+  let [savedjobs, setSavedJobs] = useState("");
+
 
   let [show, setShow] = useState('password');
   let [show1, setShow1] = useState('password');
@@ -87,11 +89,22 @@ const Main = () => {
     Axios.get("http://localhost:8000/jobs/whoami")
       .then((response) => {
         setProfile(response.data);
-        console.log(response.data);
+        // console.log(response.data);
       })
       .catch((error) => console.error(error));
     },[])
 
+
+    useEffect(() => {
+
+      Axios.get("http://localhost:8000/jobs/saved-jobs")
+        .then((response) => {
+          // setSavedJobs(response.data);
+          console.log(response);
+        })
+        .catch((error) => console.error(error));
+      },[])
+  
   
   // Filter Feature 
   const filterFunction = (e) => {
@@ -500,7 +513,7 @@ const Main = () => {
               <div className="row">
                 <div className="cards">
 
-                  {JobsData && JobsData.map((item, key) => {
+                  {savedjobs && savedjobs.map((item, key) => {
 
                     return (
                       <div className="card" key={key}>
@@ -528,7 +541,7 @@ const Main = () => {
                         <span className="address text-truncate">{item.location}</span>
                         <div className="price">
                           <span>
-                            <h6>₦{item.amount}/hr</h6>
+                            <h6>₦{item.rate}/hr</h6>
                             <p>{item.no_of_application} applicant needed</p>
                           </span>
                           <span>
@@ -777,21 +790,21 @@ const Main = () => {
                               <Form className="form_settings">
                                 <div className="mb-2">
                                   <span className="visibility">
-                                    <Field type={show} name="oldpassword" id="oldpassword" className="form-control" placeholder="Old Password" />
+                                    <Field type={show} name="oldpassword" id="oldpassword" className="form-control" placeholder="Old Password" autoComplete='false' />
                                     <FontAwesomeIcon icon={show === "password" ? faEye : faEyeSlash} onClick={() => setShow(show === "password" ? "text" : "password")} className='eye-icon' />
                                   </span>
                                   {touched.oldpassword && errors.oldpassword && (<div className="errors">{errors.oldpassword}</div>)}
                                 </div>
                                 <div className="mb-2">
                                   <span className="visibility">
-                                    <Field type={show1} name="newpassword" id="password" className="form-control" placeholder="New Password" />
+                                    <Field type={show1} name="newpassword" id="password" className="form-control" placeholder="New Password" autoComplete='false' />
                                     <FontAwesomeIcon icon={show1 === "password" ? faEye : faEyeSlash} onClick={() => setShow1(show1 === "password" ? "text" : "password")} className='eye-icon' />
                                   </span>
                                   {touched.newpassword && errors.newpassword && (<div className="errors">{errors.newpassword}</div>)}
                                 </div>
                                 <div className="mb-2" >
                                   <span className="visibility">
-                                    <Field type={show2} name="confirmPassword" id="confirmPassword" className="form-control" placeholder="Confirm Password" />
+                                    <Field type={show2} name="confirmPassword" id="confirmPassword" className="form-control" placeholder="Confirm Password" autoComplete='false' />
                                     <FontAwesomeIcon icon={show2 === "password" ? faEye : faEyeSlash} onClick={() => setShow2(show2 === "password" ? "text" : "password")} className='eye-icon' />
                                   </span>
                                   {touched.confirmPassword && errors.confirmPassword && (<div className="errors">{errors.confirmPassword}</div>)}

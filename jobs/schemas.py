@@ -2,7 +2,7 @@ from ninja import Schema
 from datetime import datetime
 from decimal import Decimal
 from typing import Optional
-
+from pydantic import BaseModel
 # -------------------------------------------------------
 # 1) Location Schema
 # -------------------------------------------------------
@@ -152,7 +152,7 @@ class RatingCreateSchema(Schema):
       }
     """
     reviewed_id: int
-    rating: float
+    rating: Optional[float] = None
     feedback: Optional[str] = None
 
 
@@ -170,9 +170,11 @@ class UpdateProfileSchema(Schema):
     location: Optional[str] = None
 
 
-class DisputeCreateSchema(Schema):
-    user: UserSchema
 
+class DisputeCreateSchema(BaseModel):
+    """Schema for creating a dispute"""
+    title: str
+    description: str
 
 class DisputeUpdateSchema(Schema):
     user: UserSchema

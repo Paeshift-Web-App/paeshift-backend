@@ -275,17 +275,37 @@ class Dispute(models.Model):
 
 
 class Rating(models.Model):
-    reviewer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="given_ratings")
-    reviewed = models.ForeignKey(User, on_delete=models.CASCADE, related_name="received_ratings")
-    rating = models.PositiveIntegerField()  # e.g. 1–5
+    reviewer = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="given_ratings"
+    )
+    reviewed = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="received_ratings"
+    )
+    rating = models.PositiveSmallIntegerField()  # Restrict to small integers (1-5)
     feedback = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(rating__gte=1, rating__lte=5),
+                name="rating_between_1_and_5",
+            ),
+            models.UniqueConstraint(
+                fields=["reviewer", "reviewed"], name="unique_reviewer_reviewed"
+            ),
+        ]
+        ordering = ["-created_at"]  # Show newest ratings first
 
     def __str__(self):
         return f"{self.reviewer} -> {self.reviewed} ({self.rating})"
 
-
-# ------------------------------------------------------
+    @staticmethod
+    def get_average_rating(user: User) -> float:
+        """Calculates the average rating of a given user"""
+        ratings = user.received_ratings.all()  # Use 'received_ratings' instead of 'ratings'
+        return sum(rating.rating for rating in ratings) / len(ratings) if ratings else 0.0
+    # ------------------------------------------------------
 # 9) PROFILE
 # ------------------------------------------------------
 class Profile(models.Model):

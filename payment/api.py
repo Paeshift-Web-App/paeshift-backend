@@ -1,173 +1,102 @@
-# api.py
-import random
+import uuid
 import requests
-from ninja import NinjaAPI, Schema
 from django.conf import settings
+from django.http import JsonResponse
 from django.shortcuts import render
-from django.http import HttpResponse
-api = NinjaAPI()
+from ninja import Router, Schema
 
-# ---------------------
-# Paystack Endpoints
-# ---------------------
-@api.get("/payment-page")
+from .models import Payment
+
+router = Router(tags=["Payments"])
+
+class InitiatePaymentSchema(Schema):
+    total: float
+    reservation_code: str = ""
+    first_name: str = ""
+    last_name: str = ""
+    phone: str = ""
+
+# import uuid
+# import requests
+# from django.conf import settings
+# from django.http import JsonResponse
+# from ninja import Router, Schema
+
+# from .models import Payment  # Your Payment model
+
+# router = Router(tags=["Payments"])
+
+class InitiatePaymentSchema(Schema):
+    total: float
+    reservation_code: str = ""
+    first_name: str = ""
+    last_name: str = ""
+    phone: str = ""
+
+@router.post("/initiate-payment")
+def initiate_payment(request, payload: InitiatePaymentSchema):
+    """
+    Initializes a Paystack payment.
+    
+    Expects a POST request with a JSON body containing:
+      - total (float, in Naira)
+      - reservation_code (optional)
+      - first_name, last_name, phone (optional)
+      
+    The endpoint uses the logged-in user's email and returns the authorization URL.
+    """
+    # Ensure the user is authenticated
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "User must be logged in."}, status=401)
+
+    # Convert Naira to kobo
+    total_in_kobo = int(payload.total * 100)
+    reservation_code = payload.reservation_code
+    pay_code = str(uuid.uuid4())
+    user = request.user
+
+    # Set callback URL (adjust as needed)
+    callback_url = "http://127.0.0.1:8000/completed/"
+
+    # Prepare Paystack request data
+    headers = {
+        "Authorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}",
+        "Content-Type": "application/json",
+    }
+    data = {
+        "reference": pay_code,
+        "email": user.email,
+        "amount": total_in_kobo,
+        "callback_url": callback_url,
+        "order_number": reservation_code,
+    }
+
+    try:
+        response = requests.post("https://api.paystack.co/transaction/initialize", headers=headers, json=data)
+        response_data = response.json()
+    except Exception as e:
+        return JsonResponse({"error": "Network busy, please try again.", "details": str(e)}, status=500)
+
+    # If successful, return the authorization URL
+    if response.status_code == 200 and "data" in response_data and "authorization_url" in response_data["data"]:
+        auth_url = response_data["data"]["authorization_url"]
+
+        # Optionally, you can save a Payment record here.
+        # Payment.objects.create(user=user, amount=payload.total, pay_code=pay_code, order_no=reservation_code, ...)
+
+        return JsonResponse({"authorization_url": auth_url}, status=200)
+    else:
+        return JsonResponse({
+            "error": "Error initializing payment",
+            "details": response_data.get("message", "Unknown error")
+        }, status=response.status_code)
+
+
+@router.get("/payments")
 def payment_page(request):
-    return render(request, "payment.html", {})
-
-class PaystackPaymentRequest(Schema):
-    amount: int  # Amount in Naira
-    email: str
-
-@api.post("/paystack/initialize")
-def paystack_initialize(request, payload: PaystackPaymentRequest):
     """
-    Initialize a Paystack payment.
+    Renders an HTML page displaying Payment records.
+    (For testing purposes, we are using Django's render function.)
     """
-    amount_in_kobo = payload.amount * 100  # Convert Naira to kobo
-    headers = {
-        "Authorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}",
-        "Content-Type": "application/json",
-    }
-    payload_data = {
-        "email": payload.email,
-        "amount": amount_in_kobo,
-    }
-    url = "https://api.paystack.co/transaction/initialize"
-    response = requests.post(url, headers=headers, json=payload_data)
-    return response.json()
-
-@api.get("/paystack/verify")
-def paystack_verify(request, reference: str):
-    """
-    Verify a Paystack transaction using its reference.
-    """
-    if not reference:
-        return {"error": "Missing reference"}
-    headers = {
-        "Authorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}",
-    }
-    url = f"https://api.paystack.co/transaction/verify/{reference}"
-    response = requests.get(url, headers=headers)
-    return response.json()
-
-# ---------------------
-# Flutterwave Endpoints
-# ---------------------
-
-class FlutterwavePaymentRequest(Schema):
-    amount: float  # Allows for decimals if needed
-    email: str
-    currency: str = "NGN"
-
-@api.post("/flutterwave/initialize")
-def flutterwave_initialize(request, payload: FlutterwavePaymentRequest):
-    """
-    Initialize a Flutterwave payment.
-    """
-    # Generate a random transaction reference
-    tx_ref = "MC-" + str(random.randint(1000000, 9999999))
-    payload_data = {
-        "tx_ref": tx_ref,
-        "amount": payload.amount,
-        "currency": payload.currency,
-        "redirect_url": "http://yourdomain.com/flutterwave/callback",  # Change to your callback URL
-        "customer": {
-            "email": payload.email,
-        },
-        "customizations": {
-            "title": "Payment for Items",
-            "description": "Payment for purchasing items",
-        }
-    }
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {settings.FLUTTERWAVE_SECRET_KEY}"
-    }
-    url = "https://api.flutterwave.com/v3/payments"
-    response = requests.post(url, headers=headers, json=payload_data)
-    return response.json()
-
-@api.get("/flutterwave/callback")
-def flutterwave_callback(request, tx_ref: str, status: str, transaction_id: str):
-    """
-    Handle Flutterwave's redirect after payment.
-    Optionally, verify the payment with Flutterwave's verify endpoint here.
-    """
-    return {"tx_ref": tx_ref, "status": status, "transaction_id": transaction_id}
-
-
-
-
-# # ------------------------------------------------------------------------------
-# # C) PAYMENT SYSTEM
-# # ------------------------------------------------------------------------------
-# @router.post("/jobs/{job_id}/payments", tags=["Payments"])
-# def create_payment(request, job_id: int, payload: PaymentCreateSchema):
-#     """
-#     POST /jobs/{job_id}/payments
-#     Creates a payment record for a given job.
-#     """
-#     if not request.user.is_authenticated:
-#         return Response({"error": "Not logged in"}, status=401)
-
-#     job = get_object_or_404(Job, pk=job_id)
-
-#     # For instance, the user paying is the client, or it might be a different logic
-#     # Possibly ensure job.client == request.user, or something similar
-#     payment = Payment.objects.create(
-#         payer=request.user,  # or job.client
-#         recipient=None,      # set a recipient if you have logic for who gets paid
-#         job=job,
-#         original_amount=payload.original_amount,
-#         service_fee=payload.service_fee,
-#         final_amount=payload.final_amount,
-#         pay_code=payload.pay_code  # or auto-generate if needed
-#     )
-#     return {"message": "Payment created", "payment_id": payment.id}
-
-
-# @router.get("/jobs/{job_id}/payments", tags=["Payments"])
-# def list_payments_for_job(request, job_id: int):
-#     """
-#     GET /jobs/{job_id}/payments
-#     Returns a list of payment records for the specified job.
-#     """
-#     job = get_object_or_404(Job, pk=job_id)
-#     payments = job.payments.all()
-
-#     data = []
-#     for p in payments:
-#         data.append({
-#             "id": p.id,
-#             "payer": p.payer.username,
-#             "recipient": p.recipient.username if p.recipient else None,
-#             "original_amount": str(p.original_amount),
-#             "service_fee": str(p.service_fee),
-#             "final_amount": str(p.final_amount),
-#             "pay_code": p.pay_code,
-#             "payment_status": p.payment_status,
-#             "created_at": p.created_at.isoformat(),
-#             "confirmed_at": p.confirmed_at.isoformat() if p.confirmed_at else None
-#         })
-#     return data
-
-
-# @router.put("/payments/{payment_id}", tags=["Payments"])
-# def update_payment(request, payment_id: int, payload: PaymentUpdateSchema):
-#     """
-#     PUT /jobs/payments/{payment_id}
-#     Allows updating a payment’s status or details.
-#     """
-#     if not request.user.is_authenticated:
-#         return Response({"error": "Not logged in"}, status=401)
-
-#     payment = get_object_or_404(Payment, pk=payment_id)
-
-#     # Possibly check if request.user is the payer or an admin. Exclude admin logic if not needed
-#     if payload.payment_status:
-#         payment.payment_status = payload.payment_status
-#     if payload.refund_requested is not None:
-#         payment.refund_requested = payload.refund_requested
-
-#     payment.save()
-#     return {"message": "Payment updated", "payment_id": payment.id}
+    payments = Payment.objects.all()
+    return render(request, "payments.html", {"payments": payments})
