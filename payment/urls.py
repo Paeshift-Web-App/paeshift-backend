@@ -8,5 +8,5 @@ api = NinjaAPI()
 
 urlpatterns = [
     path("payments/", payment_page, name="payment_page"),
-    path("api/", api.urls),  # ✅ Ensure API routes are included
+    # path("api/", api.urls),  # ✅ Ensure API routes are included
 ]

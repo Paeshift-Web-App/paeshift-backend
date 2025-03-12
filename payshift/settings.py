@@ -46,6 +46,8 @@ CORS_ALLOW_HEADERS = [
 # INSTALLED APPS
 # -----------------------------
 INSTALLED_APPS = [
+    "daphne",
+    "channels",                # For Django Channels
     "corsheaders",            # Uncomment if using corsheaders
     # "jazzmin",                # Optional admin theme
 
@@ -53,8 +55,6 @@ INSTALLED_APPS = [
     "jobs",
     "jobchat", 
     "socialauth",          # Your main Django app
-    "channels",                # For Django Channels
-    "daphne",
     'payment',
     "rest_framework",
     "rest_framework_simplejwt",
@@ -83,7 +83,7 @@ INSTALLED_APPS = [
 
 
 
-SITE_ID = 3  # Placeholder
+# SITE_ID = 1  # Placeholder
 
 # ✅ Enable session authentication
 REST_FRAMEWORK = {
@@ -106,7 +106,7 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
-# SITE_ID = 1  # Ensure this matches the Site entry in your admin
+SITE_ID = 3  # Ensure this matches the Site entry in your admin
 
 
 PAYSTACK_SECRET_KEY = "sk_test_ef9e10ac4bf5dcd69617a61636d21c88528afb1d"
