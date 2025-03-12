@@ -115,6 +115,11 @@ PAYSTACK_PUBLIC_KEY = "pk_test_01db91d9678ee0d25483a7d0bc9783951938b45d"
 FLUTTERWAVE_SECRET_KEY = "FLWSECK_TEST-5cfee76ec023b25f6e002bad2bfc1d95-X"
 FLUTTERWAVE_PUBLIC_KEY = "FLWPUBK_TEST-c9b0667be3b2500fb3ee42a46a8ae054-X"
 
+
+# settings.py
+BASE_URL = "http://127.0.0.1:8000"  # Replace with your actual domain in production
+
+
 # -----------------------------
 # ALLAUTH CONFIG
 # -----------------------------
