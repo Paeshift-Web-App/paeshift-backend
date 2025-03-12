@@ -1,62 +1,51 @@
 # jobs/api.py
 
+# Standard Library
+import os
+import uuid
+from datetime import datetime
+from typing import List, Optional
+
+# Django
 from django.db import IntegrityError
-from django.shortcuts import get_object_or_404
+from django.db.models import Avg
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, render
+from django.conf import settings
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib.auth import (
     authenticate, login, logout, update_session_auth_hash,
     get_user_model, get_backends
 )
 from django.contrib.auth.hashers import check_password
 from django.utils import timezone
-from django.http import JsonResponse
-from ninja import Router, File
+
+# Third Party
+from ninja import Router, File, Query
 from ninja.files import UploadedFile
 from ninja.responses import Response
-from typing import List, Optional
-import os
-from datetime import datetime
-from .models import *
-from .schemas import *
-import os
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
-from django.contrib.auth import get_user_model
-from ninja import Router
-from .models import Job, JobIndustry, JobSubCategory
-from .schemas import *
-from django.shortcuts import render
-from django.conf import settings
-import uuid
-from ninja import Router, Query
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.shortcuts import get_object_or_404
-from django.http import JsonResponse
-from jobs.models import Job
-from django.contrib.auth import get_user_model
-
-from django.http import JsonResponse
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.conf import settings
 import requests
-from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth.models import AnonymousUser
-from django.db.models import Avg
 
+# Local
+from .models import Job, JobIndustry, JobSubCategory, Profile, Rating, SavedJob, Application, Dispute
+from .schemas import (
+    LoginSchema, SignupSchema, CreateJobSchema, IndustrySchema,
+    SubCategorySchema, JobDetailSchema, LocationSchema,
+    RatingCreateSchema, DisputeCreateSchema, DisputeUpdateSchema
+)
 
-router = Router()
+router = Router(tags=["Jobs"])
 User = get_user_model()
 
-
-# Get Paystack credentials safely
+# Paystack Configuration
 PAYSTACK_SECRET_KEY = getattr(settings, "PAYSTACK_SECRET_KEY", None)
 PAYSTACK_PUBLIC_KEY = getattr(settings, "PAYSTACK_PUBLIC_KEY", None)
+PAYSTACK_INITIALIZE_URL = "https://api.paystack.co/transaction/initialize"
+PAYSTACK_VERIFY_URL = "https://api.paystack.co/transaction/verify/"
 
 if not PAYSTACK_SECRET_KEY:
     raise ValueError("PAYSTACK_SECRET_KEY is missing in settings.py")
 
-PAYSTACK_INITIALIZE_URL = "https://api.paystack.co/transaction/initialize"
-PAYSTACK_VERIFY_URL = "https://api.paystack.co/transaction/verify/"
-router = Router(tags=["Jobs"])  # attach the router to "Jobs" or "Ratings"
 
 # ----------------------------------------------------------------------
 # Helper Functions
@@ -397,41 +386,6 @@ def create_job(request, payload: CreateJobSchema):
     }, status=201)
 
 
-# @router.get("/verify-payment/")
-# def verify_payment(request, reference: str):
-#     """Verifies payment and updates job status."""
-#     headers = {"Authorization": f"Bearer {PAYSTACK_SECRET_KEY}"}
-#     response = requests.get(f"{PAYSTACK_VERIFY_URL}{reference}", headers=headers)
-
-#     if response.status_code != 200:
-#         return JsonResponse({"error": "Payment verification failed"}, status=400)
-
-#     response_data = response.json()
-
-#     if response_data["data"]["status"] == "success":
-#         job_id = response_data["data"]["metadata"]["job_id"]
-#         job = get_object_or_404(Job, id=job_id)
-
-#         job.status = "upcoming"
-#         job.payment_status = "Completed"
-#         job.save()
-
-#         return JsonResponse({"message": "Payment successful. Job is now active."})
-
-#     return JsonResponse({"error": "Payment failed or not verified"}, status=400)
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 @router.get("/clientjobs")
@@ -668,7 +622,7 @@ def update_location(request, job_id: int, payload: LocationSchema):
 # ----------------------------------------------------------------------
 
 
-# router = Router(tags=["Jobs"])/  # attach the router to "Jobs" or "Ratings"
+# router = Router(tags=["Jobs"])  # attach the router to "Jobs" or "Ratings"
 @router.post("/ratings", tags=["Ratings"], )
 def create_rating(request, payload: RatingCreateSchema):
     """

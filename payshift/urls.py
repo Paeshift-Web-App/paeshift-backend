@@ -6,9 +6,6 @@ from payment.api import router as payment_router  # Import the router from the p
 
 api = NinjaAPI()
 
-# ✅ Register the payment router with NinjaAPI
-api.add_router("/payments", payment_router)
-
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("socialauth.urls")),  
