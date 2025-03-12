@@ -9,7 +9,7 @@ Paystack Credentials
 
 
 git add .
-git commit -m "jobs page"
+git commit -m "Both payment gateway sorted"
 git push origin main
 
 
