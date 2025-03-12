@@ -721,31 +721,32 @@ def get_user_ratings(request, user_id: int):
 # Dispute Endpoints
 # ----------------------------------------------------------------------
 
-class DisputeCreateSchema(Schema):
-    user: UserSchema
 
 @router.post("/jobs/{job_id}/disputes", tags=["Disputes"])
 def create_dispute(request, job_id: int, payload: DisputeCreateSchema):
-    """Creates a dispute for a job"""
-    
-    # Debugging Step: Print received payload
-    print("Received Payload:", payload.dict()) 
+    """
+    Creates a dispute for a job.
 
+    Returns:
+      - 201 with dispute id and status on success.
+      - 400 if the user already raised a dispute for the job.
+      - 401 if the user is not authenticated.
+      - 422 if dispute data is invalid.
+    """
+    # Check authentication using our helper function
     user, error = authenticated_user_or_error(request)
     if error:
-        return JsonResponse({"error": error}, status=401)
+        return JsonResponse({"error": error.content.decode()}, status=401)
 
+    # Get the job or 404 if not found
     job = get_object_or_404(Job, pk=job_id)
 
-    # Check if dispute already exists for this job and user
+    # Check if the user already raised a dispute for this job
     existing_dispute = Dispute.objects.filter(job=job, created_by=user).first()
     if existing_dispute:
         return JsonResponse({"error": "You have already raised a dispute for this job."}, status=400)
 
-    # Ensure payload has correct attributes
-    if not hasattr(payload, "title") or not hasattr(payload, "description"):
-        return JsonResponse({"error": "Invalid dispute data"}, status=422)
-
+    # Create the dispute using cleaned-up payload values
     dispute = Dispute.objects.create(
         job=job,
         created_by=user,
@@ -753,15 +754,11 @@ def create_dispute(request, job_id: int, payload: DisputeCreateSchema):
         description=payload.description.strip(),
     )
 
-    return JsonResponse(
-        {
-            "message": "Dispute created successfully.",
-            "dispute_id": dispute.id,
-            "status": dispute.status,
-        },
-        status=201
-    )
-
+    return JsonResponse({
+        "message": "Dispute created successfully.",
+        "dispute_id": dispute.id,
+        "status": dispute.status,
+    }, status=201)
 
 
 @router.get("/disputes/{dispute_id}", tags=["Disputes"])
