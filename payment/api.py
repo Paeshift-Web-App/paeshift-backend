@@ -5,7 +5,6 @@ from django.db import transaction
 from ninja import Router, Schema
 from django.http import JsonResponse
 from django.shortcuts import render
-
 from jobs.models import User, Profile
 from .models import Payment
 
@@ -15,10 +14,10 @@ router = Router(tags=["Payments"])
 # ✅ Schema for initiating payments
 class InitiatePaymentSchema(Schema):
     total: float
-    reservation_code: str = ""
-    first_name: str = ""
-    last_name: str = ""
-    phone: str = ""
+    reservation_code: str
+    first_name: str
+    last_name: str
+    phone: str
     payment_method: str  # "paystack" or "flutterwave"
 
 
@@ -28,12 +27,11 @@ def initiate_payment(request, payload: InitiatePaymentSchema):
     """
     Initializes a payment via Paystack or Flutterwave.
     """
-    total_in_kobo = int(payload.total * 100)
     pay_code = str(uuid.uuid4())
     callback_url = "http://127.0.0.1:8000/payments/payment-completed/"
 
     if payload.payment_method == "paystack":
-        return process_paystack_payment(payload, total_in_kobo, pay_code, callback_url)
+        return process_paystack_payment(payload, pay_code, callback_url)
     elif payload.payment_method == "flutterwave":
         return process_flutterwave_payment(payload, pay_code, callback_url)
     else:
@@ -41,7 +39,7 @@ def initiate_payment(request, payload: InitiatePaymentSchema):
 
 
 # ✅ Paystack Payment Processing
-def process_paystack_payment(payload, total_in_kobo, pay_code, callback_url):
+def process_paystack_payment(payload, pay_code, callback_url):
     """
     Handles Paystack payment initialization.
     """
@@ -51,9 +49,10 @@ def process_paystack_payment(payload, total_in_kobo, pay_code, callback_url):
     }
     data = {
         "reference": pay_code,
-        "email": payload.first_name + "@test.com",
-        "amount": total_in_kobo,
+        "email": f"{payload.first_name.lower()}@test.com",
+        "amount": int(payload.total * 100),  # Convert to kobo
         "callback_url": callback_url,
+        "currency": "NGN"
     }
 
     response = requests.post("https://api.paystack.co/transaction/initialize", headers=headers, json=data)
@@ -61,6 +60,7 @@ def process_paystack_payment(payload, total_in_kobo, pay_code, callback_url):
 
     if response.status_code == 200 and response_data.get("data") and response_data["data"].get("authorization_url"):
         return JsonResponse({"authorization_url": response_data["data"]["authorization_url"]})
+
     return JsonResponse({"error": "Error initializing Paystack payment", "details": response_data.get("message", "Unknown error")})
 
 
@@ -79,7 +79,7 @@ def process_flutterwave_payment(payload, pay_code, callback_url):
         "currency": "NGN",
         "redirect_url": callback_url,
         "customer": {
-            "email": payload.first_name + "@test.com",
+            "email": f"{payload.first_name.lower()}@test.com",
             "name": f"{payload.first_name} {payload.last_name}",
             "phone_number": payload.phone,
         },
@@ -90,6 +90,7 @@ def process_flutterwave_payment(payload, pay_code, callback_url):
 
     if response.status_code == 200 and response_data.get("data") and response_data["data"].get("link"):
         return JsonResponse({"authorization_url": response_data["data"]["link"]})
+
     return JsonResponse({"error": "Error initializing Flutterwave payment", "details": response_data.get("message", "Unknown error")})
 
 
@@ -111,22 +112,19 @@ def verify_payment(request, reference: str, user_id: int, payment_method: str):
     response = requests.get(verify_url, headers=headers)
     response_data = response.json()
 
-    if response.status_code == 200 and response_data.get("data") and response_data["data"].get("status") == "success":
-        # Extract payment amount
+    if response.status_code == 200 and response_data.get("data") and response_data["data"].get("status") == "successful":
         amount = response_data["data"]["amount"]
         if payment_method == "paystack":
-            amount = amount / 100  # Convert from Kobo to Naira for Paystack
+            amount = amount / 100  # Convert from kobo to naira
 
         try:
             with transaction.atomic():
                 user = User.objects.get(id=user_id)
                 profile = Profile.objects.get(user=user)
 
-                # Update balance
                 profile.balance += amount
                 profile.save()
 
-                # Save payment record
                 Payment.objects.create(
                     user=user,
                     amount=amount,
@@ -136,6 +134,7 @@ def verify_payment(request, reference: str, user_id: int, payment_method: str):
                 )
 
             return JsonResponse({"message": "Payment verified. Wallet updated.", "new_balance": profile.balance})
+
         except User.DoesNotExist:
             return JsonResponse({"error": "User not found"}, status=404)
         except Profile.DoesNotExist:

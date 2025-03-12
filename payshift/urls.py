@@ -2,9 +2,10 @@ from django.contrib import admin
 from django.urls import path, include
 from django.shortcuts import redirect
 from ninja import NinjaAPI
-from payment.api import router as payment_router  # Import the router from the payment app
+from payment.api import router as payment_api_router
 
 api = NinjaAPI()
+api.add_router("/payments", payment_api_router)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -18,4 +19,6 @@ urlpatterns = [
 
     path("api/", api.urls),  # ✅ Register API
 ]
+
+
 
