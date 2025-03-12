@@ -166,11 +166,7 @@ def signup_view(request, payload: SignupSchema):
         user.backend = get_backends()[0].__class__.__name__
         login(request, user)
         
-         # Create Profile
-        Profile.objects.create(user=user, role=payload.role)
-        # ✅ Create an initial rating of 5 for the user
-        Rating.objects.create(reviewed=user, reviewer=user, rating=5.0)
-        
+
         return Response({"message": "success"}, status=200)
     except IntegrityError:
         return Response({"error": "Email already exists"}, status=400)

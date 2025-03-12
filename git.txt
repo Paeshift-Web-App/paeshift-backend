@@ -1,12 +1,3 @@
-Public Key 
-Secret Key (for server-side authentication)
-Webhook Secret (for verifying webhook events)
-
-Paystack Credentials
-
-
-
-
 
 git add .
 git commit -m "Both payment gateway sorted"

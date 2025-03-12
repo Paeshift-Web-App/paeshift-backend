@@ -15,7 +15,7 @@ def create_wallet_and_profile(sender, instance, created, **kwargs):
         Wallet.objects.create(user=instance, balance=0.00)
 
         # ✅ Create user profile (if applicable)
-        Profile.objects.create(user=instance, role="client")  # Default role, modify if needed
+        Profile.objects.create(user=instance)  # Default role, modify if needed
 
         # ✅ Assign initial rating
         Rating.objects.create(reviewed=instance, reviewer=instance, rating=5.0)
