@@ -1,64 +1,29 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Test Paystack Payment</title>
-  <script src="https://js.paystack.co/v1/inline.js"></script>
+    <meta charset="UTF-8">
+    <title>Test Payment</title>
 </head>
 <body>
-  <h1>Initiate Payment with Paystack</h1>
-  <form id="paymentForm">
-    <label for="email">Email:</label>
-    <input type="email" id="email" required /><br /><br />
-    
-    <label for="amount">Amount (Naira):</label>
-    <input type="number" id="amount" required /><br /><br />
-    
-    <label for="reservation_code">Reservation Code:</label>
-    <input type="text" id="reservation_code" required /><br /><br />
-    
-    <!-- Optionally, add first_name, last_name, and phone fields if needed -->
-    <button type="button" onclick="payWithPaystack()">Pay Now</button>
-  </form>
-
-  <script>
-    function payWithPaystack() {
-      const email = document.getElementById("email").value;
-      const amount = document.getElementById("amount").value;
-      const reservation_code = document.getElementById("reservation_code").value;
-
-      fetch("http://127.0.0.1:8000/payment/api/initiate-payment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email, total: amount, reservation_code: reservation_code })
-      })
-      .then(response => response.json())
-      .then(data => {
-        console.log("Paystack Response:", data);
-        if (data.authorization_url) {
-          // Open Paystack inline payment window
-          const handler = PaystackPop.setup({
-            key: "pk_test_01db91d9678ee0d25483a7d0bc9783951938b45d",
-            email: email,
-            amount: amount * 100,  // Convert to kobo
-            ref: data.data ? data.data.reference : "N/A",
-            callback: function(response) {
-              alert("Payment successful! Reference: " + response.reference);
-            },
-            onClose: function() {
-              alert("Payment window closed.");
-            }
-          });
-          handler.openIframe();
-        } else {
-          alert("Error initializing payment: " + (data.details || "Unknown error"));
-        }
-      })
-      .catch(error => {
-        console.error("Error:", error);
-        alert("An error occurred while initializing payment.");
-      });
-    }
-  </script>
+    <h1>Initiate Payment</h1>
+    <form method="POST" action="/payment/initiate-payment/">
+        {% csrf_token %}
+        <label for="total">Total (Naira):</label>
+        <input type="number" step="0.01" name="total" id="total" required /><br/><br/>
+        
+        <label for="reservation_code">Reservation Code:</label>
+        <input type="text" name="reservation_code" id="reservation_code" required /><br/><br/>
+        
+        <label for="first_name">First Name:</label>
+        <input type="text" name="first_name" id="first_name" /><br/><br/>
+        
+        <label for="last_name">Last Name:</label>
+        <input type="text" name="last_name" id="last_name" /><br/><br/>
+        
+        <label for="phone">Phone:</label>
+        <input type="text" name="phone" id="phone" /><br/><br/>
+        
+        <button type="submit">Pay Now</button>
+    </form>
 </body>
 </html>
