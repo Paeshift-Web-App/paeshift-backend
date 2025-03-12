@@ -19,6 +19,6 @@ urlpatterns = [
     path("jobchat/", include("jobchat.urls")),  
     path("payment/", include("payment.urls")),  
 
-    path("api/", api.urls),  # ✅ Register API
+    # path("api/", api.urls),  # ✅ Register API
 ]
 

@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from jobs.models import Job  # Import the Job model from your "jobs" app
 
+from django.contrib.auth.models import User  # Default Django User model
+
 User = get_user_model()
 
 class Payment(models.Model):
@@ -49,3 +51,25 @@ class Payment(models.Model):
 
     def __str__(self):
         return f"Payment {self.pay_code} - {self.payer.email} -> {self.recipient.email if self.recipient else 'N/A'} ({self.payment_status})"
+
+
+
+class Wallet(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="wallet")
+    balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+
+    def __str__(self):
+        return f"{self.user.username}'s Wallet - Balance: {self.balance}"
+
+    def add_funds(self, amount):
+        """Adds funds to the wallet"""
+        self.balance += amount
+        self.save()
+
+    def deduct_funds(self, amount):
+        """Deducts funds from the wallet"""
+        if self.balance >= amount:
+            self.balance -= amount
+            self.save()
+            return True
+        return False  # Insufficient funds

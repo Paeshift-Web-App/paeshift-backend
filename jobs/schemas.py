@@ -37,6 +37,8 @@ class UserSchema(Schema):
     email: str
     role : str
 
+    
+
 
 # -------------------------------------------------------
 # 4) Job Schemas
@@ -164,6 +166,8 @@ class ProfileSchema(Schema):
     phone_number: Optional[str] = None
     location: Optional[str] = None
     created_at: datetime
+    balance: int
+    
 
 class UpdateProfileSchema(Schema):
     phone_number: Optional[str] = None

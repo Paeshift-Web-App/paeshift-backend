@@ -434,8 +434,7 @@ def create_job(request, payload: CreateJobSchema):
 
 
 
-
-@router.get("/clientjobs", auth=None)
+@router.get("/clientjobs")
 def get_client_jobs(request, page: int = Query(1, gt=0), page_size: int = Query(50, gt=0)):
     # Ensure the user is authenticated
     user_id = request.session.get("_auth_user_id")
@@ -473,7 +472,7 @@ def get_client_jobs(request, page: int = Query(1, gt=0), page_size: int = Query(
         "rate",
         "applicants_needed",
         "status",
-        "pay_status"
+        "payment_status"
         
         
     ))
