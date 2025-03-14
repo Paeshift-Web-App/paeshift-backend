@@ -1,100 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Job & Pay</title>
+  <meta charset="UTF-8">
+  <title>Test Payment</title>
+  <script>
+    async function initiatePayment() {
+      const total = document.getElementById("total").value;
+      const reservationCode = document.getElementById("reservation_code").value;
+      const firstName = document.getElementById("first_name").value;
+      const lastName = document.getElementById("last_name").value;
+      const phone = document.getElementById("phone").value;
+      const paymentMethod = document.getElementById("payment_method").value;
+
+      try {
+        const response = await fetch("/api/payments/initiate-payment", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            total: total,
+            reservation_code: reservationCode,
+            first_name: firstName,
+            last_name: lastName,
+            phone: phone,
+            payment_method: paymentMethod
+          })
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`HTTP Error: ${response.status} - ${errorText}`);
+        }
+
+        const data = await response.json();
+        console.log("API Response:", data);
+        if (data.authorization_url) {
+          window.location.href = data.authorization_url;
+        } else {
+          alert("Error: " + (data.error || "Unknown error"));
+        }
+      } catch (error) {
+        console.error("Fetch Error:", error);
+        alert("Request failed. Check console for details.");
+      }
+    }
+  </script>
 </head>
 <body>
-
-    <h2>Create a Job & Proceed to Payment</h2>
+  <h1>Initiate Payment</h1>
+  <form onsubmit="event.preventDefault(); initiatePayment();">
+    <label for="total">Total (Naira):</label>
+    <input type="number" step="0.01" id="total" required /><br/><br/>
     
-    <form id="jobForm">
-        <label>Title:</label>
-        <input type="text" id="title" required><br><br>
+    <label for="reservation_code">Reservation Code:</label>
+    <input type="text" id="reservation_code" required /><br/><br/>
+    
+    <label for="first_name">First Name:</label>
+    <input type="text" id="first_name" required /><br/><br/>
+    
+    <label for="last_name">Last Name:</label>
+    <input type="text" id="last_name" required /><br/><br/>
+    
+    <label for="phone">Phone:</label>
+    <input type="text" id="phone" required /><br/><br/>
 
-        <label>Industry:</label>
-        <input type="text" id="industry" required><br><br>
-
-        <label>Subcategory:</label>
-        <input type="text" id="subcategory" required><br><br>
-
-        <label>Applicants Needed:</label>
-        <input type="number" id="applicants_needed" min="1" value="1" required><br><br>
-
-        <label>Job Type:</label>
-        <select id="job_type">
-            <option value="single_day">Single Day</option>
-            <option value="multiple_days">Multiple Days</option>
-        </select><br><br>
-
-        <label>Shift Type:</label>
-        <select id="shift_type">
-            <option value="day_shift">Day Shift</option>
-            <option value="night_shift">Night Shift</option>
-        </select><br><br>
-
-        <label>Date:</label>
-        <input type="date" id="date" required><br><br>
-
-        <label>Start Time:</label>
-        <input type="time" id="start_time" required><br><br>
-
-        <label>End Time:</label>
-        <input type="time" id="end_time" required><br><br>
-
-        <label>Duration:</label>
-        <input type="text" id="duration" required><br><br>
-
-        <label>Rate (NGN):</label>
-        <input type="number" id="rate" required><br><br>
-
-        <label>Location:</label>
-        <input type="text" id="location" required><br><br>
-
-        <button type="submit">Create Job & Pay</button>
-    </form>
-
-    <script>
-        document.getElementById("jobForm").addEventListener("submit", async function(event) {
-            event.preventDefault();
-
-            const payload = {
-                title: document.getElementById("title").value,
-                industry: document.getElementById("industry").value,
-                subcategory: document.getElementById("subcategory").value,
-                applicants_needed: parseInt(document.getElementById("applicants_needed").value),
-                job_type: document.getElementById("job_type").value,
-                shift_type: document.getElementById("shift_type").value,
-                date: document.getElementById("date").value,
-                start_time: document.getElementById("start_time").value,
-                end_time: document.getElementById("end_time").value,
-                duration: document.getElementById("duration").value,
-                rate: parseFloat(document.getElementById("rate").value),
-                location: document.getElementById("location").value
-            };
-
-            try {
-                const response = await fetch("http://127.0.0.1:8000/api/create-job", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload)
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    alert("Job Created Successfully! Redirecting to Payment...");
-                    window.location.href = data.payment_url;  // Redirect to Paystack
-                } else {
-                    alert("Error: " + data.error);
-                }
-            } catch (error) {
-                alert("Request Failed. Check console for details.");
-                console.error(error);
-            }
-        });
-    </script>
-
+    <label for="payment_method">Choose Payment Method:</label>
+    <select id="payment_method" required>
+      <option value="paystack">Paystack</option>
+      <option value="flutterwave">Flutterwave</option>
+    </select><br/><br/>
+    
+    <button type="submit">Pay Now</button>
+  </form>
 </body>
 </html>

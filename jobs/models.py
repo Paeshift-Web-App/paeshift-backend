@@ -89,9 +89,20 @@ class Job(models.Model):
     last_location_update = models.DateTimeField(null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
-
+    shift_start = models.DateTimeField(null=True)
+    shift_end = models.DateTimeField(null=True)
+    is_online = models.BooleanField(default=False)
+    shift_type = models.CharField(max_length=20, choices=[('morning', 'Morning'), ('night', 'Night')])
+    is_active = models.BooleanField(default=True)
+        
     def __str__(self):
         return f"{self.title} - {self.status}"
+
+    @property
+    def duration(self):
+        if self.shift_start and self.shift_end:
+            return (self.shift_end - self.shift_start).total_seconds() / 3600
+        return 0
 
 
 # ------------------------------------------------------

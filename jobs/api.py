@@ -101,10 +101,10 @@ def whoami(request):
         user = get_object_or_404(User, id=user_id)
 
     # Ensure Profile exists
-    profile, _ = Profile.objects.get_or_create(user=user, defaults={"role": "No role assigned"})
+    profile, _ = Profile.objects.get_or_create(user=user)
     
     # Get user's role
-    role = profile.role or "No role assigned"
+    role = profile.role
 
     # Compute average rating
     average_rating = Rating.objects.filter(reviewed=user).aggregate(avg_rating=Avg("rating"))["avg_rating"] or 5.0  

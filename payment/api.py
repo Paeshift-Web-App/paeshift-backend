@@ -15,7 +15,18 @@ from ninja import Router, Schema
 from jobs.models import User, Profile, Job
 from .models import Payment, EscrowPayment
 import requests
+from django.conf import settings
+from django.views.decorators.http import require_http_methods
+from ninja import Router
+from ninja.responses import Response
+from payment.models import EscrowPayment
+from jobs.models import Job
+import hashlib
+import hmac
+import json
 
+router = Router(tags=["Payments"])
+PAYSTACK_SECRET_KEY = settings.PAYSTACK_SECRET_KEY
 router = Router(tags=["Payments"])
 logger = logging.getLogger(__name__)
 
