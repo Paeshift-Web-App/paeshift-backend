@@ -1,6 +1,6 @@
 
 git add .
-git commit -m "Payment initiates and saves"
+git commit -m "consumer "
 git push origin main
 
 git pull origin main
