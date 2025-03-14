@@ -1,43 +1,57 @@
-# jobs/api.py
-
-# Standard Library
+# ==============================
+# 📌 Standard Library Imports
+# ==============================
 import os
 import uuid
 from datetime import datetime
 from typing import List, Optional
 
-# Django
+# ==============================
+# 📌 Django Imports
+# ==============================
 from django.db import IntegrityError
-from django.db.models import Avg
+from django.db.models import Avg, F
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.conf import settings
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.utils import timezone
 from django.contrib.auth import (
     authenticate, login, logout, update_session_auth_hash,
     get_user_model, get_backends
 )
 from django.contrib.auth.hashers import check_password
-from django.utils import timezone
 
-# Third Party
+# ==============================
+# 📌 Third-Party Imports
+# ==============================
 from ninja import Router, File, Query
 from ninja.files import UploadedFile
 from ninja.responses import Response
 import requests
 
-# Local
-from .models import Job, JobIndustry, JobSubCategory, Profile, Rating, SavedJob, Application, Dispute
+# ==============================
+# 📌 Local Imports (Models & Schemas)
+# ==============================
+from .models import (
+    Job, JobIndustry, JobSubCategory, Profile, Rating, SavedJob, 
+    Application, Dispute
+)
 from .schemas import (
     LoginSchema, SignupSchema, CreateJobSchema, IndustrySchema,
     SubCategorySchema, JobDetailSchema, LocationSchema,
     RatingCreateSchema, DisputeCreateSchema, DisputeUpdateSchema
 )
 
+# ==============================
+# 📌 Initialize Router & User Model
+# ==============================
 router = Router(tags=["Jobs"])
 User = get_user_model()
 
-# Paystack Configuration
+# ==============================
+# 📌 Paystack Configuration
+# ==============================
 PAYSTACK_SECRET_KEY = getattr(settings, "PAYSTACK_SECRET_KEY", None)
 PAYSTACK_PUBLIC_KEY = getattr(settings, "PAYSTACK_PUBLIC_KEY", None)
 PAYSTACK_INITIALIZE_URL = "https://api.paystack.co/transaction/initialize"
@@ -45,7 +59,6 @@ PAYSTACK_VERIFY_URL = "https://api.paystack.co/transaction/verify/"
 
 if not PAYSTACK_SECRET_KEY:
     raise ValueError("PAYSTACK_SECRET_KEY is missing in settings.py")
-
 
 # ----------------------------------------------------------------------
 # Helper Functions
@@ -88,10 +101,21 @@ def get_related_object(model, field, value):
 # ----------------------------------------------------------------------
 # Authentication Endpoints
 # ----------------------------------------------------------------------
+# from django.http import JsonResponse
+# from django.shortcuts import get_object_or_404
+# from django.db.models import Avg
+# from jobs.models import User, Rating
+# from yourapp.models import Profile  # Update "yourapp" to your actual app name if different
+# from ninja import Router
+
+router = Router()
+
 @router.get("/whoami")
 def whoami(request):
-    """GET /jobs/whoami - Returns user's ID, username, role, and reviews"""
-    
+    """
+    GET /jobs/whoami - Returns user's ID, username, role, wallet balance, and reviews.
+    """
+    # Retrieve the user ID from the session; if missing, use a test user.
     user_id = request.session.get("_auth_user_id")
     if not user_id:
         user = User.objects.first()  # Use a test user if session is missing
@@ -100,17 +124,21 @@ def whoami(request):
     else:
         user = get_object_or_404(User, id=user_id)
 
-    # Ensure Profile exists
+    # Ensure the Profile exists; this also creates it if missing.
     profile, _ = Profile.objects.get_or_create(user=user)
-    
-    # Get user's role
-    role = profile.role
 
-    # Compute average rating
-    average_rating = Rating.objects.filter(reviewed=user).aggregate(avg_rating=Avg("rating"))["avg_rating"] or 5.0  
+    # Get user's role and wallet balance
+    role = profile.role
+    wallet_balance = profile.balance  # Assuming balance is stored in this field
+    badges = profile.badges  # if you want to include any badges
+
+    # Compute average rating for the user
+    average_rating = Rating.objects.filter(reviewed=user).aggregate(avg_rating=Avg("rating"))["avg_rating"] or 5.0
 
     # Fetch all reviews for the user and serialize them
-    user_reviews = Rating.objects.filter(reviewed=user).values("reviewer__username", "rating", "feedback", "created_at")
+    user_reviews = list(
+        Rating.objects.filter(reviewed=user).values("reviewer__username", "rating", "feedback", "created_at")
+    )
 
     return JsonResponse({
         "user_id": user.id,
@@ -119,12 +147,11 @@ def whoami(request):
         "last_name": user.last_name,
         "email": user.email,
         "role": role,
-        "user_reviews": list(user_reviews),  # Convert QuerySet to list for JSON serialization
+        "wallet_balance": str(wallet_balance),  # converting Decimal to string if needed
+        "badges": badges,
         "rating": round(average_rating, 2),
+        "user_reviews": user_reviews,
     })
-
-
-
 
 
 
@@ -384,48 +411,57 @@ def create_job(request, payload: CreateJobSchema):
 
 
 
+
+
 @router.get("/clientjobs")
 def get_client_jobs(request, page: int = Query(1, gt=0), page_size: int = Query(50, gt=0)):
-    # Ensure the user is authenticated
+    """Retrieve jobs posted by a client with pagination"""
+    
+    # Authenticate user
     user_id = request.session.get("_auth_user_id")
     if not user_id:
-        # Temporary: Use a default user for testing
-        user = User.objects.first()  # Or create a test user
+        # Fallback: Use first available user for testing
+        user = User.objects.first()
         if not user:
             return JsonResponse({"error": "No users available for testing"}, status=500)
     else:
         user = get_object_or_404(User, id=user_id)
     
-    # Filter jobs using the authenticated user's id
+    # Query jobs for the authenticated client
     qs = Job.objects.filter(client_id=user.id).order_by("-date")
-    
-    # Paginate the queryset
+
+    # Paginate results
     paginator = Paginator(qs, page_size)
     try:
         jobs_page = paginator.page(page)
     except PageNotAnInteger:
         jobs_page = paginator.page(1)
     except EmptyPage:
-        # Return an empty list if page is out-of-range
-        jobs_page = []
+        jobs_page = []  # Empty page, return empty list
 
-    # Convert the page of jobs into a list of dictionaries
-    jobs_data = list(jobs_page.object_list.values(
-        "id",
-        "title",
-        "client__username",
-        "duration",
-        "date",
-        "start_time",
-        "end_time",
-        "location",
-        "rate",
-        "applicants_needed",
-        "status",
-        "payment_status"
-        
-        
-    ))
+    # Serialize jobs manually (since duration is a computed property)
+    jobs_data = []
+    for job in jobs_page:
+        duration_hours = (
+            ((job.actual_shift_end - job.actual_shift_start).total_seconds() / 3600)
+            if job.actual_shift_start and job.actual_shift_end
+            else None
+        )
+
+        jobs_data.append({
+            "id": job.id,
+            "title": job.title,
+            "client_username": job.client.username,
+            "duration": round(duration_hours, 2) if duration_hours else "Not started",
+            "date": job.date.isoformat(),
+            "start_time": job.start_time.isoformat() if job.start_time else None,
+            "end_time": job.end_time.isoformat() if job.end_time else None,
+            "location": job.location,
+            "rate": str(job.rate),  # Convert Decimal to string for JSON compatibility
+            "applicants_needed": job.applicants_needed,
+            "status": job.status,
+            "payment_status": job.payment_status,
+        })
     
     return JsonResponse({
         "jobs": jobs_data,
@@ -433,6 +469,9 @@ def get_client_jobs(request, page: int = Query(1, gt=0), page_size: int = Query(
         "total_pages": paginator.num_pages,
         "total_jobs": paginator.count,
     })
+
+
+
 
 
 @router.get("/alljobs")
