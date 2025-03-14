@@ -1,20 +1,20 @@
 import os
+import django
 from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 from jobchat.routing import websocket_urlpatterns
-import django
 
+# Set the Django settings module
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "payshift.settings")
-import django
+
+# Setup Django
 django.setup()
 
-# Import your websocket routing here
-from jobchat.routing import websocket_urlpatterns
-
+# Define ASGI application
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
-    "websocket": AuthMiddlewareStack(  # ✅ Ensure this middleware is included
+    "websocket": AuthMiddlewareStack(
         URLRouter(websocket_urlpatterns)
     ),
 })

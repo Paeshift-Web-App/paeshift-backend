@@ -5,7 +5,7 @@ from ninja import NinjaAPI
 from payment.api import router as payment_api_router
 
 api = NinjaAPI()
-api.add_router("/payments", payment_api_router)
+# api.add_router("/payments", payment_api_router)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
