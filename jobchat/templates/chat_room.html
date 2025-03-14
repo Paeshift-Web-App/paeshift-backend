@@ -49,15 +49,28 @@
             }
         };
 
-        function sendLocation() {
-            navigator.geolocation.getCurrentPosition(position => {
-                locationSocket.send(JSON.stringify({
-                    latitude: position.coords.latitude,
-                    longitude: position.coords.longitude
-                }));
-            });
-        }
+function sendLocation() {
+    if (!navigator.geolocation) {
+        console.error("❌ Geolocation is NOT supported by this browser.");
+        alert("Your browser does not support location sharing.");
+        return;
+    }
 
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            console.log("✅ Location permission granted");
+            locationSocket.send(JSON.stringify({
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude
+            }));
+        },
+        (error) => {
+            console.error("❌ Location error:", error.message);
+            alert("Please allow location access in your browser settings.");
+        },
+        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+    );
+}
         setInterval(sendLocation, 5000);
     </script>
 </body>
