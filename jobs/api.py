@@ -5,6 +5,7 @@ import os
 import uuid
 from datetime import datetime
 from typing import List, Optional
+from decimal import Decimal
 
 # ==============================
 # 📌 Django Imports
@@ -328,6 +329,7 @@ def payment(request):
 
 
 
+from datetime import datetime, timedelta
 
 @router.post("/create-job", auth=None)
 def create_job(request, payload: CreateJobSchema):
@@ -346,6 +348,16 @@ def create_job(request, payload: CreateJobSchema):
     except ValueError as e:
         return JsonResponse({"error": f"Invalid date/time format: {str(e)}"}, status=400)
 
+    # 🔹 Calculate job duration in hours
+    start_datetime = datetime.combine(job_date, start_time)
+    end_datetime = datetime.combine(job_date, end_time)
+
+    if end_datetime <= start_datetime:
+        return JsonResponse({"error": "End time must be later than start time"}, status=400)
+
+    duration_seconds = (end_datetime - start_datetime).total_seconds()
+    duration_hours = round(duration_seconds / 3600, 2)  # Convert seconds to hours
+
     industry_obj = None
     if payload.industry and payload.industry.strip():
         try:
@@ -362,52 +374,35 @@ def create_job(request, payload: CreateJobSchema):
         except ValueError:
             subcategory_obj = get_object_or_404(JobSubCategory, name=payload.subcategory.strip())
 
-    # Create the job with "Pending" status until payment is confirmed
-    new_job = Job.objects.create(
-        client=user,
-        title=payload.title,
-        industry=industry_obj,
-        subcategory=subcategory_obj,
-        applicants_needed=payload.applicants_needed,
-        job_type=payload.job_type,
-        shift_type=payload.shift_type,
-        date=job_date,
-        start_time=start_time,
-        end_time=end_time,
-        duration=payload.duration,
-        rate=payload.rate,
-        location=payload.location,
-        payment_status="Pending",
-        status="pending",
-    )
+    # 🔹 Create the job WITHOUT the `duration` field
+        new_job = Job.objects.create(
+            client=user,
+            title=payload.title,
+            industry=industry_obj,
+            subcategory=subcategory_obj,
+            applicants_needed=payload.applicants_needed,
+            job_type=payload.job_type,
+            shift_type=payload.shift_type,
+            date=job_date,
+            start_time=start_time,
+            end_time=end_time,
+            rate=Decimal(str(payload.rate)),  # ✅ Convert to Decimal
+            location=payload.location,
+            payment_status="Pending",
+            status="pending",
+        )
 
-    # Generate unique transaction reference
+
+    # 🔹 Generate unique transaction reference
     transaction_ref = str(uuid.uuid4())
-
-    # Prepare Paystack payment request
-    # payment_data = {
-    #     "email": user.email,
-    #     "amount": int(payload.rate * 100),  # Convert to kobo
-    #     "reference": transaction_ref,
-    #     "callback_url": "http://localhost:8000/jobs/payment",
-    #     "metadata": {"job_id": new_job.id},
-    # }
-
-    # headers = {"Authorization": f"Bearer {PAYSTACK_SECRET_KEY}", "Content-Type": "application/json"}
-    # response = requests.post(PAYSTACK_INITIALIZE_URL, json=payment_data, headers=headers)
-
-    # if response.status_code != 200:
-    #     return JsonResponse({"error": "Payment initialization failed"}, status=400)
-
-    # response_data = response.json()
 
     return JsonResponse({
         "success": True,
         "message": "Job created successfully. Proceed to payment.",
         "job_id": new_job.id,
-        "transaction_ref": transaction_ref
+        "transaction_ref": transaction_ref,
+        "duration": duration_hours  # ✅ Include duration in response
     }, status=201)
-
 
 
 

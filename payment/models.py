@@ -35,11 +35,7 @@ class Payment(models.Model):
         null=True,
         blank=True
     )
-    job = models.ForeignKey(
-        Job,
-        on_delete=models.CASCADE,
-        related_name="payments"
-    )
+    job = models.ForeignKey(Job, on_delete=models.SET_NULL, null=True, blank=True)
     original_amount = models.DecimalField(
         max_digits=10, 
         decimal_places=2,

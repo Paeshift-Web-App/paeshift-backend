@@ -6,8 +6,11 @@ from jobchat.routing import websocket_urlpatterns
 import django
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "payshift.settings")
+import django
 django.setup()
 
+# Import your websocket routing here
+from jobchat.routing import websocket_urlpatterns
 
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),

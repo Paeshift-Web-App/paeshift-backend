@@ -180,22 +180,20 @@ class JobMatchingConsumer(AsyncWebsocketConsumer):
 
 
     async def receive(self, text_data):
+        """Handle incoming WebSocket messages."""
         data = json.loads(text_data)
-        job_id = data.get('job_id')
-        job = Job.objects.get(id=job_id)
-        
-        applicants = await find_best_applicants(job)
+        job_id = data.get("job_id")
+
+        job = await database_sync_to_async(Job.objects.get)(id=job_id)
+        best_applicants = await database_sync_to_async(find_best_applicants)(job)
+
         await self.send(text_data=json.dumps({
             "type": "match_results",
-            "applicants": serialize_applicants(applicants)
+            "applicants": [{"id": u.user.id, "name": u.user.username, "rating": u.avg_rating} for u in best_applicants]
         }))
 
     async def job_notification(self, event):
         await self.send(text_data=json.dumps(event["content"]))
-
-
-
-
 
 
     async def handle_job_subscription(self, data):
