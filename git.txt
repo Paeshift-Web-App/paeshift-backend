@@ -1,6 +1,6 @@
 
 git add .
-git commit -m "Both payment gateway sorted"
+git commit -m "Payment initiates and saves"
 git push origin main
 
 git pull origin main
