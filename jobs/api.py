@@ -166,7 +166,6 @@ def login_view(request, payload: LoginSchema):
     if user:
         login(request, user)
         request.session["user_id"] = user.id
-        # request.session["role"] = user.role
         
         request.session.modified = True
         print("Logged-in User ID:", user.id)  # Debugging
@@ -194,6 +193,7 @@ def signup_view(request, payload: SignupSchema):
         user.backend = get_backends()[0].__class__.__name__
         login(request, user)
         
+        Profile.objects.create(user=user, role= payload.role)  # Default role, modify if needed
 
         return Response({"message": "success"}, status=200)
     except IntegrityError:

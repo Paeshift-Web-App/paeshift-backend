@@ -1,4 +1,3 @@
-import json
 import requests
 import logging
 import asyncio
@@ -8,15 +7,15 @@ from channels.db import database_sync_to_async
 from django.conf import settings
 from django.contrib.auth import get_user_model
 import django
-from .matching import find_best_applicants
-
+import json
+from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.db import database_sync_to_async
+from .models import *
+# from django.contrib.gis.geos import Point
 django.setup()
 
-from django.apps import apps
 
-Message = apps.get_model("jobchat", "Message")
-LocationHistory = apps.get_model("jobchat", "LocationHistory")
-Job = apps.get_model("jobs", "Job", "UserLocation")
+
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
@@ -155,7 +154,7 @@ class JobLocationConsumer(AsyncWebsocketConsumer):
         
         
         
-   
+
 
 class JobMatchingConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -167,11 +166,39 @@ class JobMatchingConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         data = json.loads(text_data)
-        job_id = data.get('job_id')
-        job = await database_sync_to_async(Job.objects.get)(id=job_id)
+        action = data.get('action')
         
-        applicants = await database_sync_to_async(find_best_applicants)(job)
+        if action == 'subscribe_jobs':
+            await self.handle_job_subscription(data)
+        elif action == 'update_location':
+            await self.handle_location_update(data)
+
+    async def handle_job_subscription(self, data):
+        user = self.scope['user']
+        jobs = await self.get_nearby_jobs(user)
         await self.send(text_data=json.dumps({
-            "type": "match_results",
-            "applicants": [{"id": u.user.id, "name": u.user.username, "rating": u.avg_rating} for u in applicants]
+            'type': 'job_list',
+            'jobs': jobs
         }))
+
+    async def handle_location_update(self, data):
+        user = self.scope['user']
+        lat = data.get('lat')
+        lng = data.get('lng')
+        await self.update_user_location(user, lat, lng)
+
+    # @database_sync_to_async
+    # def get_nearby_jobs(self, user):
+    #     from django.contrib.gis.db.models.functions import Distance
+    #     user_location = UserLocation.objects.get(user=user)
+        
+    #     return list(Job.objects.filter(
+    #         status='active',
+    #         location__dwithin=(user_location.last_location, 50000)  # 50km
+    #     ).annotate(
+    #        distance=haversine(user_location.latitude, user_location.longitude, job.latitude, job.longitude)
+
+    #     ).order_by('distance')[:10].values(
+    #         'id', 'title', 'shift_type', 'rate', 'distance'
+    #     ))
+
