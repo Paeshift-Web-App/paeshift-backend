@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Make Payment</title>
   <script>
     async function initiatePayment() {
@@ -11,13 +12,13 @@
       const lastName = document.getElementById("last_name").value;
       const phone = document.getElementById("phone").value;
       const paymentMethod = document.getElementById("payment_method").value;
-      
+    
       try {
         const response = await fetch("http://127.0.0.1:8000/api/payments/initiate-payment", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            total: parseFloat(total),
+            total: total,
             reservation_code: reservationCode,
             first_name: firstName,
             last_name: lastName,
@@ -25,17 +26,17 @@
             payment_method: paymentMethod
           })
         });
-        
+
         if (!response.ok) {
           const errorText = await response.text();
           throw new Error(`HTTP Error: ${response.status} - ${errorText}`);
         }
-        
+
         const data = await response.json();
         console.log("API Response:", data);
-        
+
         if (data.authorization_url) {
-          window.location.href = data.authorization_url;
+          window.location.href = data.authorization_url; // Redirect to Paystack/Flutterwave
         } else {
           alert("Error: " + (data.error || "Unknown error"));
         }
@@ -63,7 +64,7 @@
     
     <label for="phone">Phone:</label>
     <input type="text" id="phone" required /><br/><br/>
-    
+
     <label for="payment_method">Choose Payment Method:</label>
     <select id="payment_method" required>
       <option value="paystack">Paystack</option>

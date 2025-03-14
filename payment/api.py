@@ -10,16 +10,16 @@ from django.shortcuts import render, get_object_or_404
 import requests
 from ninja import Router, Schema
 
-# Import models from your jobs app (make sure User and Profile are imported correctly)
+# Import models – ensure your User, Profile, and Job models are imported correctly.
 from jobs.models import User, Profile, Job
-from .models import Payment, EscrowPayment  # if you use EscrowPayment
+from .models import Payment, EscrowPayment  # Use EscrowPayment if needed
 
 router = Router(tags=["Payments"])
 logger = logging.getLogger(__name__)
 
-# ------------------------------------------------------------------
+# ================================================================
 # Schemas
-# ------------------------------------------------------------------
+# ================================================================
 
 class InitiatePaymentSchema(Schema):
     total: float
@@ -29,34 +29,35 @@ class InitiatePaymentSchema(Schema):
     phone: str
     payment_method: str  # "paystack" or "flutterwave"
 
-# ------------------------------------------------------------------
-# Helper: Make Payment Request
-# ------------------------------------------------------------------
+# ================================================================
+# Helper Function: Payment Request
+# ================================================================
 
 def _make_payment_request(url, headers, data):
-    """Helper function to make a payment gateway POST request."""
+    """
+    Helper function to make a POST request to a payment gateway.
+    Raises an exception on error.
+    """
     try:
         response = requests.post(url, headers=headers, json=data)
-        # If the response has a 4xx/5xx status, raise an error.
         response.raise_for_status()
         return response.json()
     except requests.RequestException as e:
         logger.error(f"Payment request error: {str(e)}")
-        # You might want to include response.text if available for debugging
         raise
 
-# ------------------------------------------------------------------
-# Payment Initiation Endpoints
-# ------------------------------------------------------------------
+# ================================================================
+# Payment Initiation Endpoint
+# ================================================================
 
 @router.post("/initiate-payment")
 def initiate_payment(request, payload: InitiatePaymentSchema):
     """
-    Initialize payment via Paystack or Flutterwave.
-    The callback URL is set to your React app (port 5173).
+    Initializes a payment via Paystack or Flutterwave.
+    The callback URL is set to your React app on port 5173.
     """
     pay_code = str(uuid.uuid4())
-    # Set callback URL to your React app dashboard (adjust if needed)
+    # Callback URL points to your React dashboard (adjust port/path as needed)
     callback_url = "http://localhost:5173/dashboard"
 
     try:
@@ -79,13 +80,11 @@ def _process_paystack_payment(payload, pay_code, callback_url):
     data = {
         "reference": pay_code,
         "email": f"{payload.first_name.lower()}@test.com",
-        "amount": int(payload.total * 100),  # Convert total (NGN) to kobo
+        "amount": int(payload.total * 100),  # Convert NGN to kobo
         "callback_url": callback_url,
         "currency": "NGN"
     }
-    response_data = _make_payment_request(
-        "https://api.paystack.co/transaction/initialize", headers, data
-    )
+    response_data = _make_payment_request("https://api.paystack.co/transaction/initialize", headers, data)
     if response_data.get("status") and response_data["data"].get("authorization_url"):
         return JsonResponse({"authorization_url": response_data["data"]["authorization_url"]})
     return JsonResponse({
@@ -104,7 +103,7 @@ def _process_flutterwave_payment(payload, pay_code, callback_url):
         "amount": payload.total,
         "currency": "NGN",
         "redirect_url": callback_url,
-        "payment_options": "card,banktransfer,ussd",  # Explicitly set payment options
+        "payment_options": "card,banktransfer,ussd",  # Specify allowed options
         "customer": {
             "email": f"{payload.first_name.lower()}@test.com",
             "name": f"{payload.first_name} {payload.last_name}",
@@ -113,12 +112,10 @@ def _process_flutterwave_payment(payload, pay_code, callback_url):
         "customizations": {
             "title": "Job Payment",
             "description": "Payment for job reservation",
-            "logo": "https://yourwebsite.com/logo.png"  # Change to your logo URL
+            "logo": "https://yourwebsite.com/logo.png"  # Replace with your actual logo URL
         }
     }
-    response_data = _make_payment_request(
-        "https://api.flutterwave.com/v3/payments", headers, data
-    )
+    response_data = _make_payment_request("https://api.flutterwave.com/v3/payments", headers, data)
     if response_data.get("status") == "success" and response_data["data"].get("link"):
         return JsonResponse({"authorization_url": response_data["data"]["link"]})
     return JsonResponse({
@@ -126,14 +123,15 @@ def _process_flutterwave_payment(payload, pay_code, callback_url):
         "details": response_data.get("message", "Unknown error")
     }, status=400)
 
-# ------------------------------------------------------------------
+# ================================================================
 # Payment Verification Endpoint
-# ------------------------------------------------------------------
+# ================================================================
 
 @router.get("/verify-payment")
 def verify_payment(request, reference: str, user_id: int, payment_method: str):
     """
     Verifies the payment with Paystack or Flutterwave and updates the user's wallet balance.
+    It creates a Payment record (deposit) and updates the user's Profile.balance.
     """
     try:
         if payment_method.lower() == "paystack":
@@ -159,11 +157,16 @@ def verify_payment(request, reference: str, user_id: int, payment_method: str):
                 profile.balance += amount
                 profile.save()
                 Payment.objects.create(
-                    user=user,
-                    amount=amount,
-                    reference=reference,
-                    status="successful",
+                    payer=user,
+                    job=get_object_or_404(Job, id=response_data["data"].get("metadata", {}).get("job_id", 0)),
+                    original_amount=amount,
+                    service_fee=amount * Decimal("0.05"),
+                    final_amount=amount - (amount * Decimal("0.05")),
+                    pay_code=reference,
+                    payment_status="Completed",
+                    status="Completed",
                     payment_method=payment_method,
+                    reference=reference
                 )
             return JsonResponse({"message": "Payment verified. Wallet updated.", "new_balance": str(profile.balance)})
         return JsonResponse({
@@ -177,9 +180,9 @@ def verify_payment(request, reference: str, user_id: int, payment_method: str):
         logger.error(f"Payment verification error: {str(e)}")
         return JsonResponse({"error": "Payment processing failed", "details": str(e)}, status=500)
 
-# ------------------------------------------------------------------
+# ================================================================
 # UI Endpoints
-# ------------------------------------------------------------------
+# ================================================================
 
 @router.get("/payment-page")
 def payment_page(request):

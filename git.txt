@@ -3,8 +3,8 @@ git add .
 git commit -m "Both payment gateway sorted"
 git push origin main
 
-
-git pull https://github.com/Paeshift-Web-App/paeshift-back/tree/main
+git pull origin main
+git pull https://github.com/Paeshift-Web-App/paeshift-backend/tree/main
 
 daphne -b 0.0.0.0 -p 8000 payshift.asgi:application --websocket_timeout 60
 
