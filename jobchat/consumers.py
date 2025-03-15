@@ -8,7 +8,8 @@ from channels.db import database_sync_to_async
 from django.conf import settings
 from django.contrib.auth import get_user_model
 # from .matching import find_best_applicants  # Ensure this doesn't call django.setup() itself
-
+from jobchat.models import *  # ✅ Import here
+from jobs.models import *  # Ensure Job is also imported
 from django.contrib.auth import get_user_model
 
 def get_user():
