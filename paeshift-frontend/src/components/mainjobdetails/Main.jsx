@@ -204,3 +204,151 @@ const Main = () => {
 }
 
 export default Main
+
+
+
+
+
+// import React, { useState, useEffect } from "react";
+// import "./Jobdetails.css";
+// import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+// import { faChevronLeft, faBars } from "@fortawesome/free-solid-svg-icons";
+// import { faBookmark } from "@fortawesome/free-regular-svg-icons";
+// import GoogleMapReact from "google-map-react";
+// import Axios from "axios";
+// import Stars from "../../assets/images/stars.png";
+// import ProfileImage from "../../assets/images/profile.png";
+// import Walletmodal from "../walletmodal/Walletmodal";
+// import Profilemodal from "../profile/Profilemodal";
+// import Applicantmodal from "../applicantmodal/Applicantmodal";
+// import PaymentDetailsmodal from "../paymentdetailsmodal/PaymentDetailsmodal";
+
+// // Custom Marker Component
+// const Marker = ({ text }) => (
+//   <div style={{ color: "red", fontWeight: "bold" }}>{text}</div>
+// );
+
+// const Main = () => {
+//   const [jobLocation, setJobLocation] = useState({
+//     lat: 11.3970071,
+//     lng: 5.4847741,
+//   });
+
+//   const [zoom, setZoom] = useState(10);
+
+//   // Fetch job details (including location)
+//   useEffect(() => {
+//     Axios.get("http://localhost:8000/job/1") // Replace with actual API
+//       .then((response) => {
+//         if (response.data.location) {
+//           setJobLocation({
+//             lat: response.data.location.lat,
+//             lng: response.data.location.lng,
+//           });
+//         }
+//       })
+//       .catch((error) => console.error(error));
+//   }, []);
+
+//   return (
+//     <main className="col-12 col-md-12 col-lg-9 col-xl-10 ms-sm-auto main__job-details px-md-4">
+//       <div className="row page_title">
+//         <div className="col-1 pt-lg-2">
+//           <a href="/jobs" className="text-dark">
+//             <FontAwesomeIcon icon={faChevronLeft} />
+//           </a>
+//         </div>
+//         <div className="col-10 payment-btn">
+//           <h1 className="mb-0">Job Details</h1>
+//           <button
+//             type="button"
+//             className="mb-0 me-1"
+//             data-bs-toggle="modal"
+//             data-bs-target="#paymentDetailsModal"
+//           >
+//             View Payment Detail
+//           </button>
+//         </div>
+//         <div className="col-1 p-0">
+//           <button
+//             className="navbar-toggler position-absolute d-lg-none collapsed mt-1"
+//             type="button"
+//             data-bs-toggle="collapse"
+//             data-bs-target="#sidebarMenu"
+//             aria-controls="sidebarMenu"
+//             aria-expanded="false"
+//             aria-label="Toggle navigation"
+//           >
+//             <FontAwesomeIcon className="icon-bars" icon={faBars} />
+//           </button>
+//         </div>
+//       </div>
+
+//       {/* Dynamic Google Map */}
+//       <section className="container container__data">
+//         <div className="row m-0 p-0 map_wrapper">
+//           <div className="col-12 m-0 p-0" style={{ height: "400px", width: "100%" }}>
+//             <GoogleMapReact
+//               bootstrapURLKeys={{ key: process.env.REACT_APP_GOOGLE_MAPS_API_KEY }} // Use an environment variable
+//               defaultCenter={jobLocation}
+//               defaultZoom={zoom}
+//             >
+//               <Marker lat={jobLocation.lat} lng={jobLocation.lng} text="Job Location" />
+//             </GoogleMapReact>
+//           </div>
+//         </div>
+
+//         {/* Job Details */}
+//         <div className="row mt-3 px-3">
+//           <div className="col-12 job_details">
+//             <h4>Employer</h4>
+//             <div className="card_top">
+//               <span className="profile_info">
+//                 <span>
+//                   <img className="prof" src={ProfileImage} alt="profile" />
+//                 </span>
+//                 <span>
+//                   <h4>Eniola Lucas</h4>
+//                   <img src={Stars} alt="stars" /> <span className="rate_score">4.98</span>
+//                 </span>
+//               </span>
+//               <span className="top_cta">
+//                 <button className="btn" data-bs-toggle="modal" data-bs-target="#profileModal">
+//                   View Profile
+//                 </button>
+//               </span>
+//             </div>
+//           </div>
+//         </div>
+
+//         <section className="container_bottom">
+//           <div className="row">
+//             <div className="col-12 applicant_details">
+//               <h4>2 Applicant(s) Applied</h4>
+//               <button className="btn view-btn" data-bs-toggle="modal" data-bs-target="#applicantModal">
+//                 View Applicants
+//               </button>
+//             </div>
+//           </div>
+//         </section>
+
+//         <section className="buttons">
+//           <button className="btn saved">
+//             Saved &nbsp; <FontAwesomeIcon icon={faBookmark} className="icon-saved" />
+//           </button>
+//           <button className="btn apply-btn">Apply Now</button>
+//         </section>
+//       </section>
+
+//       <div className="row">
+//         <Profilemodal />
+//         <Applicantmodal />
+//         <PaymentDetailsmodal />
+//       </div>
+//     </main>
+//   );
+// };
+
+// export default Main;
+
+
