@@ -1,7 +1,7 @@
 
 git add .
 git commit -m "all consumers  and payment working"
-git push origin backend
+git push origin main
 
 git pull origin main
 git pull https://github.com/Paeshift-Web-App/paeshift-backend/tree/main
