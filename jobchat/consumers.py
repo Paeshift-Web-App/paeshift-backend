@@ -1,5 +1,4 @@
 import json
-import requests
 import logging
 import asyncio
 from datetime import datetime
@@ -18,16 +17,6 @@ logger = logging.getLogger(__name__)
 def get_user():
     return get_user_model()
 
-# ------------------------------------------------------------------------------
-# 💬 Chat WebSocket Consumer
-# ------------------------------------------------------------------------------
-
-from channels.generic.websocket import AsyncWebsocketConsumer
-from channels.db import database_sync_to_async
-import json
-from jobchat.models import Message
-from jobs.models import Job
-
 class ChatConsumer(AsyncWebsocketConsumer):
     """Handles real-time job chat messaging"""
 
@@ -36,11 +25,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.room_group_name = f"chat_{self.job_id}"
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
-        print(f"✅ Chat WebSocket connected for Job #{self.job_id}")
+        logger.info(f"✅ Chat WebSocket connected for Job #{self.job_id}")
 
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
-        print(f"❌ Chat WebSocket disconnected for Job #{self.job_id}")
+        logger.info(f"❌ Chat WebSocket disconnected for Job #{self.job_id}")
 
     async def receive(self, text_data):
         """Handles incoming chat messages"""
@@ -67,13 +56,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         job = Job.objects.get(id=self.job_id)
         return Message.objects.create(job=job, sender=sender, content=message)
 
-
-
-
-
-# ------------------------------------------------------------------------------
-# 📍 Location WebSocket Consumer
-# ------------------------------------------------------------------------------
 class JobLocationConsumer(AsyncWebsocketConsumer):
     """Handles real-time job location tracking"""
 
@@ -144,10 +126,6 @@ class JobLocationConsumer(AsyncWebsocketConsumer):
         last_location.timestamp = new_timestamp
         last_location.save()
 
-# ------------------------------------------------------------------------------
-# ⚡ Job Matching WebSocket Consumer
-# ------------------------------------------------------------------------------
-
 class JobMatchingConsumer(AsyncWebsocketConsumer):
     """Handles real-time job matching and updates."""
 
@@ -200,7 +178,13 @@ class JobMatchingConsumer(AsyncWebsocketConsumer):
 
     async def job_match_update(self, event):
         """Sends updated job match data to the frontend."""
-        await self.send(text_data=json.dumps({"type": "job_list", "jobs": event["jobs"]}))
+        # Save the notification to the database
+        await self.save_notification(event["message"])
+
+        # Send the notification to the client
+        await self.send(text_data=json.dumps(event))
+
+
 
     @database_sync_to_async
     def get_nearby_jobs(self, user):
@@ -241,3 +225,120 @@ class JobMatchingConsumer(AsyncWebsocketConsumer):
         a = sin(dlat / 2) ** 2 + cos(radians(lat1)) * cos(radians(lat2)) * sin(dlon / 2) ** 2
         c = 2 * atan2(sqrt(a), sqrt(1 - a))
         return R * c  # Distance in km
+
+    @database_sync_to_async
+    def save_notification(self, message):
+        """Save the notification to the database"""
+        from .models import Notification  # Import Notification model
+        Notification.objects.create(user=self.user, message=message)
+
+
+
+
+
+
+
+class JobApplicationConsumer(AsyncWebsocketConsumer):
+    """Handles real-time job application notifications"""
+
+    async def connect(self):
+        """Connect employer to job application notifications"""
+        self.job_id = self.scope["url_route"]["kwargs"]["job_id"]
+        self.group_name = f"job_applications_{self.job_id}"
+        await self.channel_layer.group_add(self.group_name, self.channel_name)
+        await self.accept()
+
+    async def disconnect(self, close_code):
+        """Disconnect employer from job notifications"""
+        await self.channel_layer.group_discard(self.group_name, self.channel_name)
+
+    async def receive(self, text_data):
+        """Handle new applicant notifications"""
+        data = json.loads(text_data)
+        applicant_id = data.get("applicant_id")
+
+        if applicant_id:
+            applicant = await self.get_applicant(applicant_id)
+            if applicant:
+                await self.channel_layer.group_send(
+                    self.group_name,
+                    {
+                        "type": "application_notification",
+                        "applicant": {
+                            "id": applicant.id,
+                            "name": applicant.username
+                        }
+                    }
+                )
+
+    async def application_notification(self, event):
+        """Send new applicant notification to the employer"""
+        message = event.get("message", "New applicant applied!")  # Default message if not provided
+        await self.save_notification(message)  # Save the notification to the database
+        await self.send(text_data=json.dumps(event))  # Send the notification to the client
+
+    @database_sync_to_async
+    def save_notification(self, message):
+        """Save the notification to the database"""
+        from .models import Notification  # Import Notification model
+        Notification.objects.create(user=self.user, message=message)
+ 
+ 
+ 
+        
+class PaymentNotificationConsumer(AsyncWebsocketConsumer):
+    """Handles real-time payment success notifications"""
+
+    async def connect(self):
+        """Connect user to their payment notifications"""
+        self.user = self.scope["user"]
+        if self.user.is_authenticated:
+            self.group_name = f"user_payments_{self.user.id}"
+            await self.channel_layer.group_add(self.group_name, self.channel_name)
+            await self.accept()
+        else:
+            await self.close()
+
+    async def disconnect(self, close_code):
+        """Disconnect user from payment notifications"""
+        if self.user.is_authenticated:
+            await self.channel_layer.group_discard(self.group_name, self.channel_name)
+
+    async def payment_success(self, event):
+        """Send payment success notification to user"""
+        # Save the notification to the database
+        await self.save_notification(event["message"])
+
+        # Send the notification to the client
+        await self.send(text_data=json.dumps(event))
+
+    @database_sync_to_async
+    def save_notification(self, message):
+        """Save the notification to the database"""
+        from .models import Notification  # Import Notification model
+        Notification.objects.create(user=self.user, message=message)
+    """Handles real-time payment success notifications"""
+
+    async def connect(self):
+        """Connect user to their payment notifications"""
+        self.user = self.scope["user"]
+        if self.user.is_authenticated:
+            self.group_name = f"user_payments_{self.user.id}"
+            await self.channel_layer.group_add(self.group_name, self.channel_name)
+            await self.accept()
+        else:
+            await self.close()
+
+    async def disconnect(self, close_code):
+        """Disconnect user from payment notifications"""
+        if self.user.is_authenticated:
+            await self.channel_layer.group_discard(self.group_name, self.channel_name)
+
+    async def payment_success(self, event):
+        """Send payment success notification to user"""
+        await self.send(text_data=json.dumps(event))
+
+    @database_sync_to_async
+    def get_user_profile(self):
+        """Fetch user profile from database"""
+        return User.objects.get(id=self.user.id)
