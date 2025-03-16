@@ -21,28 +21,35 @@ def get_user():
 # ------------------------------------------------------------------------------
 # 💬 Chat WebSocket Consumer
 # ------------------------------------------------------------------------------
+
+from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.db import database_sync_to_async
+import json
+from jobchat.models import Message
+from jobs.models import Job
+
 class ChatConsumer(AsyncWebsocketConsumer):
     """Handles real-time job chat messaging"""
 
     async def connect(self):
-        self.job_id = self.scope['url_route']['kwargs']['job_id']
+        self.job_id = self.scope["url_route"]["kwargs"]["job_id"]
         self.room_group_name = f"chat_{self.job_id}"
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
-        logger.info(f"Chat WebSocket connected: {self.channel_name}")
+        print(f"✅ Chat WebSocket connected for Job #{self.job_id}")
 
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
-        logger.info(f"Chat WebSocket disconnected: {self.channel_name}")
+        print(f"❌ Chat WebSocket disconnected for Job #{self.job_id}")
 
     async def receive(self, text_data):
         """Handles incoming chat messages"""
         data = json.loads(text_data)
-        message = data.get('message', '').strip()
-        sender = self.scope.get("user")
+        message = data.get("message", "").strip()
+        sender = self.scope["user"]
 
         if sender and sender.is_authenticated and message:
-            await self.save_message(sender, message)
+            await self.save_message(sender, message)  # ✅ Save to DB
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {"type": "chat_message", "message": message, "sender": sender.username}
@@ -59,6 +66,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
         """Saves the message in the database"""
         job = Job.objects.get(id=self.job_id)
         return Message.objects.create(job=job, sender=sender, content=message)
+
+
+
+
 
 # ------------------------------------------------------------------------------
 # 📍 Location WebSocket Consumer
@@ -136,23 +147,27 @@ class JobLocationConsumer(AsyncWebsocketConsumer):
 # ------------------------------------------------------------------------------
 # ⚡ Job Matching WebSocket Consumer
 # ------------------------------------------------------------------------------
+
+
 class JobMatchingConsumer(AsyncWebsocketConsumer):
-    """Handles real-time job matching"""
+    """Handles real-time job matching and updates"""
 
     async def connect(self):
+        """Handles WebSocket connection"""
         self.user = self.scope["user"]
         if self.user.is_authenticated:
             self.room_group_name = f"user_{self.user.id}"
             await self.channel_layer.group_add(self.room_group_name, self.channel_name)
             await self.accept()
-            logger.info(f"User {self.user.username} connected to Job Matching WebSocket.")
+            logger.info(f"✅ User {self.user.username} connected to Job Matching WebSocket.")
         else:
             await self.close()
 
     async def disconnect(self, close_code):
+        """Handles WebSocket disconnection"""
         if self.user.is_authenticated:
             await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
-            logger.info(f"User {self.user.username} disconnected from Job Matching WebSocket.")
+            logger.info(f"❌ User {self.user.username} disconnected from Job Matching WebSocket.")
 
     async def receive(self, text_data):
         """Handles incoming WebSocket messages"""
@@ -197,7 +212,7 @@ class JobMatchingConsumer(AsyncWebsocketConsumer):
         if not user_location:
             return []
 
-        jobs = Job.objects.filter(status="active")
+        jobs = Job.objects.filter(status="upcoming")
         job_list = []
         for job in jobs:
             distance = self.calculate_distance(user_location.latitude, user_location.longitude, job.latitude, job.longitude)

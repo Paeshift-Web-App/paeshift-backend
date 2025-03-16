@@ -18,16 +18,17 @@
 
         document.addEventListener("DOMContentLoaded", function() {
             console.log("✅ Document fully loaded");
-            
+    
             const jobId = "{{ job_id }}";
             let chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/${jobId}/`);
             let locationSocket = new WebSocket(`ws://${window.location.host}/ws/jobs/${jobId}/location/`);
-        
+    
             let map = L.map('map').setView([51.505, -0.09], 13);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-        
+    
             let markers = {};
-        
+    
+            // 📍 Handling incoming location updates
             locationSocket.onmessage = function(event) {
                 let data = JSON.parse(event.data);
                 let key = data.user;
@@ -37,14 +38,14 @@
                     markers[key] = L.marker([data.latitude, data.longitude]).addTo(map).bindPopup(data.address).openPopup();
                 }
             };
-        
+    
             function sendLocation() {
                 if (!navigator.geolocation) {
                     console.error("❌ Geolocation is NOT supported by this browser.");
                     alert("Your browser does not support location sharing.");
                     return;
                 }
-        
+    
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
                         console.log("✅ Location permission granted:", position);
@@ -60,9 +61,45 @@
                     { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
                 );
             }
-        
+    
             setInterval(sendLocation, 5000);
+    
+            // ✅ Chat Functionality Fix
+    
+            // Handling incoming chat messages
+            chatSocket.onmessage = function(event) {
+                let data = JSON.parse(event.data);
+                let messagesDiv = document.getElementById("messages");
+    
+                if (data.error) {
+                    console.error("❌ Chat Error:", data.error);
+                    return;
+                }
+    
+                let newMessage = document.createElement("p");
+                newMessage.innerHTML = `<strong>${data.sender}:</strong> ${data.message}`;
+                messagesDiv.appendChild(newMessage);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight; // Auto-scroll
+            };
+    
+            chatSocket.onclose = function(event) {
+                console.error("❌ Chat WebSocket closed unexpectedly.", event);
+            };
+    
+            function sendMessage() {
+                let messageInput = document.getElementById("messageInput");
+                let message = messageInput.value.trim();
+    
+                if (message !== "") {
+                    chatSocket.send(JSON.stringify({ "message": message }));
+                    messageInput.value = "";
+                }
+            }
+    
+            document.querySelector("button").addEventListener("click", sendMessage);
         });
-    </script>        
+    
+    </script>
+        
 </body>
 </html>

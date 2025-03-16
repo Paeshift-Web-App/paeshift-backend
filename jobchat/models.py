@@ -1,68 +1,24 @@
-from django.contrib.auth import get_user_model
 from django.db import models
-
-def get_user():
-    """Lazy loading to avoid AppRegistryNotReady error"""
-    return get_user_model()
+from django.conf import settings
+from jobs.models import Job
 
 class Message(models.Model):
-    """Stores chat messages between users for a specific job."""
-    job = models.ForeignKey(
-        "jobs.Job",  # ✅ Use string reference to avoid circular import
-        on_delete=models.CASCADE,
-        related_name="messages",
-        verbose_name="Related Job"
-    )
+    job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name="messages")
     sender = models.ForeignKey(
-        "auth.User",  # ✅ Use string reference for user
+        settings.AUTH_USER_MODEL,  # ✅ Use AUTH_USER_MODEL
         on_delete=models.CASCADE,
-        related_name="sent_messages",
-        verbose_name="Sender"
+        related_name="sent_messages"
     )
-    content = models.TextField(verbose_name="Message Content")
-    timestamp = models.DateTimeField(auto_now_add=True, verbose_name="Sent At")
-
-    class Meta:
-        ordering = ["-timestamp"]
-        indexes = [
-            models.Index(fields=["-timestamp"]),
-            models.Index(fields=["job"]),
-        ]
-        verbose_name = "Chat Message"
-        verbose_name_plural = "Chat Messages"
-
-    def __str__(self):
-        return f"{self.sender}: {self.content[:30]}"
-
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
 
 class LocationHistory(models.Model):
-    """Stores the location updates of users related to a job."""
     user = models.ForeignKey(
-        "auth.User",  # ✅ Use string reference
+        settings.AUTH_USER_MODEL,  # ✅ Use AUTH_USER_MODEL
         on_delete=models.CASCADE,
-        related_name="location_histories",
-        verbose_name="User"
+        related_name="location_histories"
     )
-    job = models.ForeignKey(
-        "jobs.Job",  # ✅ Lazy reference
-        on_delete=models.CASCADE,
-        related_name="locations",
-        verbose_name="Job"
-    )
-    latitude = models.FloatField(verbose_name="Latitude")
-    longitude = models.FloatField(verbose_name="Longitude")
-    address = models.CharField(max_length=255, blank=True, verbose_name="Address")
-    timestamp = models.DateTimeField(auto_now=True, verbose_name="Updated At")
-
-    class Meta:
-        ordering = ["-timestamp"]
-        indexes = [
-            models.Index(fields=["-timestamp"]),
-            models.Index(fields=["job"]),
-            models.Index(fields=["user", "latitude", "longitude"]),
-        ]
-        verbose_name = "Location History"
-        verbose_name_plural = "Location Histories"
-
-    def __str__(self):
-        return f"Location for {self.user} on {self.job} at {self.timestamp}"
+    job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name="locations")
+    latitude = models.FloatField()
+    longitude = models.FloatField()
+    timestamp = models.DateTimeField(auto_now=True)
