@@ -148,29 +148,28 @@ class JobLocationConsumer(AsyncWebsocketConsumer):
 # ⚡ Job Matching WebSocket Consumer
 # ------------------------------------------------------------------------------
 
-
 class JobMatchingConsumer(AsyncWebsocketConsumer):
-    """Handles real-time job matching and updates"""
+    """Handles real-time job matching and updates."""
 
     async def connect(self):
-        """Handles WebSocket connection"""
+        """Handles WebSocket connection."""
         self.user = self.scope["user"]
         if self.user.is_authenticated:
             self.room_group_name = f"user_{self.user.id}"
             await self.channel_layer.group_add(self.room_group_name, self.channel_name)
             await self.accept()
-            logger.info(f"✅ User {self.user.username} connected to Job Matching WebSocket.")
+            logger.info(f"✅ {self.user.username} connected to Job Matching WebSocket.")
         else:
             await self.close()
 
     async def disconnect(self, close_code):
-        """Handles WebSocket disconnection"""
+        """Handles WebSocket disconnection."""
         if self.user.is_authenticated:
             await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
-            logger.info(f"❌ User {self.user.username} disconnected from Job Matching WebSocket.")
+            logger.info(f"❌ {self.user.username} disconnected from Job Matching WebSocket.")
 
     async def receive(self, text_data):
-        """Handles incoming WebSocket messages"""
+        """Handles incoming WebSocket messages."""
         data = json.loads(text_data)
         action = data.get("action")
 
@@ -180,34 +179,32 @@ class JobMatchingConsumer(AsyncWebsocketConsumer):
             await self.handle_location_update(data)
 
     async def handle_job_subscription(self):
-        """Sends nearby job listings to the user"""
+        """Sends nearby job listings to the user."""
         jobs = await self.get_nearby_jobs(self.user)
         await self.send(text_data=json.dumps({"type": "job_list", "jobs": jobs}))
 
     async def handle_location_update(self, data):
-        """Updates user location and notifies clients"""
+        """Updates user location and sends matched jobs."""
         latitude = data.get("latitude")
         longitude = data.get("longitude")
 
         if latitude and longitude:
             await self.update_user_location(self.user, latitude, longitude)
+
+            # Send new job matches based on updated location
+            jobs = await self.get_nearby_jobs(self.user)
             await self.channel_layer.group_send(
                 self.room_group_name,
-                {
-                    "type": "location_update",
-                    "latitude": latitude,
-                    "longitude": longitude,
-                    "user": self.user.username
-                }
+                {"type": "job_match_update", "jobs": jobs}
             )
 
-    async def location_update(self, event):
-        """Sends updated location data to frontend"""
-        await self.send(text_data=json.dumps(event))
+    async def job_match_update(self, event):
+        """Sends updated job match data to the frontend."""
+        await self.send(text_data=json.dumps({"type": "job_list", "jobs": event["jobs"]}))
 
     @database_sync_to_async
     def get_nearby_jobs(self, user):
-        """Fetches jobs near the user"""
+        """Fetches jobs near the user's location."""
         user_location = LocationHistory.objects.filter(user=user).last()
         if not user_location:
             return []
@@ -229,14 +226,14 @@ class JobMatchingConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def update_user_location(self, user, latitude, longitude):
-        """Saves user location to the database"""
+        """Saves user location to the database."""
         return LocationHistory.objects.update_or_create(
             user=user,
             defaults={"latitude": latitude, "longitude": longitude, "timestamp": datetime.utcnow()}
         )
 
     def calculate_distance(self, lat1, lon1, lat2, lon2):
-        """Haversine formula to calculate distance between two locations"""
+        """Haversine formula to calculate distance between two locations."""
         from math import radians, sin, cos, sqrt, atan2
         R = 6371.0  # Radius of Earth in km
         dlat = radians(lat2 - lat1)
