@@ -620,14 +620,6 @@ def list_job_disputes(request, job_id: int):
 
 
 
-
-
-
-
-
-
-
-
 @router.get("/{job_id}", response=JobDetailSchema)  # Dynamic route after
 def job_detail(request, job_id: int):
     """GET /jobs/<job_id> - Returns details for a single job"""
@@ -636,16 +628,6 @@ def job_detail(request, job_id: int):
 
 
 
-# ----------------------------------------------------------------------
-# Location Update Endpoint
-# ----------------------------------------------------------------------
-@router.post("/jobs/{job_id}/update-location")
-def update_location(request, job_id: int, payload: LocationSchema):
-    """POST /jobs/{job_id}/update-location - Updates user's location for a job"""
-    user, error = authenticated_user_or_error(request)
-    if error:
-        return error
-    return {"message": "Location updated (optionally broadcasted)"}
 
 # ----------------------------------------------------------------------
 # Rating Endpoints
