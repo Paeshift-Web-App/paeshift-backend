@@ -97,6 +97,9 @@ def initiate_payment(request, payload: InitiatePaymentSchema):
         logger.error(f"Payment initiation error: {str(e)}")
         return JsonResponse({"error": "Payment processing failed", "details": str(e)}, status=500)
 
+
+
+
 # ================================================================
 # Paystack Payment Processing
 # ================================================================
@@ -217,18 +220,18 @@ def verify_payment(request, reference: str, user_id: int, payment_method: str):
 # UI Endpoints
 # ================================================================
 
-@router.get("/payment-page")
-def payment_page(request):
-    """Render the payment initiation HTML page."""
-    return render(request, "payments.html")
+# @router.get("/payment-page")
+# def payment_page(request):
+#     """Render the payment initiation HTML page."""
+#     return render(request, "payments.html")
 
-@router.get("/payment-completed/")
-def payment_completed(request):
-    """Handle payment completion callback."""
-    reference = request.GET.get("reference")  # For Paystack
-    tx_ref = request.GET.get("tx_ref")         # For Flutterwave
-    return JsonResponse({
-        "message": "Payment completed",
-        "reference": reference or tx_ref,
-        "status": "Success"
-    })
+# @router.get("/payment-completed/")
+# def payment_completed(request):
+#     """Handle payment completion callback."""
+#     reference = request.GET.get("reference")  # For Paystack
+#     tx_ref = request.GET.get("tx_ref")         # For Flutterwave
+#     return JsonResponse({
+#         "message": "Payment completed",
+#         "reference": reference or tx_ref,
+#         "status": "Success"
+#     })
