@@ -1,6 +1,6 @@
 pip install --upgrade channels daphne
 DELETE MIGRATIOns and db
-
+ did like i muted all web socket implementaion
 
 
 ### Current Progress Assessment
