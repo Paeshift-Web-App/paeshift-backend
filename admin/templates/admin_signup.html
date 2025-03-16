@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Signup</title>
+</head>
+<body>
+    <h2>Admin Signup</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <p style="color:red;">{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        
+        <label>Username:</label>
+        <input type="text" name="username" required><br>
+
+        <label>Password:</label>
+        <input type="password" name="password" required><br>
+
+        <label>Select Role:</label>
+        <select name="role">
+            {% for value, label in roles %}
+                <option value="{{ value }}">{{ label }}</option>
+            {% endfor %}
+        </select><br>
+
+        <button type="submit">Signup</button>
+    </form>
+
+    <p>Already have an account? <a href="{% url 'admin_login' %}">Login</a></p>
+</body>
+</html>

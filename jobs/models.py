@@ -190,6 +190,10 @@ class Dispute(models.Model):
         ("in_review", "In Review"),
         ("resolved", "Resolved"),
         ("closed", "Closed"),
+        ('pending', 'Pending'),
+        ('reviewed', 'Reviewed'),
+        ('resolved', 'Resolved'),
+        ('escalated', 'Escalated'), 
     ]
     job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name="disputes")
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="disputes_raised")
@@ -198,6 +202,11 @@ class Dispute(models.Model):
     status = models.CharField(max_length=20, choices=DISPUTE_STATUS_CHOICES, default="open")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    assigned_admin = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="disputes_assigned")
+    reason = models.TextField(null=True)
+    resolution_notes = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    resolved_at = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         return f"Dispute #{self.id} - {self.title} ({self.status})"
