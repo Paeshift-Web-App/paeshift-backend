@@ -22,7 +22,16 @@ from django.contrib.auth import (
     get_user_model, get_backends
 )
 from django.contrib.auth.hashers import check_password
-
+from django.utils import timezone
+from django.shortcuts import get_object_or_404
+from django.contrib.auth import get_user_model
+from ninja import Router
+from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from jobs.models import Job, Application
+from jobchat.models import LocationHistory
+from math import radians, sin, cos, sqrt, atan
 # ==============================
 # 📌 Third-Party Imports
 # ==============================
@@ -753,141 +762,77 @@ def update_dispute(request, dispute_id: int, payload: DisputeUpdateSchema):
     dispute.save()
     return {"message": "Dispute updated", "dispute_id": dispute.id}
 
-# # ------------------------------------------------------------------------------
-# # C) PAYMENT SYSTEM
-# # ------------------------------------------------------------------------------
-# @router.post("/jobs/{job_id}/payments", tags=["Payments"])
-# def create_payment(request, job_id: int, payload: PaymentCreateSchema):
-#     """
-#     POST /jobs/{job_id}/payments
-#     Creates a payment record for a given job.
-#     """
-#     if not request.user.is_authenticated:
-#         return Response({"error": "Not logged in"}, status=401)
-
-#     job = get_object_or_404(Job, pk=job_id)
-
-#     # For instance, the user paying is the client, or it might be a different logic
-#     # Possibly ensure job.client == request.user, or something similar
-#     payment = Payment.objects.create(
-#         payer=request.user,  # or job.client
-#         recipient=None,      # set a recipient if you have logic for who gets paid
-#         job=job,
-#         original_amount=payload.original_amount,
-#         service_fee=payload.service_fee,
-#         final_amount=payload.final_amount,
-#         pay_code=payload.pay_code  # or auto-generate if needed
-#     )
-#     return {"message": "Payment created", "payment_id": payment.id}
 
 
-# @router.get("/jobs/{job_id}/payments", tags=["Payments"])
-# def list_payments_for_job(request, job_id: int):
-#     """
-#     GET /jobs/{job_id}/payments
-#     Returns a list of payment records for the specified job.
-#     """
-#     job = get_object_or_404(Job, pk=job_id)
-#     payments = job.payments.all()
 
-#     data = []
-#     for p in payments:
-#         data.append({
-#             "id": p.id,
-#             "payer": p.payer.username,
-#             "recipient": p.recipient.username if p.recipient else None,
-#             "original_amount": str(p.original_amount),
-#             "service_fee": str(p.service_fee),
-#             "final_amount": str(p.final_amount),
-#             "pay_code": p.pay_code,
-#             "payment_status": p.payment_status,
-#             "created_at": p.created_at.isoformat(),
-#             "confirmed_at": p.confirmed_at.isoformat() if p.confirmed_at else None
-#         })
-#     return data
+# -------------------------------------------------------------------
+# 📌 SHIFT SCHEDULING
+# -------------------------------------------------------------------
+
+@router.post("/jobs/{job_id}/shifts", tags=["Shifts"])
+def create_or_update_shift(request, job_id: int, payload: dict):
+    """
+    Creates or updates shift info for a given job (morning/night).
+    """
+    if not request.user.is_authenticated:
+        return Response({"error": "Not logged in"}, status=401)
+
+    job = get_object_or_404(Job, pk=job_id)
+
+    # If you have a Shift model, replace this placeholder
+    shift_data = {
+        "job_id": job.id,
+        "shiftType": payload.get("shiftType", "morning"),
+        "startTime": payload.get("startTime", "08:00"),
+        "endTime": payload.get("endTime", "17:00"),
+    }
+    
+    return {"message": "Shift created/updated", "shift": shift_data}
 
 
-# @router.put("/payments/{payment_id}", tags=["Payments"])
-# def update_payment(request, payment_id: int, payload: PaymentUpdateSchema):
-#     """
-#     PUT /jobs/payments/{payment_id}
-#     Allows updating a payment’s status or details.
-#     """
-#     if not request.user.is_authenticated:
-#         return Response({"error": "Not logged in"}, status=401)
+@router.get("/jobs/{job_id}/shifts", tags=["Shifts"])
+def get_job_shifts(request, job_id: int):
+    """
+    Returns the shift schedule details for a given job.
+    """
+    job = get_object_or_404(Job, pk=job_id)
 
-#     payment = get_object_or_404(Payment, pk=payment_id)
+    # Placeholder return since there's no Shift model in the provided code
+    return {"message": f"Shifts for job {job.id} (placeholder)"}
 
-#     # Possibly check if request.user is the payer or an admin. Exclude admin logic if not needed
-#     if payload.payment_status:
-#         payment.payment_status = payload.payment_status
-#     if payload.refund_requested is not None:
-#         payment.refund_requested = payload.refund_requested
 
-#     payment.save()
-#     return {"message": "Payment updated", "payment_id": payment.id}
+@router.post("/jobs/{job_id}/start-shift")
+@permission_classes([IsAuthenticated])
+def start_shift(request, job_id: int):
+    """
+    Mark a job shift as started.
+    """
+    job = get_object_or_404(Job, id=job_id)
 
-# # ------------------------------------------------------------------------------
-# # D) SHIFT SCHEDULING
-# # ------------------------------------------------------------------------------
-# @router.post("/jobs/{job_id}/shifts", tags=["Shifts"])
-# def create_or_update_shift(request, job_id: int, payload: ShiftSchema):
-#     """
-#     POST /jobs/{job_id}/shifts
-#     Creates or updates shift info for a given job (morning/night).
-#     """
-#     if not request.user.is_authenticated:
-#         return Response({"error": "Not logged in"}, status=401)
+    # Check if user is an accepted applicant for the job
+    if request.user not in job.applicants_accepted.all():
+        return Response({"error": "Unauthorized"}, status=403)
 
-#     job = get_object_or_404(Job, pk=job_id)
+    job.actual_shift_start = timezone.now()
+    job.save()
+    
+    return {"status": "shift_started", "start_time": job.actual_shift_start}
 
-#     # If you have a Shift model, you might do something like:
-#     # shift, created = Shift.objects.update_or_create(
-#     #     job=job,
-#     #     shiftType=payload.shiftType,
-#     #     defaults={
-#     #         "startTime": payload.startTime,
-#     #         "endTime": payload.endTime
-#     #     }
-#     # )
-#     # For now, we'll just return a placeholder
-#     return {"message": "Shift created/updated for job", "job_id": job.id}
 
-# @router.get("/jobs/{job_id}/shifts", tags=["Shifts"])
-# def get_job_shifts(request, job_id: int):
-#     """
-#     GET /jobs/{job_id}/shifts
-#     Returns the shift schedule details for a given job.
-#     """
-#     job = get_object_or_404(Job, pk=job_id)
+@router.post("/jobs/{job_id}/end-shift")
+@permission_classes([IsAuthenticated])
+def end_shift(request, job_id: int):
+    """
+    Mark a job shift as ended.
+    """
+    job = get_object_or_404(Job, id=job_id)
 
-#     # If you have a Shift model:
-#     # shifts = Shift.objects.filter(job=job)
-#     # data = []
-#     # for s in shifts:
-#     #     data.append({
-#     #         "id": s.id,
-#     #         "shiftType": s.shiftType,
-#     #         "startTime": s.startTime,
-#     #         "endTime": s.endTime
-#     #     })
-#     # return data
+    # Check if user is an accepted applicant for the job
+    if request.user not in job.applicants_accepted.all():
+        return Response({"error": "Unauthorized"}, status=403)
 
-#     return {"message": f"Shifts for job {job.id} (placeholder)"}
+    job.actual_shift_end = timezone.now()
+    job.save()
+    
+    return {"status": "shift_ended", "duration": job.duration}
 
-# # ------------------------------------------------------------------------------
-# # E) REAL-TIME JOB MATCHING (Optional)
-# # ------------------------------------------------------------------------------
-# @router.post("/jobs/match", tags=["Matching"])
-# def match_jobs(request, payload: MatchSchema):
-#     """
-#     POST /jobs/match
-#     (Optional) If the system triggers a job matching algorithm.
-#     Accepts job details, user preference, or location data.
-#     """
-#     if not request.user.is_authenticated:
-#         return Response({"error": "Not logged in"}, status=401)
-
-#     # Some job matching logic or placeholders
-#     # e.g., find applicants near a location, check shift/time, rating, etc.
-#     return {"message": "Job matching triggered (placeholder)"}
