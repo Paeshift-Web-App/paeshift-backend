@@ -33,6 +33,9 @@ class JobSubCategoryAdmin(admin.ModelAdmin):
     search_fields = ("name", "industry__name")
     list_per_page = 20
 
+from django.contrib import admin
+from .models import Job
+
 @admin.register(Job)
 class JobAdmin(admin.ModelAdmin):
     """Admin for Job Postings."""
@@ -49,7 +52,7 @@ class JobAdmin(admin.ModelAdmin):
         "title", "client__username", "industry__name",
         "subcategory__name", "location"
     )
-    # readonly_fields = ("created_at", "updated_at", "last_location_update", "service_fee", "total_amount",)
+
     fieldsets = (
         ("Basic Information", {
             "fields": ("title", "description", "client", "industry", "subcategory")
@@ -64,10 +67,20 @@ class JobAdmin(admin.ModelAdmin):
             "fields": ("location", "latitude", "longitude", "last_location_update")
         }),
         ("Status & Tracking", {
-            "fields": ("status", "actual_shift_start", "actual_shift_end", "created_at", "updated_at")
+            "fields": ("status", "actual_shift_start", "actual_shift_end", "updated_at")
         }),
     )
+
+    readonly_fields = ("created_at", "updated_at")  # 🛠️ Fix: Make created_at read-only
+
     list_per_page = 20
+
+
+
+
+
+
+
 
 @admin.register(SavedJob)
 class SavedJobAdmin(admin.ModelAdmin):

@@ -138,6 +138,8 @@ class Job(models.Model):
             self.status = 'ongoing'
         super().save(*args, **kwargs)
 
+
+
 # ------------------------------------------------------
 # 3️⃣ Application Model
 # ------------------------------------------------------
