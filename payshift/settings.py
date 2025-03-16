@@ -1,5 +1,8 @@
 import os
+
 from pathlib import Path
+
+
 if os.getenv("DJANGO_USE_LOCALHOST"):
     ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 else:
@@ -29,28 +32,37 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
 ]
 
+SESSION_ENGINE = "django.contrib.sessions.backends.db"
+SESSION_COOKIE_SECURE = False  # True in production
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = False  # Allow JS to read CSRF token
+CORS_ALLOW_HEADERS = [
+    "authorization",
+    "content-type",
+    "X-CSRFToken",
+]  # Allow custom h
+
+
+
 # -----------------------------
 # INSTALLED APPS
 # -----------------------------
 INSTALLED_APPS = [
-    # "corsheaders",            # Uncomment if using corsheaders
+    "daphne",
+    "channels",                # For Django Channels
+    "corsheaders",            # Uncomment if using corsheaders
     # "jazzmin",                # Optional admin theme
 
     'django.contrib.sites',  # ✅ Keep only one instance of this
     "jobs",
     "jobchat", 
     "socialauth",          # Your main Django app
-    "channels",                # For Django Channels
-    "daphne",
-    # 'payment',
+    'payment',
     "rest_framework",
     "rest_framework_simplejwt",
     
     
-    
-    
-    
-    # Django default apps
     "django.contrib.admin",
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -70,15 +82,25 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.twitter",
     'allauth.socialaccount.providers.apple',
 ]
-SITE_ID = 3  # Placeholder
 
+
+
+
+# SITE_ID = 1  # Placeholder
+
+# ✅ Enable session authentication
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
-    ),
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication",  # ✅ Important for session-based auth
+        "rest_framework.authentication.TokenAuthentication",  # ✅ If using token-based auth
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",  # ✅ Requires authentication
+    ],
 }
 
-
+CSRF_COOKIE_SECURE = False
 SESSION_COOKIE_SECURE = False
 # -----------------------------
 # AUTH BACKENDS & SITE_ID
@@ -87,7 +109,18 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
-# SITE_ID = 1  # Ensure this matches the Site entry in your admin
+SITE_ID = 3  # Ensure this matches the Site entry in your admin
+
+
+PAYSTACK_SECRET_KEY = "sk_test_ef9e10ac4bf5dcd69617a61636d21c88528afb1d"
+PAYSTACK_PUBLIC_KEY = "pk_test_01db91d9678ee0d25483a7d0bc9783951938b45d"
+
+FLUTTERWAVE_SECRET_KEY = "FLWSECK_TEST-5cfee76ec023b25f6e002bad2bfc1d95-X"
+FLUTTERWAVE_PUBLIC_KEY = "FLWPUBK_TEST-c9b0667be3b2500fb3ee42a46a8ae054-X"
+
+
+# settings.py
+BASE_URL = "http://127.0.0.1:8000"  # Replace with your actual domain in production
 
 
 # -----------------------------

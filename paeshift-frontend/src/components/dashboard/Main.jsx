@@ -41,19 +41,30 @@ const Main = () => {
   const [users, setUsers] = useState();
   const [jobs, setJobs] = useState();
 
+  let [profile, setProfile] = useState("");
 
-  // useEffect(() => {
+  useEffect(() => {
+    Axios.get("http://localhost:8000/jobs/whoami")
+    .then((response) => {
+      setProfile(response.data);
+      console.log(response.data);
+    })
+    .catch((error) => console.error(error));
 
-  //   Axios.get("http://localhost:8000/Products")
-  //     .then((response) => {
-  //       setProduct(response.data);
-  //     })
-  //     .catch((error) => console.error(error));
+    },[])
 
+  useEffect(() => {
 
-
-
+    Axios.get("http://localhost:8000/jobs/clientjobs")
+      .then((response) => {
+        setJobs(response.data.jobs);
+        console.log(response.data.jobs);
+      })
+      .catch((error) => console.error(error));
+    },[])
   // console.log(user.data)
+  // const userrole = sessionStorage.get("role"); 
+  // console.log(userrole)
 
 
   return (
@@ -92,14 +103,14 @@ const Main = () => {
             </div>
           </div>
           <div className="col-7 col-md-8 col-xl-10 ps-xl-5 ">
-            <h3>Esther Grace</h3>
-            <p>Employer</p>
+            <h3>{profile.first_name} {profile.last_name}</h3>
+            <p>{profile.role} </p>
             <p>Rating</p>
             <span>
-              <img src={Stars} alt="profile" /> <span className="rate_score">4.98</span>
+              <img src={Stars} alt="profile" /> <span className="rate_score">{profile.rating}</span>
             </span>
             <p>Email Address</p>
-            <h4>eniolalucas@gmail.com</h4>
+            <h4>{profile.email}</h4>
           </div>
           <div className="col-12 col-md-4 col-xl-2"></div>
           <div className="col-12 col-md-8 col-xl-10 p-0 ps-xl-5">
@@ -141,8 +152,9 @@ const Main = () => {
             <h3>Your Recent Job Requests</h3>
             <span><button type="button" data-bs-toggle="modal" data-bs-target="#jobrequestModal" >See More</button></span>
           </div>
+          
           <div className="cards p-0">
-            {JobsData && JobsData.filter((item) => {
+            {jobs && jobs.filter((item) => {
               return searchWork.toLowerCase() === "" ? item : item.title.toLowerCase().includes(searchWork.toLowerCase());
             }).map((item, key) => {
 
@@ -154,7 +166,7 @@ const Main = () => {
                         <img className="prof" src={ProfileImage} alt="profile" />
                       </span>
                       <span>
-                        <h4>{item.name}</h4>
+                        <h4>{item.client__username} {item.client__firstname} {item.client__lastname}</h4>
                         <img src={Stars} alt="profile" /> <span className="rate_score">4.98</span>
                       </span>
                     </span>
@@ -163,16 +175,16 @@ const Main = () => {
                     </span>
                   </div>
                   <div className="duration">
-                    <h3>{item.duration} Contract </h3> <span className="time_post">{item.date_posted}</span>
+                    <h3>{item.duration} Contract </h3> <span className="time_post">{item.date}</span>
                   </div>
                   <span className="title">
                     <h3>{item.title}</h3>
                   </span>
-                  <h4>{item.date}. {item.time}</h4>
+                  <h4>{item.date}. {item.start_time}</h4>
                   <span className="address text-truncate">{item.location}</span>
                   <div className="price">
                     <span>
-                      <h6>₦{item.amount}/hr</h6>
+                      <h6>₦{item.rate}/hr</h6>
                       <p>{item.no_of_application} applicant needed</p>
                     </span>
                     <span>

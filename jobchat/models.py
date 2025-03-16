@@ -1,19 +1,20 @@
-from django.db import models
 from django.contrib.auth import get_user_model
-from jobs.models import *
+from django.db import models
 
-User = get_user_model()
+def get_user():
+    """Lazy loading to avoid AppRegistryNotReady error"""
+    return get_user_model()
 
 class Message(models.Model):
     """Stores chat messages between users for a specific job."""
     job = models.ForeignKey(
-        "jobs.Job",
+        "jobs.Job",  # ✅ Use string reference to avoid circular import
         on_delete=models.CASCADE,
         related_name="messages",
         verbose_name="Related Job"
     )
     sender = models.ForeignKey(
-        User,
+        "auth.User",  # ✅ Use string reference for user
         on_delete=models.CASCADE,
         related_name="sent_messages",
         verbose_name="Sender"
@@ -23,21 +24,30 @@ class Message(models.Model):
 
     class Meta:
         ordering = ["-timestamp"]
-        indexes = [models.Index(fields=["-timestamp"]), models.Index(fields=["job"])]
+        indexes = [
+            models.Index(fields=["-timestamp"]),
+            models.Index(fields=["job"]),
+        ]
         verbose_name = "Chat Message"
         verbose_name_plural = "Chat Messages"
 
     def __str__(self):
-        return f"{self.sender.username}: {self.content[:30]}"
+        return f"{self.sender}: {self.content[:30]}"
 
 
 class LocationHistory(models.Model):
     """Stores the location updates of users related to a job."""
     user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="location_histories", verbose_name="User"
+        "auth.User",  # ✅ Use string reference
+        on_delete=models.CASCADE,
+        related_name="location_histories",
+        verbose_name="User"
     )
     job = models.ForeignKey(
-        "jobs.Job", on_delete=models.CASCADE, related_name="locations", verbose_name="Job"
+        "jobs.Job",  # ✅ Lazy reference
+        on_delete=models.CASCADE,
+        related_name="locations",
+        verbose_name="Job"
     )
     latitude = models.FloatField(verbose_name="Latitude")
     longitude = models.FloatField(verbose_name="Longitude")
@@ -55,4 +65,4 @@ class LocationHistory(models.Model):
         verbose_name_plural = "Location Histories"
 
     def __str__(self):
-        return f"Location for {self.user.username} on {self.job} at {self.timestamp}"
+        return f"Location for {self.user} on {self.job} at {self.timestamp}"

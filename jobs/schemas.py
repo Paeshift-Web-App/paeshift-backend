@@ -2,7 +2,7 @@ from ninja import Schema
 from datetime import datetime
 from decimal import Decimal
 from typing import Optional
-
+from pydantic import BaseModel
 # -------------------------------------------------------
 # 1) Location Schema
 # -------------------------------------------------------
@@ -37,6 +37,8 @@ class UserSchema(Schema):
     email: str
     role : str
 
+    
+
 
 # -------------------------------------------------------
 # 4) Job Schemas
@@ -59,23 +61,23 @@ class JobListSchema(Schema):
 class JobDetailSchema(JobListSchema):
     applicant_name: Optional[str] = None
     payment_status: str
+    created_at: Optional[str] = None
 
 
 class CreateJobSchema(Schema):
     title: str
-    description: Optional[str] = None
-    industry: Optional[str] = None  # Industry name as string
-    subcategory: Optional[str] = None  # Subcategory name as string
-    applicants_needed: Optional[int] = 1
-    job_type: Optional[str] = "single_day"
-    shift_type: Optional[str] = "day_shift"
-    date: str  # "YYYY-MM-DD" format from frontend
-    time: str  # "HH:MM" format from frontend
-    duration: Optional[str] = None
-    rate: Optional[float] = None
-    location: Optional[str] = None
-    image: Optional[str] = None
-    payment_status: Optional[str] = "Pending"
+    industry: str  # Can be ID or name
+    subcategory: str  # Can be ID or name
+    applicants_needed: int
+    job_type: str
+    shift_type: str
+    date: str  # Expected format: "YYYY-MM-DD"
+    start_time: str  # Expected format: "HH:MM"
+    end_time: str  # Expected format: "HH:MM"
+    duration: str
+    rate: float
+    location: str
+    payment_status: str
 
 # -------------------------------------------------------
 # 5) Application Schemas
@@ -133,17 +135,27 @@ class PaymentDetailSchema(Schema):
 # -------------------------------------------------------
 
 class RatingSchema(Schema):
+    """
+    Full rating details, e.g. when returning rating objects to the frontend.
+    """
     reviewer_id: int
     reviewed_id: int
-    rating: int  # Store rating as a percentage (0-100%)
+    rating: float
     feedback: Optional[str] = None
     created_at: datetime
 
 class RatingCreateSchema(Schema):
+    """
+    Incoming payload to create a new rating:
+      {
+        "reviewed_id": 123,
+        "rating": 5,
+        "feedback": "Optional text..."
+      }
+    """
     reviewed_id: int
-    rating: int
+    rating: Optional[float] = None
     feedback: Optional[str] = None
-
 
 
 # -------------------------------------------------------
@@ -154,15 +166,19 @@ class ProfileSchema(Schema):
     phone_number: Optional[str] = None
     location: Optional[str] = None
     created_at: datetime
+    balance: int
+    
 
 class UpdateProfileSchema(Schema):
     phone_number: Optional[str] = None
     location: Optional[str] = None
 
 
-class DisputeCreateSchema(Schema):
-    user: UserSchema
 
+class DisputeCreateSchema(BaseModel):
+    """Schema for creating a dispute"""
+    title: str
+    description: str
 
 class DisputeUpdateSchema(Schema):
     user: UserSchema

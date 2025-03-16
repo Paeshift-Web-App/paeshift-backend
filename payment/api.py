@@ -1,194 +1,234 @@
-# payment/api.py
-from ninja import Router
+import uuid
+import logging
+import json
+import requests
+from decimal import Decimal
+from django.conf import settings
+from django.db import transaction
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from ninja import Router, Schema
 
-payment_router = Router()
+# Import models – adjust these imports to match your project structure.
+from jobs.models import User, Profile, Job
+from .models import Payment, EscrowPayment  # Use EscrowPayment if needed
 
-# @payment_router.get("/test")
-# def payment_test(request):
-#     return {"msg": "Payment test success"}
+router = Router(tags=["Payments"])
+logger = logging.getLogger(__name__)
 
-# @login_required(login_url='/login')
-# def addtocart(request):
-#     if request.method == 'POST':
-#         refrence = str(uuid.uuid4())
-#         pid = request.POST['itemid']
-#         checkout = request.POST['check_out']
-#         checkin = request.POST['check_in']
-#         item = Rooms.objects.get(pk=pid)
-#         reservation = Reservation.objects.filter(user__username= request.user.username, paid_order=False)  
-#         if reservation:
-            
-#             order = Reservation.objects.filter(user__username=request.user.username, room_id=item.id,check_in = checkin,check_out = checkout).first()
-#             if order:
-                
-#                 order.check_in = checkin
-#                 order.check_out = checkout
-#                 if order.check_in > checkout or order.check_out < checkin:
-#                     order.save()
-#                     messages.success(request, 'Your booking is successful!')
-#                 else:
-#                     messages.info(request, 'The room is not available for the dates you specified, kindly choose another date. Thank you')
-#                     return redirect('rooms')
-                
-#             else:
-#                     # this runs when a new item is added to the basket 
-#                 newitem = Reservation()
-#                 newitem.user = request.user
-#                 newitem.room =item
-#                 newitem.order_no = reservation[0].order_no
-#                 newitem.paid_order = False
-#                 newitem.description = item.description
-#                 newitem.check_in = checkin
-#                 newitem.check_out = checkout
-#                 newitem.save() 
-#                 messages.success(request, 'Room added to bookings !')      
-                     
-#         else:
-#             # this is when a basket is to be created for the first time 
-#             newbasket = Reservation()
-#             newbasket.user = request.user
-#             newbasket.room =item
-#             newbasket.order_no = refrence
-#             newbasket.paid_order = False
-#             newbasket.description = item.description
-#             newbasket.check_in = checkin
-#             newbasket.check_out = checkout
-#             newbasket.save() 
-#             messages.success(request, 'Room added to bookings !')
-#     return redirect('reservation')
+# ================================================================
+# Schemas
+# ================================================================
 
-# @login_required(login_url='/login')
-# def reservation(request):
-#     reservation = Reservation.objects.filter(user__username=request.user.username, paid_order=False)
-    
-#     for item in reservation:
-#         time = (item.check_out - item.check_in).days
-#         item.nights = time
-#         item.save()
-        
-#     subtotal=0
-#     vat=0
-#     total=0
+class InitiatePaymentSchema(Schema):
+    total: float
+    reservation_code: str
+    first_name: str
+    last_name: str
+    phone: str
+    payment_method: str  # "paystack" or "flutterwave"
 
-#     for item in reservation:
-#         subtotal += item.room.price * item.nights 
+# ================================================================
+# Helper Function: Make Payment Request
+# ================================================================
 
-#     vat=0.075 *subtotal
+def _make_payment_request(url, headers, data):
+    """Helper function to send a request to a payment gateway."""
+    try:
+        response = requests.post(url, headers=headers, json=data)
+        response.raise_for_status()
+        return response.json()
+    except requests.RequestException as e:
+        logger.error(f"Payment request error: {str(e)}")
+        raise
 
-#     total=subtotal + vat
+# ================================================================
+# Payment Initiation (Saves Payment Before Redirecting)
+# ================================================================
 
-#     context={
-#         'reservation':reservation,
-#         'subtotal':subtotal,
-#         'vat':vat,
-#         'total':total
-#     }
-#     return render(request, 'reservation.html',context)
+@router.post("/initiate-payment")
+def initiate_payment(request, payload: InitiatePaymentSchema):
+    """
+    Saves a payment record with "Pending" status before redirecting the user.
+    The callback URL is set to your React dashboard (port 5173).
+    """
+    pay_code = str(uuid.uuid4())  # Generate unique reference
+    callback_url = "http://localhost:5173/dashboard"  # Redirect back after payment
 
-# @login_required(login_url='/login')
-# def checkout(request):
-#     reservation = Reservation.objects.filter(user__username = request.user.username,paid_order=False)
- 
-#     for item in reservation:
-#         time = (item.check_out - item.check_in).days
-#         item.nights = time
-#         item.save()
+    # Ensure user is authenticated
+    user_id = request.session.get("_auth_user_id")
+    if not user_id:
+        user = User.objects.first()  # For testing, use first user if session missing
+        if not user:
+            return JsonResponse({"error": "No users available for testing"}, status=500)
+    else:
+        user = get_object_or_404(User, id=user_id)
 
-#     subtotal = 0
-#     vat = 0
-#     total = 0
+    # Convert the total to a Decimal using a string conversion
+    try:
+        total_amount = Decimal(str(payload.total))
+    except Exception as e:
+        return JsonResponse({"error": "Invalid total amount format", "details": str(e)}, status=400)
 
-#     for item in reservation:
-#         subtotal += item.room.price * item.nights
+    # Save payment record before redirecting
+    with transaction.atomic():
+        payment = Payment.objects.create(
+            payer=user,
+            job=None,  # Change this if the payment is related to a specific job
+            original_amount=total_amount,
+            service_fee=Decimal("0.00"),  # Will be updated later
+            final_amount=total_amount,
+            pay_code=pay_code,
+            payment_status="Pending",
+            # payment_method=payload.payment_method.lower(),
+            # reference=pay_code
+        )
 
-#     vat = 0.075 * subtotal
+    logger.info(f"Payment created: {payment.pay_code}")
 
-#     total = subtotal + vat
+    try:
+        if payload.payment_method.lower() == "paystack":
+            return _process_paystack_payment(payload, payment, callback_url)
+        elif payload.payment_method.lower() == "flutterwave":
+            return _process_flutterwave_payment(payload, payment, callback_url)
+        else:
+            return JsonResponse({"error": "Invalid payment method"}, status=400)
+    except Exception as e:
+        logger.error(f"Payment initiation error: {str(e)}")
+        return JsonResponse({"error": "Payment processing failed", "details": str(e)}, status=500)
 
+# ================================================================
+# Paystack Payment Processing
+# ================================================================
 
-#     context = {
-#         'reservation': reservation,
-#         'total': total,
-#         'subtotal': subtotal,
-#         'reservation_code':reservation[0].order_no
-#     }
+def _process_paystack_payment(payload, payment, callback_url):
+    """Handle Paystack payment initialization."""
+    headers = {
+        "Authorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}",
+        "Content-Type": "application/json",
+    }
+    data = {
+        "reference": payment.pay_code,
+        "email": f"{payload.first_name.lower()}@test.com",
+        "amount": int(payload.total * 100),  # Convert NGN to kobo
+        "callback_url": callback_url,
+        "currency": "NGN"
+    }
+    response_data = _make_payment_request("https://api.paystack.co/transaction/initialize", headers, data)
+    if response_data.get("status") and response_data["data"].get("authorization_url"):
+        return JsonResponse({"authorization_url": response_data["data"]["authorization_url"]})
+    return JsonResponse({
+        "error": "Error initializing Paystack payment",
+        "details": response_data.get("message", "Unknown error")
+    }, status=400)
 
-#     return render(request, 'checkout.html', context)
+# ================================================================
+# Flutterwave Payment Processing
+# ================================================================
 
-# @login_required(login_url='/login')
-# def deleteitem(request):
-#     itemid=request.POST['itemid']
-#     Reservation.objects.filter(pk=itemid).delete()
-#     messages.success(request, 'room deleted')
-#     return redirect('reservation')
+def _process_flutterwave_payment(payload, payment, callback_url):
+    """Handle Flutterwave payment initialization."""
+    headers = {
+        "Authorization": f"Bearer {settings.FLUTTERWAVE_SECRET_KEY}",
+        "Content-Type": "application/json",
+    }
+    data = {
+        "tx_ref": payment.pay_code,
+        "amount": payload.total,
+        "currency": "NGN",
+        "redirect_url": callback_url,
+        "payment_options": "card,banktransfer,ussd",  # Specify allowed options
+        "customer": {
+            "email": f"{payload.first_name.lower()}@test.com",
+            "name": f"{payload.first_name} {payload.last_name}",
+            "phone_number": payload.phone,
+        },
+        "customizations": {
+            "title": "Job Payment",
+            "description": "Payment for job reservation",
+            "logo": "https://yourwebsite.com/logo.png"  # Replace with your actual logo URL
+        }
+    }
+    response_data = _make_payment_request("https://api.flutterwave.com/v3/payments", headers, data)
+    if response_data.get("status") == "success" and response_data["data"].get("link"):
+        return JsonResponse({"authorization_url": response_data["data"]["link"]})
+    return JsonResponse({
+        "error": "Error initializing Flutterwave payment",
+        "details": response_data.get("message", "Unknown error")
+    }, status=400)
 
-# @login_required(login_url='/login')
-# def increase(request):
-#     check_in=request.POST['check_in']
-#     check_out=request.POST['check_out']
-#     valid=request.POST['valid']
-#     updates =Reservation.objects.get(pk=valid)  
-#     updates.check_in =check_in
-#     updates.check_out =check_out
-#     if  updates.check_in > check_out or updates.check_out < check_in:
-#         updates.save()
-#         messages.success(request, 'Your booking dates update is successful!')
-#     else:
-#         messages.info(request, 'The room is not available for the dates you specified, kindly choose another date. Thank you')
-#         return redirect('rooms')
-    
-#     return redirect('reservation')
+# ================================================================
+# Payment Verification Endpoint
+# ================================================================
 
-# @login_required(login_url='/login')
-# def placeorder(request):
-#     if request.method == 'POST':
-#         api_key = 'sk_test_9f72c94a11fc5b98c9d69e66a128c2db475dc288'
-#         curl = 'https://api.paystack.co/transaction/initialize'
-#         # cburl = 'http://44.201.133.147/completed'
-#         cburl= 'http://localhost:8000/completed/'
-#         total = float(request.POST['total']) * 100
-#         reservation_code = request.POST['reservation_code']
-#         pay_code = str(uuid.uuid4())
-#         user = User.objects.get(username=request.user.username)
-#         first_name = request.POST['first_name']
-#         last_name = request.POST['last_name']
-#         phone = request.POST['phone']
-        
-#         # collect data that you will send to paystack
-#         headers = {'Authorization': f'Bearer {api_key}'}
-#         data = {'reference': pay_code, 'email': user.email,'amount':int(total), 'callback_url': cburl, 'order_number': reservation_code}
+@router.get("/verify-payment")
+def verify_payment(request, reference: str, user_id: int, payment_method: str):
+    """
+    Verifies the payment with the payment gateway and updates the user's wallet balance.
+    Updates the Payment record from "Pending" to "Completed" upon successful verification.
+    """
+    try:
+        if payment_method.lower() == "paystack":
+            verify_url = f"https://api.paystack.co/transaction/verify/{reference}"
+            headers = {"Authorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}"}
+            amount_divisor = 100  # Convert from kobo
+        elif payment_method.lower() == "flutterwave":
+            verify_url = f"https://api.flutterwave.com/v3/transactions/{reference}/verify"
+            headers = {"Authorization": f"Bearer {settings.FLUTTERWAVE_SECRET_KEY}"}
+            amount_divisor = 1
+        else:
+            return JsonResponse({"error": "Invalid payment method"}, status=400)
 
-#         # make a call to paystack
-#         try:
-#             r = requests.post(curl, headers=headers, json=data)
-#         except Exception:
-#             messages.error(request, 'Network busy, try again')
-#         else:
-#             transback = json.loads(r.text)
-#             rd_url = transback['data']['authorization_url']
+        response = requests.get(verify_url, headers=headers)
+        response.raise_for_status()
+        response_data = response.json()
 
-#             paid = Payment()
-#             paid.user = user
-#             paid.amount = total
-#             paid.order_no = reservation_code
-#             paid.pay_code = pay_code
-#             paid.paid_order = True
-#             paid.first_name = first_name  
-#             paid.last_name = last_name
-#             paid.phone = phone
-#             paid.save()
+        if response_data.get("status") == "success" and response_data["data"].get("status") == "successful":
+            amount = Decimal(response_data["data"]["amount"]) / amount_divisor
 
-#             reserve = Reservation.objects.filter(user__username=request.user, paid_order=False)
-#             for item in reserve:
-#                 item.paid_order = True
-#                 item.amount = total/100
-#                 item.save()
+            with transaction.atomic():
+                user = get_object_or_404(User, id=user_id)
+                profile = get_object_or_404(Profile, user=user)
+                profile.balance += amount
+                profile.save()
+                Payment.objects.filter(reference=reference).update(
+                    original_amount=amount,
+                    service_fee=amount * Decimal("0.05"),
+                    final_amount=amount - (amount * Decimal("0.05")),
+                    payment_status="Completed",
+                    status="Completed"
+                )
+            return JsonResponse({
+                "message": "Payment verified. Wallet updated.",
+                "new_balance": str(profile.balance)
+            })
+        return JsonResponse({
+            "error": "Payment verification failed",
+            "details": response_data.get("message", "Unknown error")
+        }, status=400)
+    except requests.RequestException as e:
+        logger.error(f"Payment verification request error: {str(e)}")
+        return JsonResponse({"error": "Failed to connect to payment gateway"}, status=500)
+    except Exception as e:
+        logger.error(f"Payment verification error: {str(e)}")
+        return JsonResponse({"error": "Payment processing failed", "details": str(e)}, status=500)
 
-#                 book = Rooms.objects.get(pk=item.room.id)
-#                 book.paid_order = True
-#                 book.available = False
-#                 book.booked = True
-#                 book.save()
-            
-#             return redirect(rd_url)
-#     return redirect('checkout')
+# ================================================================
+# UI Endpoints
+# ================================================================
+
+@router.get("/payment-page")
+def payment_page(request):
+    """Render the payment initiation HTML page."""
+    return render(request, "payments.html")
+
+@router.get("/payment-completed/")
+def payment_completed(request):
+    """Handle payment completion callback."""
+    reference = request.GET.get("reference")  # For Paystack
+    tx_ref = request.GET.get("tx_ref")         # For Flutterwave
+    return JsonResponse({
+        "message": "Payment completed",
+        "reference": reference or tx_ref,
+        "status": "Success"
+    })

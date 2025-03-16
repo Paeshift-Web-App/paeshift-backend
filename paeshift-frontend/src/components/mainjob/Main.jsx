@@ -85,6 +85,7 @@ const Main = () => {
 
   const [filterState, setFilterState] = useState("");
   const [jobs, setJobs] = useState("")
+  let [profile, setProfile] = useState("");
 
 
   const filterFunction = (e) => {
@@ -97,15 +98,23 @@ const Main = () => {
     // buttons;
   } 
 
-  // useEffect(() => {
+  useEffect(() => {
+    Axios.get("http://localhost:8000/jobs/whoami")
+      .then((response) => {
+        setProfile(response.data);
+        console.log(response.data);
+      })
+      .catch((error) => console.error(error));
+    },[])
 
-  //   Axios.get("http://localhost:8000/Products")
-  //     .then((response) => {
-  //       setProduct(response.data);
-  //     })
-  //     .catch((error) => console.error(error));
-
-
+  useEffect(() => {
+    Axios.get("http://localhost:8000/jobs/clientjobs")
+      .then((response) => {
+        setJobs(response.data.jobs);
+        console.log(response.data.jobs);
+      })
+      .catch((error) => console.error(error));
+    },[])
 
   //   Axios.get("http://localhost:8000/Admin")
   //     .then((response) => {
@@ -174,8 +183,8 @@ const Main = () => {
           <div className="cards jobs">
 
 
-            {JobsData &&
-              JobsData.filter((item) => {
+            {jobs &&
+              jobs.filter((item) => {
                 return searchWork.toLowerCase() === "" ? item.status.toLowerCase().includes(filterState.toLowerCase()) : item.title.toLowerCase().includes(searchWork.toLowerCase());
               }).map((item, key) => {
                 return (
@@ -215,41 +224,62 @@ const Main = () => {
                     </div>
                     <div className="row">
                       <div className="col-6 pe-0"><p>Amount:</p></div>
-                      <div className="col-6"><h4>₦{item.amount}.00</h4></div>
+                      <div className="col-6"><h4>₦{item.rate}.00</h4></div>
                     </div>
                     {
                       item.status === 'upcoming' ?
-                        <div className="bottom">
-                          <span>
-                            <button className="cancel">Cancel</button>
-                          </span>
-                          <span>
-                            <button className="track-btn">Track Location</button>
-                          </span>
-                        </div> :
+                      profile.role === 'client' ?
+                          <div className="bottom">
+                            <button className="track-btn w-100">Start Shift</button>
+                          </div>
+                          :
+                          <div className="bottom">
+                            <span>
+                              <button className="cancel">Cancel</button>
+                            </span>
+                            <span>
+                              <button className="track-btn">Track Location</button>
+                            </span>
+                          </div> :
                         ""
                     }
                     {
                       item.status === 'ongoing' ?
-                        <div className="bottom">
-                          <span>
-                            <button className="cancel">01:59:48</button>
-                          </span>
-                          <span>
-                            <button className="track-btn">Share Location</button>
-                          </span>
-                        </div> :
+
+                      profile.role === 'client' ?
+                          <div className="bottom">
+                            <span>
+                              <button className="cancel">01:59:48</button>
+                            </span>
+                            <span>
+                              <button className="track-btn">End Shift</button>
+                            </span>
+                          </div>
+                          :
+                          <div className="bottom">
+                            <span>
+                              <button className="cancel">01:59:48</button>
+                            </span>
+                            <span>
+                              <button className="track-btn">Share Location</button>
+                            </span>
+                          </div>
+                        :
                         ""
                     }
                     {
                       item.status === 'completed' || item.status === 'canceled' ?
+                        profile.role === 'client' ?
+                          <div className="bottom">
+                          <button className="track-btn w-100" data-bs-toggle="modal" data-bs-target="#feedbackModal" >Feedback Applicant</button>
+                        </div>
+                        :
                         <div className="bottom">
                           <button className="track-btn w-100" data-bs-toggle="modal" data-bs-target="#feedbackModal" >Feedback Client</button>
                         </div>
                         :
                         ""
-                    }
-                  </div>
+                    }                  </div>
                 );
               })
               // JobsData.filter((item) => {

@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React from "react";
+import React, { useState ,useEffect} from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { sidebarRoutes } from "./Sidebarroutes";
 import { applicantSidebarRoutes } from "./Sidebarroutes";
@@ -11,6 +11,7 @@ import { faArrowRightFromBracket } from "@fortawesome/free-solid-svg-icons";
 import { faClose } from "@fortawesome/free-solid-svg-icons/faClose";
 import { userInfo } from "../../atoms/User.jsx";
 import { useRecoilValue, useRecoilState } from "recoil";
+import Axios from "axios";
 
 import "./Sidebar.css";
 
@@ -20,14 +21,26 @@ const Sidebar = () => {
   let user = useRecoilValue(userInfo);
 
   let [signout, setSignout] = useRecoilState(userInfo);
+  let [profile, setProfile] = useState("");
+
   let redir = useNavigate()
+
+  useEffect(() => {
+    Axios.get("http://localhost:8000/jobs/whoami")
+    .then((response) => {
+      setProfile(response.data);
+      // console.log(response.data);
+    })
+    .catch((error) => console.error(error));
+
+    },[])
 
   const handleLogout = () => {
     setSignout({ isLoggedIn: false, data: {} })
     redir("../")
   }
   // console.log(user);
-  console.log(user.data.role);
+  // console.log(user.data.role);
   return (
     <section className="container_sidebar">
       <nav id="sidebarMenu" className="col-12 col-md-4 col-lg-3 col-xl-2 d-lg-block sidebar collapse p-3 p-md-1 p-lg-3 pt-4" >
@@ -104,8 +117,8 @@ const Sidebar = () => {
                 <img src={ProfileImage} alt="profile" />
               </div>
               <div className="profile-info">
-                <h2>Eniola Lucas</h2>
-                <p>Applicant</p>
+                <h2>{profile.username}</h2>
+                <p>{profile.role}</p>
               </div>
             </div>
             <ul className="nav flex-column logout-link">

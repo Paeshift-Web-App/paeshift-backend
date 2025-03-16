@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <title>Job Chat & Location</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
 </head>
 <body>
     <h2>Chat Room for Job #{{ job_id }}</h2>
@@ -15,50 +15,54 @@
     <div id="map" style="height: 500px; width: 100%;"></div>
 
     <script>
-        const jobId = "{{ job_id }}";
-        let chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/${jobId}/`);
-        let locationSocket = new WebSocket(`ws://${window.location.host}/ws/jobs/${jobId}/location/`);
 
-        chatSocket.onmessage = function(event) {
-            let data = JSON.parse(event.data);
-            let sender = data.sender || "Anonymous";
-            let message = data.message || "[No message]";
-            document.getElementById('messages').innerHTML += `<p><b>${sender}:</b> ${message}</p>`;
-        };
-
-        function sendMessage() {
-            let input = document.getElementById("messageInput");
-            let message = input.value.trim();
-            if (message) {
-                chatSocket.send(JSON.stringify({ "message": message }));
-                input.value = "";
+        document.addEventListener("DOMContentLoaded", function() {
+            console.log("✅ Document fully loaded");
+            
+            const jobId = "{{ job_id }}";
+            let chatSocket = new WebSocket(`ws://${window.location.host}/ws/chat/${jobId}/`);
+            let locationSocket = new WebSocket(`ws://${window.location.host}/ws/jobs/${jobId}/location/`);
+        
+            let map = L.map('map').setView([51.505, -0.09], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        
+            let markers = {};
+        
+            locationSocket.onmessage = function(event) {
+                let data = JSON.parse(event.data);
+                let key = data.user;
+                if (markers[key]) {
+                    markers[key].setLatLng([data.latitude, data.longitude]).bindPopup(data.address).openPopup();
+                } else {
+                    markers[key] = L.marker([data.latitude, data.longitude]).addTo(map).bindPopup(data.address).openPopup();
+                }
+            };
+        
+            function sendLocation() {
+                if (!navigator.geolocation) {
+                    console.error("❌ Geolocation is NOT supported by this browser.");
+                    alert("Your browser does not support location sharing.");
+                    return;
+                }
+        
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        console.log("✅ Location permission granted:", position);
+                        locationSocket.send(JSON.stringify({
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude
+                        }));
+                    },
+                    (error) => {
+                        console.error("❌ Location error:", error.message);
+                        alert("Please allow location access in your browser settings.");
+                    },
+                    { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+                );
             }
-        }
-
-        let map = L.map('map').setView([51.505, -0.09], 13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-        let markers = {};
-
-        locationSocket.onmessage = function(event) {
-            let data = JSON.parse(event.data);
-            let key = data.user;
-            if (markers[key]) {
-                markers[key].setLatLng([data.latitude, data.longitude]).bindPopup(data.address).openPopup();
-            } else {
-                markers[key] = L.marker([data.latitude, data.longitude]).addTo(map).bindPopup(data.address).openPopup();
-            }
-        };
-
-        function sendLocation() {
-            navigator.geolocation.getCurrentPosition(position => {
-                locationSocket.send(JSON.stringify({
-                    latitude: position.coords.latitude,
-                    longitude: position.coords.longitude
-                }));
-            });
-        }
-
-        setInterval(sendLocation, 5000);
-    </script>
+        
+            setInterval(sendLocation, 5000);
+        });
+    </script>        
 </body>
 </html>
