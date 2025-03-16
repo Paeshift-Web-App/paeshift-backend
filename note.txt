@@ -1,3 +1,7 @@
+pip install --upgrade channels daphne
+DELETE MIGRATIOns and db
+
+
 
 ### Current Progress Assessment
 ✅ **Completed Foundation**
