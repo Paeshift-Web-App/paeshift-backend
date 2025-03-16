@@ -1,6 +1,6 @@
 
 git add .
-git commit -m "all consumers now working"
+git commit -m "all consumers  and payment working"
 git push origin main
 
 git pull origin main
