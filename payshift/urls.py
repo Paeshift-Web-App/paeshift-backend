@@ -24,7 +24,7 @@ urlpatterns = [
     # App-specific URLs
     path("jobs/", include("jobs.urls")),
     path("jobchat/", include("jobchat.urls")),
-    path("payment/", include("payment.urls")),
+    # path("payment/", include("payment.urls")),
 
     # Ninja API endpoints
     path("api/", api.urls),      # Main API endpoints

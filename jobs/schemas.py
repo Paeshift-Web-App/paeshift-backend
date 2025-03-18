@@ -64,6 +64,8 @@ from datetime import datetime, date, time
 
 class JobDetailSchema(Schema):
     id: int
+    employer_name: Optional[str]
+    
     title: str
     description: str
     status: str
@@ -79,7 +81,6 @@ class JobDetailSchema(Schema):
     employer_name: str  # Client's name
     date_posted: Optional[datetime]  # Job creation timestamp
     updated_at: Optional[datetime]  # Last update timestamp
-    no_of_application: int  # Number of accepted applicants
     applicants_needed: int  # Total applicants required
     job_type: str  # single_day | multiple_days
     shift_type: str  # morning | afternoon | night

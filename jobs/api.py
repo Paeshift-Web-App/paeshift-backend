@@ -353,7 +353,6 @@ def serialize_job(job, include_extra=False):
         "employer_name": job.client.first_name if job.client else "Anonymous",
         "date_posted": job.created_at if job.created_at else None,
         "updated_at": job.updated_at if job.updated_at else None,
-        "no_of_application": job.applicants_accepted.count(),
         "applicants_needed": job.applicants_needed,
         "job_type": job.job_type,
         "shift_type": job.shift_type,

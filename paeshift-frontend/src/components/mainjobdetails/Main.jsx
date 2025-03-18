@@ -160,7 +160,7 @@ const Main = () => {
                     <img className="prof" src={ProfileImage} alt="profile" />
                   </span>
                   <span>
-                    <h4>Eniola Lucas</h4>
+                    <h4>{job.employer_name}</h4>
                     <img src={Stars} alt="profile" /> <span className="rate_score">4.98</span>
                   </span>
                 </span>
@@ -206,7 +206,7 @@ const Main = () => {
             </div>
             <div className="col-6 col-md-3">
               <p>Applicant Needed:</p>
-              <h2>{job.no_of_application}</h2>
+              <h2>{job.applicants_needed}</h2>
             </div>
             <div className="col-6 col-md-3">
               <p>Duration:</p>
