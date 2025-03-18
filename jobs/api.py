@@ -6,6 +6,7 @@ import uuid
 from datetime import datetime
 from typing import List, Optional
 from decimal import Decimal
+from datetime import datetime, timedelta
 
 # ==============================
 # 📌 Django Imports
@@ -106,8 +107,7 @@ def get_related_object(model, field, value):
         return None, JsonResponse({"error": f"{model.__name__} with {field} '{value}' does not exist."}, status=400)
 
 
-
-
+# Adding new helper function for job serialization
 # ----------------------------------------------------------------------
 # Authentication Endpoints
 # ----------------------------------------------------------------------
@@ -334,11 +334,49 @@ def payment(request):
 
 
 
+def serialize_job(job, include_extra=False):
+    """Serialize job object into a dictionary with optional extra fields"""
+    base_data = {
+        "id": job.id,
+        "title": job.title,
+        "description": job.description,
+        "status": job.status,
+        "date": job.date if job.date else None,
+        "start_time": job.start_time if job.start_time else None,
+        "end_time": job.end_time if job.end_time else None,
+        "duration": str(job.duration),  # Ensuring it remains a string
+        "rate": str(job.rate),
+        "location": job.location,
+        "latitude": job.latitude if job.latitude else None,
+        "longitude": job.longitude if job.longitude else None,
+        "is_shift_ongoing": job.is_shift_ongoing,
+        "employer_name": job.client.first_name if job.client else "Anonymous",
+        "date_posted": job.created_at if job.created_at else None,
+        "updated_at": job.updated_at if job.updated_at else None,
+        "no_of_application": job.applicants_accepted.count(),
+        "applicants_needed": job.applicants_needed,
+        "job_type": job.job_type,
+        "shift_type": job.shift_type,
+        "payment_status": job.payment_status,
+        "total_amount": str(job.total_amount),
+        "service_fee": str(job.service_fee),
+        "start_date": job.date if job.date else None,
+        "start_time_str": str(job.start_time) if job.start_time else None,
+        "end_time_str": str(job.end_time) if job.end_time else None
+    }
+
+    return base_data
 
 
+@router.get("/{job_id}", response=JobDetailSchema)
+def job_detail(request, job_id: int):
+    """
+    GET /jobs/<job_id> - Retrieve details for a single job.
+    """
+    job = get_object_or_404(Job, id=job_id)
+    return serialize_job(job)
 
 
-from datetime import datetime, timedelta
 
 @router.post("/create-job", auth=None)
 def create_job(request, payload: CreateJobSchema):
@@ -417,6 +455,8 @@ def create_job(request, payload: CreateJobSchema):
 
 
 
+
+
 @router.get("/clientjobs")
 def get_client_jobs(request, page: int = Query(1, gt=0), page_size: int = Query(50, gt=0)):
     """Retrieve jobs posted by a client with pagination"""
@@ -486,31 +526,15 @@ def get_jobs(request):
 
 
 
-# Adding new helper function for job serialization
-def serialize_job(job, include_extra=False):
-    """Serialize job object into dictionary with optional extra fields"""
-    base_data = {
-        "id": job.id,
-        "title": job.title,
-        "status": job.status,
-        "date": str(job.date) if job.date else "",
-        "start_time": str(job.start_time) if job.start_time else "",
-        "end_time": str(job.end_time) if job.end_time else "",
-        
-        "duration": job.duration,
-        "rate": str(job.rate),
-        "location": job.location
-    }
-    if include_extra:
-        base_data.update({
-            "employerName": job.client.first_name if job.client else "Anonymous",
-            "applicantNeeded": job.applicants_needed,  # Assuming this field exists
-            "startDate": str(job.date) if job.date else "",
-            "startTime": str(job.start_time) if job.start_time else "",
-            "endTime": str(job.end_time) if job.end_time else ""
-            
-        })
-    return base_data
+
+
+
+
+
+
+
+
+
 # ----------------------------------------------------------------------
 # Job Endpoints (continued)
 # ----------------------------------------------------------------------
@@ -627,13 +651,6 @@ def list_job_disputes(request, job_id: int):
         "updated_at": d.updated_at.isoformat()
     } for d in disputes]
 
-
-
-@router.get("/{job_id}", response=JobDetailSchema)  # Dynamic route after
-def job_detail(request, job_id: int):
-    """GET /jobs/<job_id> - Returns details for a single job"""
-    job = get_object_or_404(Job, id=job_id)
-    return serialize_job(job, include_extra=True)
 
 
 

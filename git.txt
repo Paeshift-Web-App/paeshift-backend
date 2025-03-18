@@ -1,6 +1,6 @@
 
 git add .
-git commit -m "all consumers  and payment working"
+git commit -m "Endpoint Consumption by frontend fixed"
 git push origin main
 
 git pull origin main

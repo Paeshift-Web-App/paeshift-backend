@@ -75,6 +75,10 @@ class Payment(models.Model):
         self.final_amount = self.original_amount - self.service_fee
         self.save()
 
+
+
+
+
 # ================================================================
 # Wallet Models
 # ================================================================

@@ -32,7 +32,6 @@ const Sidebar = () => {
       // console.log(response.data);
     })
     .catch((error) => console.error(error));
-
     },[])
 
   const handleLogout = () => {

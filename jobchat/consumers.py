@@ -334,11 +334,3 @@ class PaymentNotificationConsumer(AsyncWebsocketConsumer):
         if self.user.is_authenticated:
             await self.channel_layer.group_discard(self.group_name, self.channel_name)
 
-    async def payment_success(self, event):
-        """Send payment success notification to user"""
-        await self.send(text_data=json.dumps(event))
-
-    @database_sync_to_async
-    def get_user_profile(self):
-        """Fetch user profile from database"""
-        return User.objects.get(id=self.user.id)

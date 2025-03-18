@@ -257,6 +257,33 @@ body {
   }
 
 
+  #applicantProfileModal.come-from-modal.right .card .price a {
+    padding: 0.75rem 1.5rem !important;
+  }
+
+
+  #applicantProfileModal.come-from-modal.right .profile_details h4 {
+    font-size: 1.5rem;
+  }
+
+  #applicantProfileModal.come-from-modal.right .client_data h4 {
+    font-size: 1.5rem;
+  }
+
+  #applicantProfileModal.come-from-modal.right .client_data p {
+    font-size: 0.6rem;
+    line-height: 0.9rem;
+  }
+
+  #applicantProfileModal.come-from-modal.right .tabs ul li {
+    padding: 0rem;
+  }
+
+
+
+
+
+
   #profileModal.come-from-modal.right .card .price a {
     padding: 0.75rem 1.5rem !important;
   }
@@ -559,49 +586,52 @@ body {
 
 
   .dashboard_profile .profile_wrapper {
-    width: 13.5rem;
-    height: 13.5rem;
-    border-radius: 1.5rem;
+    width: 13.5rem !important;
+    height: 13.5rem !important;
+    border-radius: 1.5rem !important;
   }
 
 
 
   .container__data .dashboard_profile h3 {
-    font-size: 2rem;
+    font-size: 2rem !important;
     font-weight: 700;
-    line-height: 2.4rem;
+    line-height: 2.4rem !important;
   }
 
   .container__data .dashboard_profile p {
-    font-size: 0.875rem;
+    font-size: 0.875rem !important;
     font-weight: 500;
-    line-height: 1.5rem;
-    margin-bottom: 0.5rem;
+    line-height: 1.5rem !important;
+    margin-bottom: 0.5rem !important;
   }
 
   .container__data .dashboard_profile .rate_score {
-    font-size: 14px;
-    line-height: 1.5rem;
+    font-size: 14px !important;
+    line-height: 1.5rem !important;
 
   }
 
   .container__data .dashboard_profile h4 {
-    font-size: 14px;
-    line-height: 1.5rem;
+    font-size: 14px !important;
+    line-height: 1.5rem !important;
   }
 
 
 
   .container__data .dashboard_profile .edit-btn {
-    padding: 0.6875rem 1.5rem;
-    width: auto;
+    padding: 0.6875rem 1.5rem !important;
+    width: auto !important;
   }
 
 
 
 
   .container__data .dashboard_user_data .user_data {
-    width: 24%;
+    width: 24% !important;
+  }
+  .container__data .dashboard_admin_data .user_data {
+    width: 24% !important;
   }
 
   .top_title {
@@ -674,6 +704,35 @@ body {
   }
 
   #profileModal.come-from-modal.right.fade.in .modal-dialog {
+    right: 0;
+  }
+
+
+
+
+
+
+  #applicantProfileModal.come-from-modal.right .modal-dialog {
+    position: fixed;
+    width: 100%;
+    height: 109%;
+    top: -25px;
+    transform: translate3d(0%, 0, 0);
+  }
+
+  #applicantProfileModal.come-from-modal.right .modal-content {
+    width: 25rem;
+    height: 90%;
+    overflow-y: auto;
+    border-radius: 1.25rem;
+  }
+
+  #applicantProfileModal.come-from-modal.right.fade .modal-dialog {
+    right: -4rem;
+    transition: opacity 0.3s linear, right 0.3s ease-out;
+  }
+
+  #applicantProfileModal.come-from-modal.right.fade.in .modal-dialog {
     right: 0;
   }
 

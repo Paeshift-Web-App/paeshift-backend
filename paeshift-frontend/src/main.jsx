@@ -32,7 +32,7 @@ import { RecoilRoot } from "recoil";
 const router = createBrowserRouter([
   {
     // id:id++,
-      path: "/jobdetails",
+      path: "/jobdetails/:id",
       element:  <RecoilRoot><JobDetails /></RecoilRoot>
     },
   {

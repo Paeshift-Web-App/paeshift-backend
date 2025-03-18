@@ -70,14 +70,19 @@ def initiate_payment(request, payload: InitiatePaymentSchema):
     except Exception as e:
         return JsonResponse({"error": "Invalid total amount format", "details": str(e)}, status=400)
 
+    # **Calculate service fee (10%) and final amount**
+    service_fee = total_amount * Decimal("0.10")
+    final_amount = total_amount - service_fee
+
+
     # Save payment record before redirecting
     with transaction.atomic():
         payment = Payment.objects.create(
             payer=user,
             job=None,  # Change this if the payment is related to a specific job
             original_amount=total_amount,
-            service_fee=Decimal("0.00"),  # Will be updated later
-            final_amount=total_amount,
+            service_fee=service_fee,
+            final_amount=final_amount,
             pay_code=pay_code,
             payment_status="Pending",
             # payment_method=payload.payment_method.lower(),
@@ -168,7 +173,7 @@ def _process_flutterwave_payment(payload, payment, callback_url):
 def verify_payment(request, reference: str, user_id: int, payment_method: str):
     """
     Verifies the payment with the payment gateway and updates the user's wallet balance.
-    Updates the Payment record from "Pending" to "Completed" upon successful verification.
+    If the payment does not exist, it will create a new record.
     """
     try:
         if payment_method.lower() == "paystack":
@@ -188,22 +193,41 @@ def verify_payment(request, reference: str, user_id: int, payment_method: str):
 
         if response_data.get("status") == "success" and response_data["data"].get("status") == "successful":
             amount = Decimal(response_data["data"]["amount"]) / amount_divisor
+            service_fee = amount * Decimal("0.05")
+            final_amount = amount - service_fee
 
             with transaction.atomic():
                 user = get_object_or_404(User, id=user_id)
                 profile = get_object_or_404(Profile, user=user)
-                profile.balance += amount
-                profile.save()
-                Payment.objects.filter(reference=reference).update(
-                    original_amount=amount,
-                    service_fee=amount * Decimal("0.05"),
-                    final_amount=amount - (amount * Decimal("0.05")),
-                    payment_status="Completed",
-                    status="Completed"
+
+                # **Ensure payment record exists, create if missing**
+                payment, created = Payment.objects.get_or_create(
+                    reference=reference,
+                    defaults={
+                        "payer": user,
+                        "original_amount": amount,
+                        "service_fee": service_fee,
+                        "final_amount": final_amount,
+                        "payment_status": "Completed",
+                        "pay_code": reference,  # Use reference as pay_code if missing
+                    },
                 )
+
+                if not created:  # If payment exists, update its status
+                    payment.payment_status = "Completed"
+                    payment.original_amount = amount
+                    payment.service_fee = service_fee
+                    payment.final_amount = final_amount
+                    payment.save()
+
+                # Update the user's wallet balance
+                profile.balance += final_amount
+                profile.save()
+
             return JsonResponse({
-                "message": "Payment verified. Wallet updated.",
-                "new_balance": str(profile.balance)
+                "message": "Payment verified and recorded.",
+                "new_balance": str(profile.balance),
+                "payment_status": "Completed"
             })
         return JsonResponse({
             "error": "Payment verification failed",
@@ -215,6 +239,9 @@ def verify_payment(request, reference: str, user_id: int, payment_method: str):
     except Exception as e:
         logger.error(f"Payment verification error: {str(e)}")
         return JsonResponse({"error": "Payment processing failed", "details": str(e)}, status=500)
+
+
+
 
 # ================================================================
 # UI Endpoints

@@ -1,0 +1,117 @@
+/* Modal Custom CSS  */
+/* .modal-dialog, */
+#notificationModal.come-from-modal.right .modal-header h1 {
+  font-size: 1.125rem !important;
+  font-family: var(--font-family-body);
+  font-weight: 700;
+  line-height: 1.35rem;
+
+}
+
+#notificationModal.come-from-modal.right .btn-close {
+  border: 1px solid var(--color-text-ash);
+  border-radius: 50%;
+  font-size: 0.625rem;
+}
+
+#notificationModal .title h3 {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 19.2px;
+}
+
+
+
+#notificationModal.come-from-modal.right .modal-body {
+  padding: 1.5rem;
+}
+
+#notificationModal.come-from-modal.right .modal-body .btn-filter {
+  color: var(--primary-purple);
+  padding: 0.5rem;
+  margin-right: 0.4rem;
+  border: 0.1px solid var(--color-text-dark);
+  font-size: 10px;
+  border-radius: 8px;
+  padding: 10px 20px;
+}
+#notificationModal.come-from-modal.right .modal-body .btn-filter:hover {
+  background-color: var(--color-bg-light);
+}
+#notificationModal.come-from-modal.right .modal-body .btn-filter.active {
+  background-color: var(--primary-purple);
+  color: var(--color-text-white);
+}
+
+
+#notificationModal.come-from-modal.right .modal-body .notify_details {
+  padding: 0.5rem;
+  border-radius: 16px;
+  border: 0.5px solid var(--color-bg);
+}
+
+
+
+
+#notificationModal.come-from-modal.right .modal-body .notify_details .values {
+  text-align: right;
+  color: var(--color-text-dark);
+  font-weight: bold;
+}
+
+#notificationModal.come-from-modal.right .modal-body .notify_details .labels {
+  color: var(--color-text-dark);
+  font-weight: bold;
+}
+
+#notificationModal.come-from-modal.right .modal-body .notify_details .labels p,
+#notificationModal.come-from-modal.right .modal-body .notify_details .values p {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--color-text-dark);
+}
+
+#notificationModal.come-from-modal.right .modal-body .notify_details .message p {
+  color: var(--color-text-ash);
+  font-weight: normal;
+}
+
+#notificationModal.come-from-modal.right .modal-body .notify_details .title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+#notificationModal.come-from-modal.right .modal-body .notify_details .profile_wrapper {
+  width: 1.5rem;
+  overflow: hidden;
+  text-align: center;
+}
+
+#notificationModal.come-from-modal.right .modal-body .notify_details .profile_wrapper img {
+  width: 100%;
+}
+
+#notificationModal.come-from-modal.right .modal-body .notify_details .labels button {
+  font-size: 10px;
+  font-weight: 500;
+  background-color: transparent;
+  color: var(--primary-purple);
+}
+
+#notificationModal.come-from-modal.right .modal-body .notify_details .values .datetime {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--color-text-ash);
+}
+
+#notificationModal.come-from-modal.right .modal-body .notify_details .values a {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--primary-purple);
+}
+
+#notificationModal.come-from-modal.right .modal-body .notify_details .notify_icon {
+  font-size: 10px;
+  margin: 0px 4px;
+}

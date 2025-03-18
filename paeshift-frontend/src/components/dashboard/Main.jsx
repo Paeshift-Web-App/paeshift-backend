@@ -188,7 +188,7 @@ const Main = () => {
                       <p>{item.no_of_application} applicant needed</p>
                     </span>
                     <span>
-                      <Link to="../jobdetails" className="btn">View Job Details</Link>
+                      <Link to={`../jobdetails/${item.id}`} className="btn">View Job Details</Link>
                     </span>
                   </div>
                 </div>

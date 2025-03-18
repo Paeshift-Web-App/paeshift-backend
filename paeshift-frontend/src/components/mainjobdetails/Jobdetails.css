@@ -19,6 +19,10 @@
   color: var(--primary-purple);
 }
 
+.icon-phone {
+  font-size: 0.7rem;
+  margin-right: 0.3rem;
+}
 
 .page_title
  .payment-btn {

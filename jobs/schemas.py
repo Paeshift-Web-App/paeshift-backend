@@ -58,10 +58,38 @@ class JobListSchema(Schema):
     date_posted: str
     no_of_application: int
 
-class JobDetailSchema(JobListSchema):
-    applicant_name: Optional[str] = None
-    payment_status: str
-    created_at: Optional[str] = None
+from ninja import Schema
+from typing import Optional
+from datetime import datetime, date, time
+
+class JobDetailSchema(Schema):
+    id: int
+    title: str
+    description: str
+    status: str
+    date: Optional[date]  # Job scheduled date
+    start_time: Optional[time]
+    end_time: Optional[time]
+    duration: str  # Actual worked duration
+    rate: str  # String to prevent floating point issues
+    location: str
+    latitude: Optional[float]
+    longitude: Optional[float]
+    is_shift_ongoing: bool
+    employer_name: str  # Client's name
+    date_posted: Optional[datetime]  # Job creation timestamp
+    updated_at: Optional[datetime]  # Last update timestamp
+    no_of_application: int  # Number of accepted applicants
+    applicants_needed: int  # Total applicants required
+    job_type: str  # single_day | multiple_days
+    shift_type: str  # morning | afternoon | night
+    payment_status: str  # pending, held, completed, etc.
+    total_amount: str  # Total earnings
+    service_fee: str  # Service fee deducted
+    start_date: datetime # Redundant for clarity
+    start_time_str: Optional[str]  # Start time as string
+    end_time_str: Optional[str]  # End time as string
+
 
 
 class CreateJobSchema(Schema):
