@@ -473,7 +473,7 @@ a {
     background-color: var(--color-text-white);
     border-radius: 1.5rem;
     width: 16rem;
-    height: 29.4rem;
+    height: 31.4rem;
     position: absolute;
     top: 1.4rem;
     box-shadow: 1px 1px 10px 1px rgba(128, 128, 128, 0.203);
@@ -483,7 +483,7 @@ a {
     background-color: var(--color-text-white);
     border-radius: 1.5rem;
     width: 18rem;
-    height: 29.4rem;
+    height: 31.4rem;
     position: absolute;
     top: 0.8rem;
     box-shadow: 1px 1px 10px 1px rgba(128, 128, 128, 0.23);
@@ -531,7 +531,7 @@ a {
 .signin_wrapper p {
     font-size: 0.8rem;
     text-align: left;
-    margin: 2rem 0;
+    /* margin: 2rem 0; */
 }
 
 .signin_wrapper p a {
@@ -555,7 +555,7 @@ a {
 
 .signin_form p {
     font-size: 0.75rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0rem;
  }
  
  .signin_form #notification .circle-icon {
@@ -568,7 +568,12 @@ a {
      color: #00923a;
  }
 
-
+.thirdparty_signin {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+    justify-content: center;
+}
 
 
 
@@ -1202,12 +1207,12 @@ a {
 
     .signin_wrapper .bg-card-2 {
         border-radius: 1.5rem;
-        height: 29.5rem;
+        height: 31.5rem;
     }
 
     .signin_wrapper .bg-card-3 {
         border-radius: 1.5rem;
-        height: 29.5rem;
+        height: 31.5rem;
     }
 
 

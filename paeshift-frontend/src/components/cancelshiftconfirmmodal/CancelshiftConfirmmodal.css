@@ -1,0 +1,64 @@
+/* Modal Custom CSS  */
+/* .modal-dialog, */
+#cancelshiftConfirmModal.come-from-modal.right .modal-dialog {
+  top: 100px;
+  padding: 16px !important;
+}
+
+#cancelshiftConfirmModal.come-from-modal.right .modal-dialog .modal-content {
+  padding: 24px !important;
+  border-radius: 24px;
+}
+
+#cancelshiftConfirmModal.come-from-modal.right .modal-dialog .modal-content img {
+  width: 170px;
+  height: 162px;
+}
+
+
+#cancelshiftConfirmModal.come-from-modal.right h1 {
+  font-family: var(--font-family-body);
+  font-weight: 700;
+  font-size: 24px;
+  margin: 1rem auto;
+}
+
+#cancelshiftConfirmModal.come-from-modal.right .btn-close {
+  border: 1px solid var(--color-text-ash);
+  border-radius: 50%;
+  font-size: 0.625rem;
+}
+
+
+.title p {
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 100%;
+  letter-spacing: 0%;
+  text-align: center;
+
+}
+
+#cancelshiftConfirmModal.come-from-modal.right .row button.preview-btn {
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 12px;
+  color: var(--primary-purple);
+  border-radius: 8px;
+  border: 0.5px solid var(--primary-purple);
+  width: 100%;
+  padding: 14px 24px;
+}
+
+#cancelshiftConfirmModal.come-from-modal.right .row button.proceed-btn {
+  line-height: 12px;
+  background-color: var(--primary-purple);
+  color: var(--color-text-white);
+  padding: 14px 24px;
+  border-radius: 8px;
+  width: 100%;
+  font-family: Bricolage Grotesque;
+  font-weight: 500;
+  font-size: 12px;
+
+}
