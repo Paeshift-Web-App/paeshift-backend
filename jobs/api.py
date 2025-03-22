@@ -65,9 +65,76 @@ from django.conf import settings
 from ninja import Router
 
 # ==============================
+# 📌 Standard Library Imports
+# ==============================
+import os
+import uuid
+from datetime import datetime
+from typing import List, Optional
+from decimal import Decimal
+
+# ==============================
+# 📌 Django Imports
+# ==============================
+from django.db import IntegrityError
+from django.db.models import Avg, F
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, render
+from django.conf import settings
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.utils import timezone
+from django.contrib.auth import (
+    authenticate, login, logout, update_session_auth_hash,
+    get_user_model, get_backends
+)
+from django.contrib.auth.hashers import check_password
+from django.utils import timezone
+from django.shortcuts import get_object_or_404
+from django.contrib.auth import get_user_model
+from ninja import Router
+from rest_framework.response import Response
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from jobs.models import Job, Application
+from jobchat.models import LocationHistory
+from math import radians, sin, cos, sqrt, atan
+
+# ==============================
+# 📌 Third-Party Imports
+# ==============================
+from ninja import Router, File, Query
+from ninja.files import UploadedFile
+from ninja.responses import Response
+import requests
+from datetime import datetime, timedelta
+from django.contrib.auth.hashers import make_password
+
+# ==============================
+# 📌 Local Imports (Models & Schemas)
+# ==============================
+from .models import (
+    Job, JobIndustry, JobSubCategory, Profile, Rating, SavedJob, 
+    Application, Dispute
+)
+from .schemas import (
+    LoginSchema, SignupSchema, CreateJobSchema, IndustrySchema,
+    SubCategorySchema, JobDetailSchema, LocationSchema,
+    RatingCreateSchema, DisputeCreateSchema, DisputeUpdateSchema,PasswordResetSchema,PasswordResetRequestSchema
+)
+
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.contrib.auth.models import User
+from django.conf import settings
+from ninja import Router
+
+# ==============================
 # 📌 Initialize Router & User Model
 # ==============================
 router = Router(tags=["Jobs"])
+
 User = get_user_model()
 
 # ==============================
@@ -85,8 +152,7 @@ if not PAYSTACK_SECRET_KEY:
 # Helper Functions
 # ----------------------------------------------------------------------
 
-
-@router.post("/password-reset")
+@router.post("/password-reset", tags=["Auth"])
 def reset_password(request, payload: PasswordResetSchema):
     try:
         uid = force_str(urlsafe_base64_decode(payload.token.split("/")[0]))
@@ -103,10 +169,8 @@ def reset_password(request, payload: PasswordResetSchema):
     except (User.DoesNotExist, ValueError, TypeError):
         return {"error": "Invalid reset link"}, 400
 
-
-
 # ✅ Request Password Reset (Send Email)
-@router.post("/password-reset/request")
+@router.post("/password-reset/request", tags=["Auth"])
 def request_password_reset(request, payload: PasswordResetRequestSchema):
     try:
         user = User.objects.get(email=payload.email)
@@ -126,8 +190,6 @@ def request_password_reset(request, payload: PasswordResetRequestSchema):
     
     except User.DoesNotExist:
         return {"error": "No account found with this email"}, 404
-
-
 
 # =========================================================
 
@@ -162,14 +224,7 @@ def get_related_object(model, field, value):
     except model.DoesNotExist:
         return None, JsonResponse({"error": f"{model.__name__} with {field} '{value}' does not exist."}, status=400)
 
-
-
-
-
-
-router = Router()
-
-@router.get("/whoami")
+@router.get("/whoami", tags=["Auth"])
 def whoami(request):
     """
     GET /jobs/whoami - Returns user's ID, username, role, wallet balance, and reviews.
@@ -212,12 +267,7 @@ def whoami(request):
         "user_reviews": user_reviews,
     })
 
-
-
-
-
-
-@router.post("/login")
+@router.post("/login", tags=["Auth"])
 def login_view(request, payload: LoginSchema):
     """POST /jobs/login - Authenticates and logs in a user"""
     user = authenticate(request, username=payload.email, password=payload.password)
@@ -234,9 +284,7 @@ def login_view(request, payload: LoginSchema):
         return JsonResponse({"success": True})
     return Response({"error": "Invalid credentials"}, status=401)
 
-
-
-@router.post("/signup")
+@router.post("/signup", tags=["Auth"])
 def signup_view(request, payload: SignupSchema):
     """POST /jobs/signup - Creates a new user and profile"""
     try:
@@ -259,10 +307,7 @@ def signup_view(request, payload: SignupSchema):
     except Exception as e:
         return Response({"error": f"Unexpected error: {str(e)}"}, status=500)
 
-
-
-
-@router.post("/logout")
+@router.post("/logout", tags=["Auth"])
 def logout_view(request):
     """POST /jobs/logout - Logs out the current user"""
     user, error = authenticated_user_or_error(request)
@@ -271,7 +316,7 @@ def logout_view(request):
     logout(request)
     return Response({"message": "Logged out successfully"}, status=200)
 
-@router.post("/change-password")
+@router.post("/change-password", tags=["Auth"])
 def change_password(request, oldPassword: str, newPassword: str, confirmPassword: str):
     """POST /jobs/change-password - Changes user's password"""
     user, error = authenticated_user_or_error(request)
@@ -316,7 +361,7 @@ def get_profile(request):
         "profilePicUrl": pic_url
     }
 
-@router.put("/profile")
+@router.put("/profile", tags=["Profile"])
 def update_profile(request, first_name: str = None, last_name: str = None, 
                   email: str = None, file: UploadedFile = File(None)):
     """PUT /jobs/profile - Updates user's profile"""
@@ -345,7 +390,6 @@ def update_profile(request, first_name: str = None, last_name: str = None,
 # Job Endpoints
 # ----------------------------------------------------------------------
 
-
 def get_related_object(model, field, value):
     """
     Helper function to retrieve an object by a specific field.
@@ -360,35 +404,20 @@ def get_related_object(model, field, value):
         )
         return None, error
    
-   
-   
 @router.get("/check-session")
 def check_session(request):
     user_id = request.session.get("_auth_user_id")
     return JsonResponse({"user_id": user_id})
     
-@router.get("/job-industries/", response=list[IndustrySchema])
+@router.get("/job-industries/", response=list[IndustrySchema], tags=["Jobs"])
 def get_job_industries(request):
     return JobIndustry.objects.all()
 
-@router.get("/job-subcategories/", response=list[SubCategorySchema])
+@router.get("/job-subcategories/", response=list[SubCategorySchema], tags=["Jobs"])
 def get_job_subcategories(request):
     return JobSubCategory.objects.all()
 
-
-@router.post("/payment")
-def payment(request):
-    return render(request, 'payment.html')
-
-
-
-
-
-
-
-
-
-@router.post("/create-job", auth=None)
+@router.post("/create-job", auth=None, tags=["Jobs"])
 def create_job(request, payload: CreateJobSchema):
     user_id = request.session.get("_auth_user_id")
     if not user_id:
@@ -461,10 +490,6 @@ def create_job(request, payload: CreateJobSchema):
         "duration": duration_hours  # ✅ Include duration in response
     }, status=201)
 
-
-
-
-
 @router.get("/clientjobs")
 def get_client_jobs(request, page: int = Query(1, gt=0), page_size: int = Query(50, gt=0)):
     """Retrieve jobs posted by a client with pagination"""
@@ -522,17 +547,12 @@ def get_client_jobs(request, page: int = Query(1, gt=0), page_size: int = Query(
         "total_jobs": paginator.count,
     })
 
-
-
-
-
 @router.get("/alljobs")
 def get_jobs(request):
     jobs = Job.objects.all()
     return {"jobs": list(jobs.values("id", "title", "client__username", "duration", "date", "start_time", "end_time", "location", "rate", "applicants_needed"))}
 
-
-
+# ====================================================
 
 def serialize_job(job, include_extra=False):
     """Serialize job object into a dictionary with optional extra fields"""
@@ -567,41 +587,10 @@ def serialize_job(job, include_extra=False):
     return base_data
 
 
-
-# ----------------------------------------------------------------------
-# Job Endpoints (continued)
-# ----------------------------------------------------------------------
-@router.get("/accepted-list")
-def list_accepted_applications(request):
-    """GET /jobs/accepted-list - Returns accepted applications with job details"""
-    apps_qs = Application.objects.filter(is_accepted=True).select_related("job", "applicant")
-    return [{
-        "application_id": app.id,
-        "applicant_name": app.applicant.first_name,
-        "is_accepted": app.is_accepted,
-        "applied_at": str(app.applied_at),
-        "job": serialize_job(app.job),
-        "client_name": app.job.client.first_name if app.job.client else "Unknown Client",
-        "date_posted": "2 days ago",
-        "no_of_application": app.job.no_of_application
-    } for app in apps_qs]
-
-
-@router.get("/industries", response=List[IndustrySchema])
-def list_industries(request):
-    """GET /jobs/industries - Returns all JobIndustry records"""
-    return JobIndustry.objects.all()
-
-@router.get("/subcategories", response=List[SubCategorySchema])
-def list_subcategories(request, industry_id: Optional[int] = None):
-    """GET /jobs/subcategories?industry_id=<ID> - Returns JobSubCategory records"""
-    qs = JobSubCategory.objects.filter(industry_id=industry_id) if industry_id else JobSubCategory.objects.all()
-    return qs
-
 # ----------------------------------------------------------------------
 # Saved Jobs Endpoints
 # ----------------------------------------------------------------------
-@router.post("/save-job/{job_id}")
+@router.post("/save-job/{job_id}", tags=["Jobs"])
 def save_job(request, job_id: str):
     """POST /jobs/save-job/<job_id> - Saves a job for the current user"""
     user, error = authenticated_user_or_error(request)
@@ -615,7 +604,7 @@ def save_job(request, job_id: str):
     message = "Job saved successfully" if created else "Job is already saved"
     return Response({"message": message}, status=201 if created else 200)
 
-@router.delete("/save-job/{job_id}")
+@router.delete("/save-job/{job_id}", tags=["Jobs"])
 def unsave_job(request, job_id: int):
     """DELETE /jobs/save-job/<job_id> - Removes a job from user's saved list"""
     user, error = authenticated_user_or_error(request, "You must be logged in to unsave jobs")
@@ -630,8 +619,6 @@ def unsave_job(request, job_id: int):
         return Response({"error": "You haven't saved this job yet"}, status=404)
     except Exception as e:
         return Response({"error": "An unexpected error occurred"}, status=500)
-
-
 
 @router.get("/saved-jobs", tags=["Jobs"])
 def user_saved_jobs(request):
@@ -668,21 +655,33 @@ def user_saved_jobs(request):
     return JsonResponse({"saved_jobs": saved_jobs_list}, status=200)
 
 
-
-@router.get("/jobs/{job_id}/disputes", tags=["Disputes"])
-def list_job_disputes(request, job_id: int):
-    """GET /jobs/{job_id}/disputes - Lists all disputes for a job"""
-    job = get_object_or_404(Job, pk=job_id)
-    disputes = job.disputes.select_related("created_by").all()
+@router.get("/accepted-list", tags=["Jobs"])
+def list_accepted_applications(request):
+    """GET /jobs/accepted-list - Returns accepted applications with job details"""
+    apps_qs = Application.objects.filter(is_accepted=True).select_related("job", "applicant")
     return [{
-        "id": d.id,
-        "title": d.title,
-        "description": d.description,
-        "status": d.status,
-        "created_by": d.created_by.username,
-        "created_at": d.created_at.isoformat(),
-        "updated_at": d.updated_at.isoformat()
-    } for d in disputes]
+        "application_id": app.id,
+        "applicant_name": app.applicant.first_name,
+        "is_accepted": app.is_accepted,
+        "applied_at": str(app.applied_at),
+        "job": serialize_job(app.job),
+        "client_name": app.job.client.first_name if app.job.client else "Unknown Client",
+        "date_posted": "2 days ago",
+        "no_of_application": app.job.no_of_application
+    } for app in apps_qs]
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -691,8 +690,6 @@ def job_detail(request, job_id: int):
     """GET /jobs/<job_id> - Returns details for a single job"""
     job = get_object_or_404(Job, id=job_id)
     return serialize_job(job, include_extra=True)
-
-
 
 # ----------------------------------------------------------------------
 # Rating Endpoints
@@ -792,6 +789,21 @@ def create_dispute(request, job_id: int, payload: DisputeCreateSchema):
     }, status=201)
 
 
+@router.get("/jobs/{job_id}/disputes", tags=["Disputes"])
+def list_job_disputes(request, job_id: int):
+    """GET /jobs/{job_id}/disputes - Lists all disputes for a job"""
+    job = get_object_or_404(Job, pk=job_id)
+    disputes = job.disputes.select_related("created_by").all()
+    return [{
+        "id": d.id,
+        "title": d.title,
+        "description": d.description,
+        "status": d.status,
+        "created_by": d.created_by.username,
+        "created_at": d.created_at.isoformat(),
+        "updated_at": d.updated_at.isoformat()
+    } for d in disputes]
+    
 @router.get("/disputes/{dispute_id}", tags=["Disputes"])
 def dispute_detail(request, dispute_id: int):
     """GET /jobs/disputes/{dispute_id} - Fetches details for a dispute"""
@@ -857,7 +869,7 @@ def get_job_shifts(request, job_id: int):
     return {"message": f"Shifts for job {job.id} (placeholder)"}
 
 
-@router.post("/jobs/{job_id}/start-shift")
+@router.post("/jobs/{job_id}/start-shift", tags=["Shifts"])
 @permission_classes([IsAuthenticated])
 def start_shift(request, job_id: int):
     """
@@ -875,7 +887,7 @@ def start_shift(request, job_id: int):
     return {"status": "shift_started", "start_time": job.actual_shift_start}
 
 
-@router.post("/jobs/{job_id}/end-shift")
+@router.post("/jobs/{job_id}/end-shift", tags=["Shifts"])
 @permission_classes([IsAuthenticated])
 def end_shift(request, job_id: int):
     """
