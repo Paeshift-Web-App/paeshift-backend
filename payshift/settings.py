@@ -15,6 +15,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-^6*1)&derg*vwfqgex#eocbb0=i2bh7lc8o14zze@3t#8hk2sm"
 DEBUG = True
 ALLOWED_HOSTS = []
+FRONTEND_URL = "http://localhost:5173"  # Change for production
+DEFAULT_FROM_EMAIL = "noreply@yourapp.com"
 
 # -----------------------------
 # MEDIA (UPLOADS) CONFIG
@@ -57,6 +59,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',  # ✅ Keep only one instance of this
     "jobs",
     "jobchat", 
+    "notifications",
     "socialauth",          # Your main Django app
     'payment',
     "rest_framework",

@@ -242,6 +242,65 @@ def verify_payment(request, reference: str, user_id: int, payment_method: str):
 
 
 
+@router.get("/verify-payment/")
+def verify_payment(request, reference: str, user_id: int, payment_method: str):
+    """Verifies payment and updates user balance, then sends a WebSocket notification"""
+    try:
+        if payment_method == "paystack":
+            verify_url = f"https://api.paystack.co/transaction/verify/{reference}"
+            headers = {"Authorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}"}
+            amount_divisor = 100  # Convert from kobo
+        elif payment_method == "flutterwave":
+            verify_url = f"https://api.flutterwave.com/v3/transactions/{reference}/verify"
+            headers = {"Authorization": f"Bearer {settings.FLUTTERWAVE_SECRET_KEY}"}
+            amount_divisor = 1
+        else:
+            return JsonResponse({"error": "Invalid payment method"}, status=400)
+
+        response = requests.get(verify_url, headers=headers)
+        response.raise_for_status()
+        response_data = response.json()
+
+        if response_data.get("status") == "success" and response_data["data"].get("status") == "successful":
+            amount = Decimal(response_data["data"]["amount"]) / amount_divisor
+
+            with transaction.atomic():
+                user = User.objects.get(id=user_id)
+                profile = Profile.objects.get(user=user)
+                profile.balance += amount
+                profile.save()
+
+                Payment.objects.create(
+                    user=user,
+                    amount=amount,
+                    reference=reference,
+                    status="successful",
+                    payment_method=payment_method,
+                )
+
+            # 🔥 Send WebSocket notification to the user
+            from channels.layers import get_channel_layer
+            import asyncio
+
+            channel_layer = get_channel_layer()
+            asyncio.run(channel_layer.group_send(
+                f"user_payments_{user.id}",
+                {
+                    "type": "payment_success",
+                    "message": f"Payment of NGN {amount} verified successfully!",
+                    "new_balance": profile.balance
+                }
+            ))
+
+            return JsonResponse({"message": "Payment verified", "new_balance": profile.balance})
+
+        return JsonResponse({"error": "Payment verification failed"}, status=400)
+
+    except requests.RequestException:
+        return JsonResponse({"error": "Payment gateway error"}, status=500)
+    except User.DoesNotExist:
+        return JsonResponse({"error": "User not found"}, status=404)
+
 
 # ================================================================
 # UI Endpoints

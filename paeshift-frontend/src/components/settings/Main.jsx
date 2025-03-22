@@ -99,7 +99,7 @@ const Main = () => {
 
       Axios.get("http://localhost:8000/jobs/saved-jobs")
         .then((response) => {
-          // setSavedJobs(response.data);
+          savedjobs(response.data);
           console.log(response);
         })
         .catch((error) => console.error(error));

@@ -1,8 +1,9 @@
 from ninja import Schema
-from datetime import datetime
 from decimal import Decimal
 from typing import Optional
 from pydantic import BaseModel
+from datetime import datetime, date, time
+
 # -------------------------------------------------------
 # 1) Location Schema
 # -------------------------------------------------------
@@ -27,6 +28,13 @@ class SignupSchema(Schema):
     role: str
 
 
+class PasswordResetRequestSchema(Schema):
+    email: str
+
+class PasswordResetSchema(Schema):
+    token: str
+    new_password: str
+
 # -------------------------------------------------------
 # 3) User Schema
 # -------------------------------------------------------
@@ -43,24 +51,34 @@ class UserSchema(Schema):
 # -------------------------------------------------------
 # 4) Job Schemas
 # -------------------------------------------------------
+# ✅ Job Schema for structured API responses
 class JobListSchema(Schema):
     id: int
     title: str
-    description: Optional[str] = None
-    client_name: str
+    description: Optional[str] = ""
+    employer_name: str
     status: str
     date: Optional[str] = None
     time: Optional[str] = None
-    duration: Optional[str] = None
-    amount: Decimal = 0.0
+    duration: Optional[str] = "0 hrs"
+    amount: Decimal = Decimal("0.0")
     image: Optional[str] = None
     location: Optional[str] = None
     date_posted: str
     no_of_application: int
-
-from ninja import Schema
-from typing import Optional
-from datetime import datetime, date, time
+    latitude: Optional[float] = 0.0
+    longitude: Optional[float] = 0.0
+    is_shift_ongoing: bool = False
+    updated_at: Optional[str] = None
+    applicants_needed: int = 0
+    job_type: Optional[str] = "Unknown"
+    shift_type: Optional[str] = "Unknown"
+    payment_status: Optional[str] = "Pending"
+    total_amount: Decimal = Decimal("0.0")
+    service_fee: Decimal = Decimal("0.0")
+    start_date: Optional[str] = None
+    start_time_str: Optional[str] = None
+    end_time_str: Optional[str] = None
 
 class JobDetailSchema(Schema):
     id: int

@@ -6,7 +6,6 @@ import uuid
 from datetime import datetime
 from typing import List, Optional
 from decimal import Decimal
-from datetime import datetime, timedelta
 
 # ==============================
 # 📌 Django Imports
@@ -40,6 +39,8 @@ from ninja import Router, File, Query
 from ninja.files import UploadedFile
 from ninja.responses import Response
 import requests
+from datetime import datetime, timedelta
+from django.contrib.auth.hashers import make_password
 
 # ==============================
 # 📌 Local Imports (Models & Schemas)
@@ -51,8 +52,17 @@ from .models import (
 from .schemas import (
     LoginSchema, SignupSchema, CreateJobSchema, IndustrySchema,
     SubCategorySchema, JobDetailSchema, LocationSchema,
-    RatingCreateSchema, DisputeCreateSchema, DisputeUpdateSchema
+    RatingCreateSchema, DisputeCreateSchema, DisputeUpdateSchema,PasswordResetSchema,PasswordResetRequestSchema
 )
+
+
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.contrib.auth.models import User
+from django.conf import settings
+from ninja import Router
 
 # ==============================
 # 📌 Initialize Router & User Model
@@ -74,6 +84,52 @@ if not PAYSTACK_SECRET_KEY:
 # ----------------------------------------------------------------------
 # Helper Functions
 # ----------------------------------------------------------------------
+
+
+@router.post("/password-reset")
+def reset_password(request, payload: PasswordResetSchema):
+    try:
+        uid = force_str(urlsafe_base64_decode(payload.token.split("/")[0]))
+        user = User.objects.get(pk=uid)
+
+        if not default_token_generator.check_token(user, payload.token.split("/")[1]):
+            return {"error": "Invalid or expired token"}, 400
+
+        user.password = make_password(payload.new_password)
+        user.save()
+
+        return {"message": "Password reset successful"}
+    
+    except (User.DoesNotExist, ValueError, TypeError):
+        return {"error": "Invalid reset link"}, 400
+
+
+
+# ✅ Request Password Reset (Send Email)
+@router.post("/password-reset/request")
+def request_password_reset(request, payload: PasswordResetRequestSchema):
+    try:
+        user = User.objects.get(email=payload.email)
+        token = default_token_generator.make_token(user)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+
+        reset_link = f"{settings.FRONTEND_URL}/reset-password/{uid}/{token}/"
+
+        send_mail(
+            "Password Reset Request",
+            f"Click the link to reset your password: {reset_link}",
+            settings.DEFAULT_FROM_EMAIL,
+            [payload.email],
+        )
+
+        return {"message": "Password reset link sent to your email"}
+    
+    except User.DoesNotExist:
+        return {"error": "No account found with this email"}, 404
+
+
+
+# =========================================================
 
 def authenticated_user_or_error(request, message="You must be logged in"):
     """Check if user is authenticated, return user or error response"""
@@ -107,16 +163,9 @@ def get_related_object(model, field, value):
         return None, JsonResponse({"error": f"{model.__name__} with {field} '{value}' does not exist."}, status=400)
 
 
-# Adding new helper function for job serialization
-# ----------------------------------------------------------------------
-# Authentication Endpoints
-# ----------------------------------------------------------------------
-# from django.http import JsonResponse
-# from django.shortcuts import get_object_or_404
-# from django.db.models import Avg
-# from jobs.models import User, Rating
-# from yourapp.models import Profile  # Update "yourapp" to your actual app name if different
-# from ninja import Router
+
+
+
 
 router = Router()
 
@@ -334,46 +383,8 @@ def payment(request):
 
 
 
-def serialize_job(job, include_extra=False):
-    """Serialize job object into a dictionary with optional extra fields"""
-    base_data = {
-        "id": job.id,
-        "title": job.title,
-        "description": job.description,
-        "status": job.status,
-        "date": job.date if job.date else None,
-        "start_time": job.start_time if job.start_time else None,
-        "end_time": job.end_time if job.end_time else None,
-        "duration": str(job.duration),  # Ensuring it remains a string
-        "rate": str(job.rate),
-        "location": job.location,
-        "latitude": job.latitude if job.latitude else None,
-        "longitude": job.longitude if job.longitude else None,
-        "is_shift_ongoing": job.is_shift_ongoing,
-        "employer_name": job.client.first_name if job.client else "Anonymous",
-        "date_posted": job.created_at if job.created_at else None,
-        "updated_at": job.updated_at if job.updated_at else None,
-        "applicants_needed": job.applicants_needed,
-        "job_type": job.job_type,
-        "shift_type": job.shift_type,
-        "payment_status": job.payment_status,
-        "total_amount": str(job.total_amount),
-        "service_fee": str(job.service_fee),
-        "start_date": job.date if job.date else None,
-        "start_time_str": str(job.start_time) if job.start_time else None,
-        "end_time_str": str(job.end_time) if job.end_time else None
-    }
-
-    return base_data
 
 
-@router.get("/{job_id}", response=JobDetailSchema)
-def job_detail(request, job_id: int):
-    """
-    GET /jobs/<job_id> - Retrieve details for a single job.
-    """
-    job = get_object_or_404(Job, id=job_id)
-    return serialize_job(job)
 
 
 
@@ -454,8 +465,6 @@ def create_job(request, payload: CreateJobSchema):
 
 
 
-
-
 @router.get("/clientjobs")
 def get_client_jobs(request, page: int = Query(1, gt=0), page_size: int = Query(50, gt=0)):
     """Retrieve jobs posted by a client with pagination"""
@@ -525,12 +534,37 @@ def get_jobs(request):
 
 
 
+def serialize_job(job, include_extra=False):
+    """Serialize job object into a dictionary with optional extra fields"""
+    base_data = {
+        "id": job.id,
+        "title": job.title,
+        "description": job.description,
+        "status": job.status,
+        "date": job.date if job.date else None,
+        "start_time": job.start_time if job.start_time else None,
+        "end_time": job.end_time if job.end_time else None,
+        "duration": str(job.duration),  # Ensuring it remains a string
+        "rate": str(job.rate),
+        "location": job.location,
+        "latitude": job.latitude if job.latitude else None,
+        "longitude": job.longitude if job.longitude else None,
+        "is_shift_ongoing": job.is_shift_ongoing,
+        "employer_name": job.client.first_name if job.client else "Anonymous",
+        "date_posted": job.created_at if job.created_at else None,
+        "updated_at": job.updated_at if job.updated_at else None,
+        "applicants_needed": job.applicants_needed,
+        "job_type": job.job_type,
+        "shift_type": job.shift_type,
+        "payment_status": job.payment_status,
+        "total_amount": str(job.total_amount),
+        "service_fee": str(job.service_fee),
+        "start_date": job.date if job.date else None,
+        "start_time_str": str(job.start_time) if job.start_time else None,
+        "end_time_str": str(job.end_time) if job.end_time else None
+    }
 
-
-
-
-
-
+    return base_data
 
 
 
@@ -651,6 +685,12 @@ def list_job_disputes(request, job_id: int):
     } for d in disputes]
 
 
+
+@router.get("/{job_id}", response=JobDetailSchema)  # Dynamic route after
+def job_detail(request, job_id: int):
+    """GET /jobs/<job_id> - Returns details for a single job"""
+    job = get_object_or_404(Job, id=job_id)
+    return serialize_job(job, include_extra=True)
 
 
 

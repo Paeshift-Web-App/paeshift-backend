@@ -135,6 +135,7 @@ const Main = () => {
           </button>
         </div>
       </div>
+      
       <section className="container container__data">
         <div className="row m-0 p-0 map_wrapper">
           {/* <div className="col-12 m-0 p-0" style={{ height: '100vh', width: '100%' }}> */}
@@ -148,6 +149,7 @@ const Main = () => {
               <AnyReactComponent lat={11.3970071} lng={5.4847741} text="Google Map" />
             </GoogleMapReact> */}
           </div>
+          
         </div>
 
         {profile.role === "applicant" &&
@@ -206,7 +208,7 @@ const Main = () => {
             </div>
             <div className="col-6 col-md-3">
               <p>Applicant Needed:</p>
-              <h2>{job.applicants_needed}</h2>
+              <h2>{job.no_of_application}</h2>
             </div>
             <div className="col-6 col-md-3">
               <p>Duration:</p>
