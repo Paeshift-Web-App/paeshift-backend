@@ -5,7 +5,7 @@ from django.utils.html import format_html
 from django.contrib.sites.models import Site
 from .models import (
     JobIndustry, JobSubCategory, Job, SavedJob,
-    Application, Dispute, Rating, Profile
+    Application, Dispute, Review, Profile
 )
 
 # Ensure that the Site model is registered only once.
@@ -108,8 +108,8 @@ class DisputeAdmin(admin.ModelAdmin):
     readonly_fields = ("created_at", "updated_at")
     list_per_page = 20
 
-@admin.register(Rating)
-class RatingAdmin(admin.ModelAdmin):
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
     """Admin for Ratings & Reviews."""
     list_display = ("reviewer", "reviewed", "rating", "created_at")
     list_filter = ("rating",)

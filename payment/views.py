@@ -9,11 +9,6 @@ import uuid
 import json
 import requests
 
-from .models import Payment
-
-
-from .models import Payment
-
 def payment_page(request):
     """
     Renders a page displaying Payment records.

@@ -3,9 +3,11 @@
 # ==============================
 import os
 import uuid
-from datetime import datetime
+import requests
+from datetime import datetime, timedelta
 from typing import List, Optional
 from decimal import Decimal
+from math import radians, sin, cos, sqrt, atan2
 
 # ==============================
 # 📌 Django Imports
@@ -21,83 +23,11 @@ from django.contrib.auth import (
     authenticate, login, logout, update_session_auth_hash,
     get_user_model, get_backends
 )
-from django.contrib.auth.hashers import check_password
-from django.utils import timezone
-from django.shortcuts import get_object_or_404
-from django.contrib.auth import get_user_model
-from ninja import Router
-from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from jobs.models import Job, Application
-from jobchat.models import LocationHistory
-from math import radians, sin, cos, sqrt, atan
-# ==============================
-# 📌 Third-Party Imports
-# ==============================
-from ninja import Router, File, Query
-from ninja.files import UploadedFile
-from ninja.responses import Response
-import requests
-from datetime import datetime, timedelta
-from django.contrib.auth.hashers import make_password
-
-# ==============================
-# 📌 Local Imports (Models & Schemas)
-# ==============================
-from .models import (
-    Job, JobIndustry, JobSubCategory, Profile, Rating, SavedJob, 
-    Application, Dispute
-)
-from .schemas import (
-    LoginSchema, SignupSchema, CreateJobSchema, IndustrySchema,
-    SubCategorySchema, JobDetailSchema, LocationSchema,
-    RatingCreateSchema, DisputeCreateSchema, DisputeUpdateSchema,PasswordResetSchema,PasswordResetRequestSchema
-)
-
-
+from django.contrib.auth.hashers import check_password, make_password
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
-from django.contrib.auth.models import User
-from django.conf import settings
-from ninja import Router
-
-# ==============================
-# 📌 Standard Library Imports
-# ==============================
-import os
-import uuid
-from datetime import datetime
-from typing import List, Optional
-from decimal import Decimal
-
-# ==============================
-# 📌 Django Imports
-# ==============================
-from django.db import IntegrityError
-from django.db.models import Avg, F
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, render
-from django.conf import settings
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.utils import timezone
-from django.contrib.auth import (
-    authenticate, login, logout, update_session_auth_hash,
-    get_user_model, get_backends
-)
-from django.contrib.auth.hashers import check_password
-from django.utils import timezone
-from django.shortcuts import get_object_or_404
-from django.contrib.auth import get_user_model
-from ninja import Router
-from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from jobs.models import Job, Application
-from jobchat.models import LocationHistory
-from math import radians, sin, cos, sqrt, atan
 
 # ==============================
 # 📌 Third-Party Imports
@@ -105,37 +35,30 @@ from math import radians, sin, cos, sqrt, atan
 from ninja import Router, File, Query
 from ninja.files import UploadedFile
 from ninja.responses import Response
-import requests
-from datetime import datetime, timedelta
-from django.contrib.auth.hashers import make_password
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 # ==============================
 # 📌 Local Imports (Models & Schemas)
 # ==============================
 from .models import (
-    Job, JobIndustry, JobSubCategory, Profile, Rating, SavedJob, 
-    Application, Dispute
+    Job, JobIndustry, JobSubCategory, Profile, Review, SavedJob, 
+    Application, Dispute, Feedback
 )
 from .schemas import (
     LoginSchema, SignupSchema, CreateJobSchema, IndustrySchema,
     SubCategorySchema, JobDetailSchema, LocationSchema,
-    RatingCreateSchema, DisputeCreateSchema, DisputeUpdateSchema,PasswordResetSchema,PasswordResetRequestSchema
+    ReviewCreateSchema, DisputeCreateSchema, DisputeUpdateSchema,
+    PasswordResetSchema, PasswordResetRequestSchema, FeedbackSchema
 )
-
-from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import send_mail
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes, force_str
-from django.contrib.auth.models import User
-from django.conf import settings
-from ninja import Router
 
 # ==============================
 # 📌 Initialize Router & User Model
 # ==============================
 router = Router(tags=["Jobs"])
-
 User = get_user_model()
+
 
 # ==============================
 # 📌 Paystack Configuration
@@ -247,11 +170,11 @@ def whoami(request):
     badges = profile.badges  # if you want to include any badges
 
     # Compute average rating for the user
-    average_rating = Rating.objects.filter(reviewed=user).aggregate(avg_rating=Avg("rating"))["avg_rating"] or 5.0
+    average_rating = Review.objects.filter(reviewed=user).aggregate(avg_rating=Avg("rating"))["avg_rating"] or 5.0
 
     # Fetch all reviews for the user and serialize them
     user_reviews = list(
-        Rating.objects.filter(reviewed=user).values("reviewer__username", "rating", "feedback", "created_at")
+        Review.objects.filter(reviewed=user).values("reviewer__username", "rating", "feedback", "created_at")
     )
 
     return JsonResponse({
@@ -337,6 +260,13 @@ def get_csrf_token(request):
     from django.middleware.csrf import get_token
     return {"csrf_token": get_token(request)}
 
+
+   
+@router.get("/check-session")
+def check_session(request):
+    user_id = request.session.get("_auth_user_id")
+    return JsonResponse({"user_id": user_id})
+    
 # ----------------------------------------------------------------------
 # User/Profile Endpoints
 # ----------------------------------------------------------------------
@@ -386,9 +316,6 @@ def update_profile(request, first_name: str = None, last_name: str = None,
     user.save()
     return Response({"message": "Profile updated successfully"}, status=200)
 
-# ----------------------------------------------------------------------
-# Job Endpoints
-# ----------------------------------------------------------------------
 
 def get_related_object(model, field, value):
     """
@@ -403,12 +330,11 @@ def get_related_object(model, field, value):
             {"error": f"{model.__name__} with {field} '{value}' does not exist."}, status=400
         )
         return None, error
-   
-@router.get("/check-session")
-def check_session(request):
-    user_id = request.session.get("_auth_user_id")
-    return JsonResponse({"user_id": user_id})
-    
+# ----------------------------------------------------------------------
+# Job Endpoints
+# ----------------------------------------------------------------------
+
+
 @router.get("/job-industries/", response=list[IndustrySchema], tags=["Jobs"])
 def get_job_industries(request):
     return JobIndustry.objects.all()
@@ -692,13 +618,13 @@ def job_detail(request, job_id: int):
     return serialize_job(job, include_extra=True)
 
 # ----------------------------------------------------------------------
-# Rating Endpoints
+# Review Endpoints
 # ----------------------------------------------------------------------
 
 
 # router = Router(tags=["Jobs"])  # attach the router to "Jobs" or "Ratings"
-@router.post("/ratings", tags=["Ratings"], )
-def create_rating(request, payload: RatingCreateSchema):
+@router.post("/ratings", tags=["Review"], )
+def create_rating(request, payload: ReviewCreateSchema):
     """
     POST /jobs/ratings
     Submits a rating for another user.
@@ -711,14 +637,14 @@ def create_rating(request, payload: RatingCreateSchema):
     reviewed_user = get_object_or_404(User, pk=payload.reviewed_id)
 
     # 3) Create the rating
-    new_rating = Rating.objects.create(
+    new_rating = Review.objects.create(
         reviewer=request.user,
         reviewed=reviewed_user,
         rating=payload.rating,
         feedback=payload.feedback or ""
     )
     return {
-        "message": "Rating submitted",
+        "message": "Review submitted",
         "rating_id": new_rating.id
     }
 
@@ -727,15 +653,15 @@ def create_rating(request, payload: RatingCreateSchema):
 
 
 
-@router.get("/ratings/{user_id}", tags=["Ratings"])
+@router.get("/ratings/{user_id}", tags=["Review"])
 def get_user_ratings(request, user_id: int):
     """GET /jobs/ratings/{user_id} - Retrieves all ratings for a user"""
     reviewed_user = get_object_or_404(User, pk=user_id)
-    all_ratings = Rating.objects.filter(reviewed=reviewed_user)
+    all_ratings = Review.objects.filter(reviewed=reviewed_user)
     return {
         "user_id": reviewed_user.id,
         "username": reviewed_user.username,
-        "average_rating": Rating.get_average_rating(reviewed_user),
+        "average_rating": Review.get_average_rating(reviewed_user),
         "ratings": [{
             "id": r.id,
             "reviewer": r.reviewer.username,
@@ -903,4 +829,26 @@ def end_shift(request, job_id: int):
     job.save()
     
     return {"status": "shift_ended", "duration": job.duration}
+
+
+
+
+router = Router(tags=["Feedback"])
+
+@router.post("/feedback")
+def submit_feedback(request, payload: FeedbackSchema):
+    """POST /api/feedback - Submit feedback to PayShift"""
+    user = request.user if request.user.is_authenticated else None
+
+    feedback = Feedback.objects.create(
+        user=user,
+        message=payload.message,
+        rating=payload.rating
+    )
+
+    return JsonResponse({
+        "message": "Feedback submitted successfully",
+        "feedback_id": feedback.id
+    }, status=201)
+
 

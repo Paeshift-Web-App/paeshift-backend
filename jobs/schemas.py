@@ -1,9 +1,8 @@
 from ninja import Schema
 from decimal import Decimal
 from typing import Optional
-from pydantic import BaseModel
 from datetime import datetime, date, time
-
+from pydantic import BaseModel, Field
 # -------------------------------------------------------
 # 1) Location Schema
 # -------------------------------------------------------
@@ -178,10 +177,10 @@ class PaymentDetailSchema(Schema):
 
 
 # -------------------------------------------------------
-# 8) Rating Schema
+# 8) Review Schema
 # -------------------------------------------------------
 
-class RatingSchema(Schema):
+class ReviewSchema(Schema):
     """
     Full rating details, e.g. when returning rating objects to the frontend.
     """
@@ -191,7 +190,7 @@ class RatingSchema(Schema):
     feedback: Optional[str] = None
     created_at: datetime
 
-class RatingCreateSchema(Schema):
+class ReviewCreateSchema(Schema):
     """
     Incoming payload to create a new rating:
       {
@@ -250,3 +249,9 @@ class SubCategorySchema(Schema):
     id: int
     name: str
     industry_id: int  # or industry: IndustrySchema if you want nested detail
+
+    
+    
+class FeedbackSchema(BaseModel):
+    message: str = Field(..., min_length=5, max_length=1000)
+    rating: Optional[int] = Field(5, ge=1, le=5)  # Review from 1 to 5

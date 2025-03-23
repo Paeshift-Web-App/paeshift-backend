@@ -7,7 +7,7 @@ from django.db import models
 from django.utils import timezone
 import django
 from django.core.validators import MinValueValidator, MaxValueValidator
-
+from django.conf import settings
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -214,7 +214,7 @@ class Dispute(models.Model):
 # ------------------------------------------------------
 # 6️⃣ Rating Model
 # ------------------------------------------------------
-class Rating(models.Model):
+class Review(models.Model):
     """User ratings and reviews."""
     reviewer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="given_ratings")
     reviewed = models.ForeignKey(User, on_delete=models.CASCADE, related_name="received_ratings")
@@ -271,3 +271,20 @@ class Profile(models.Model):
             self.save()
             return True
         return False
+
+
+
+class Feedback(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="feedbacks",
+        null=True, blank=True  # Allow anonymous feedback
+    )
+    message = models.TextField()
+    rating = models.IntegerField(default=5)  # Rating from 1 to 5
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Feedback from {self.user.username if self.user else 'Anonymous'}"
+
