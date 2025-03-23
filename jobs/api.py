@@ -832,10 +832,7 @@ def end_shift(request, job_id: int):
 
 
 
-
-router = Router(tags=["Feedback"])
-
-@router.post("/feedback")
+@router.post("/feedback", tags=["Feedback"])
 def submit_feedback(request, payload: FeedbackSchema):
     """POST /api/feedback - Submit feedback to PayShift"""
     user = request.user if request.user.is_authenticated else None
