@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.shortcuts import redirect
 from ninja import NinjaAPI
-# from payment.api import router as payments_router  
+from payment.api import router as payments_router  
 from notifications.api import router as notifications_router  
 
 # ==============================
@@ -16,7 +16,7 @@ app_api = NinjaAPI(title="Other API", version="1.0.0", urls_namespace="otherapi"
 # ==============================
 # 📌 Register API Routers
 # ==============================
-# api.add_router("/payments/", payments_router) 
+api.add_router("/payments/", payments_router) 
 api.add_router("/notifications/", notifications_router)  # ✅ Fixed
 
 # ==============================
