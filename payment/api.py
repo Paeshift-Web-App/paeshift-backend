@@ -8,7 +8,7 @@ from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from ninja import Router, Schema
-
+from .schemas import *
 # Import models – adjust these imports to match your project structure.
 from jobs.models import User, Profile, Job
 from .models import Payment, EscrowPayment  # Use EscrowPayment if needed
@@ -16,17 +16,6 @@ from .models import Payment, EscrowPayment  # Use EscrowPayment if needed
 router = Router(tags=["Payments"])
 logger = logging.getLogger(__name__)
 
-# ================================================================
-# Schemas
-# ================================================================
-
-class InitiatePaymentSchema(Schema):
-    total: float
-    reservation_code: str
-    first_name: str
-    last_name: str
-    phone: str
-    payment_method: str  # "paystack" or "flutterwave"
 
 # ================================================================
 # Helper Function: Make Payment Request
