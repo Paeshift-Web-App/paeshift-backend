@@ -38,7 +38,8 @@ from ninja.responses import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-
+from ninja import Schema
+from ninja.responses import Response
 # ==============================
 # 📌 Local Imports (Models & Schemas)
 # ==============================
@@ -56,7 +57,7 @@ from .schemas import (
 # ==============================
 # 📌 Initialize Router & User Model
 # ==============================
-router = Router(tags=["Jobs"])
+router = Router()
 User = get_user_model()
 
 
@@ -75,46 +76,6 @@ if not PAYSTACK_SECRET_KEY:
 # Helper Functions
 # ----------------------------------------------------------------------
 
-@router.post("/password-reset", tags=["Auth"])
-def reset_password(request, payload: PasswordResetSchema):
-    try:
-        uid = force_str(urlsafe_base64_decode(payload.token.split("/")[0]))
-        user = User.objects.get(pk=uid)
-
-        if not default_token_generator.check_token(user, payload.token.split("/")[1]):
-            return {"error": "Invalid or expired token"}, 400
-
-        user.password = make_password(payload.new_password)
-        user.save()
-
-        return {"message": "Password reset successful"}
-    
-    except (User.DoesNotExist, ValueError, TypeError):
-        return {"error": "Invalid reset link"}, 400
-
-# ✅ Request Password Reset (Send Email)
-@router.post("/password-reset/request", tags=["Auth"])
-def request_password_reset(request, payload: PasswordResetRequestSchema):
-    try:
-        user = User.objects.get(email=payload.email)
-        token = default_token_generator.make_token(user)
-        uid = urlsafe_base64_encode(force_bytes(user.pk))
-
-        reset_link = f"{settings.FRONTEND_URL}/reset-password/{uid}/{token}/"
-
-        send_mail(
-            "Password Reset Request",
-            f"Click the link to reset your password: {reset_link}",
-            settings.DEFAULT_FROM_EMAIL,
-            [payload.email],
-        )
-
-        return {"message": "Password reset link sent to your email"}
-    
-    except User.DoesNotExist:
-        return {"error": "No account found with this email"}, 404
-
-# =========================================================
 
 def authenticated_user_or_error(request, message="You must be logged in"):
     """Check if user is authenticated, return user or error response"""
@@ -127,11 +88,6 @@ def authenticated_user_or_error(request, message="You must be logged in"):
     except Exception as e:
         return None, JsonResponse({"error": "An unexpected error occurred"}, status=500)
     
-def user_profile_pic_path(instance, filename):
-    """Generate unique path for profile pictures"""
-    timestamp = timezone.now().strftime("%Y%m%d_%H%M%S")
-    return os.path.join("profile_pics", f"user_{instance.user.id}", f"{timestamp}_{filename}")
-
 def fetch_all_users():
     """Fetch all users from the database"""
     return list(User.objects.all().values("id", "username", "email", "date_joined"))
@@ -147,7 +103,50 @@ def get_related_object(model, field, value):
     except model.DoesNotExist:
         return None, JsonResponse({"error": f"{model.__name__} with {field} '{value}' does not exist."}, status=400)
 
-@router.get("/whoami", tags=["Auth"])
+
+
+@router.get("/csrf-token")
+def get_csrf_token(request):
+    """GET /jobs/csrf-token - Returns CSRF token"""
+    from django.middleware.csrf import get_token
+    return {"csrf_token": get_token(request)}
+
+
+@router.get("/check-session")
+def check_session(request):
+    user_id = request.session.get("_auth_user_id")
+    return JsonResponse({"user_id": user_id})
+
+
+
+@router.get("/all-users")
+def get_all_users_view(request):
+    """GET /jobs/all-users - Returns list of all users"""
+    return {"users": fetch_all_users()}
+
+
+def get_related_object(model, field, value):
+    """
+    Helper function to retrieve an object by a specific field.
+    Returns a tuple: (object, None) if found, or (None, JsonResponse error) if not.
+    """
+    try:
+        obj = model.objects.get(**{field: value})
+        return obj, None
+    except model.DoesNotExist:
+        error = JsonResponse(
+            {"error": f"{model.__name__} with {field} '{value}' does not exist."}, status=400
+        )
+        return None, error
+
+
+
+
+
+# =========================================================
+
+
+@router.get("/whoami", tags=["User"])
 def whoami(request):
     """
     GET /jobs/whoami - Returns user's ID, username, role, wallet balance, and reviews.
@@ -190,6 +189,61 @@ def whoami(request):
         "user_reviews": user_reviews,
     })
 
+@router.get("/wallet/balance/", tags=["User"])
+def get_wallet_balance(request):
+    """Retrieve the wallet balance for the current authenticated user"""
+    user = request.user
+
+    if not user.is_authenticated:
+        return JsonResponse({"error": "User not authenticated"}, status=403)
+
+    # Ensure the user has a profile with a balance field
+    profile, _ = Profile.objects.get_or_create(user=user)
+
+    return JsonResponse({
+        "user_id": user.id,
+        "wallet_balance": str(profile.balance)  # Convert Decimal to string for JSON response
+    }, status=200)
+   
+@router.post("/password-reset", tags=["Auth"])
+def reset_password(request, payload: PasswordResetSchema):
+    try:
+        uid = force_str(urlsafe_base64_decode(payload.token.split("/")[0]))
+        user = User.objects.get(pk=uid)
+
+        if not default_token_generator.check_token(user, payload.token.split("/")[1]):
+            return {"error": "Invalid or expired token"}, 400
+
+        user.password = make_password(payload.new_password)
+        user.save()
+
+        return {"message": "Password reset successful"}
+    
+    except (User.DoesNotExist, ValueError, TypeError):
+        return {"error": "Invalid reset link"}, 400
+
+@router.post("/password-reset/request", tags=["Auth"])
+def request_password_reset(request, payload: PasswordResetRequestSchema):
+    try:
+        user = User.objects.get(email=payload.email)
+        token = default_token_generator.make_token(user)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+
+        reset_link = f"{settings.FRONTEND_URL}/reset-password/{uid}/{token}/"
+
+        send_mail(
+            "Password Reset Request",
+            f"Click the link to reset your password: {reset_link}",
+            settings.DEFAULT_FROM_EMAIL,
+            [payload.email],
+        )
+
+        return {"message": "Password reset link sent to your email"}
+    
+    except User.DoesNotExist:
+        return {"error": "No account found with this email"}, 404
+
+    
 @router.post("/login", tags=["Auth"])
 def login_view(request, payload: LoginSchema):
     """POST /jobs/login - Authenticates and logs in a user"""
@@ -254,28 +308,14 @@ def change_password(request, oldPassword: str, newPassword: str, confirmPassword
     update_session_auth_hash(request, user)
     return Response({"message": "Password changed successfully"}, status=200)
 
-@router.get("/csrf-token")
-def get_csrf_token(request):
-    """GET /jobs/csrf-token - Returns CSRF token"""
-    from django.middleware.csrf import get_token
-    return {"csrf_token": get_token(request)}
 
-
-   
-@router.get("/check-session")
-def check_session(request):
-    user_id = request.session.get("_auth_user_id")
-    return JsonResponse({"user_id": user_id})
     
 # ----------------------------------------------------------------------
 # User/Profile Endpoints
 # ----------------------------------------------------------------------
-@router.get("/all-users")
-def get_all_users_view(request):
-    """GET /jobs/all-users - Returns list of all users"""
-    return {"users": fetch_all_users()}
 
-@router.get("/profile")
+
+@router.get("/profile", tags=["Profile"])
 def get_profile(request):
     """GET /jobs/profile - Fetches current user's profile info"""
     user, error = authenticated_user_or_error(request)
@@ -291,7 +331,7 @@ def get_profile(request):
         "profilePicUrl": pic_url
     }
 
-@router.put("/profile", tags=["Profile"])
+@router.put("/profile/update", tags=["Profile"])
 def update_profile(request, first_name: str = None, last_name: str = None, 
                   email: str = None, file: UploadedFile = File(None)):
     """PUT /jobs/profile - Updates user's profile"""
@@ -317,22 +357,43 @@ def update_profile(request, first_name: str = None, last_name: str = None,
     return Response({"message": "Profile updated successfully"}, status=200)
 
 
-def get_related_object(model, field, value):
-    """
-    Helper function to retrieve an object by a specific field.
-    Returns a tuple: (object, None) if found, or (None, JsonResponse error) if not.
-    """
-    try:
-        obj = model.objects.get(**{field: value})
-        return obj, None
-    except model.DoesNotExist:
-        error = JsonResponse(
-            {"error": f"{model.__name__} with {field} '{value}' does not exist."}, status=400
-        )
-        return None, error
+
 # ----------------------------------------------------------------------
 # Job Endpoints
 # ----------------------------------------------------------------------
+
+def serialize_job(job, include_extra=False):
+    """Serialize job object into a dictionary with optional extra fields"""
+    base_data = {
+        "id": job.id,
+        "title": job.title,
+        "description": job.description,
+        "status": job.status,
+        "date": job.date if job.date else None,
+        "start_time": job.start_time if job.start_time else None,
+        "end_time": job.end_time if job.end_time else None,
+        "duration": str(job.duration),  # Ensuring it remains a string
+        "rate": str(job.rate),
+        "location": job.location,
+        "latitude": job.latitude if job.latitude else None,
+        "longitude": job.longitude if job.longitude else None,
+        "is_shift_ongoing": job.is_shift_ongoing,
+        "employer_name": job.client.first_name if job.client else "Anonymous",
+        "date_posted": job.created_at if job.created_at else None,
+        "updated_at": job.updated_at if job.updated_at else None,
+        "applicants_needed": job.applicants_needed,
+        "job_type": job.job_type,
+        "shift_type": job.shift_type,
+        "payment_status": job.payment_status,
+        "total_amount": str(job.total_amount),
+        "service_fee": str(job.service_fee),
+        "start_date": job.date if job.date else None,
+        "start_time_str": str(job.start_time) if job.start_time else None,
+        "end_time_str": str(job.end_time) if job.end_time else None
+    }
+
+    return base_data
+
 
 
 @router.get("/job-industries/", response=list[IndustrySchema], tags=["Jobs"])
@@ -343,7 +404,191 @@ def get_job_industries(request):
 def get_job_subcategories(request):
     return JobSubCategory.objects.all()
 
-@router.post("/create-job", auth=None, tags=["Jobs"])
+
+
+@router.get("/alljobs",tags=["Jobs"])
+def get_jobs(request):
+    jobs = Job.objects.all()
+    return {"jobs": list(jobs.values("id", "title", "client__username", "duration", "date", "start_time", "end_time", "location", "rate", "applicants_needed"))}
+
+
+@router.get("/{job_id}", response=JobDetailSchema,tags=["Jobs"])  # Dynamic route after
+def job_detail(request, job_id: int):
+    """GET /jobs/<job_id> - Returns details for a single job"""
+    job = get_object_or_404(Job, id=job_id)
+    return serialize_job(job, include_extra=True)
+
+
+# ----------------------------------------------------------------------
+#  Client Job Endpoints
+# ----------------------------------------------------------------------
+
+
+
+
+
+@router.get("/clientjobs/details/", tags=["Client Jobs"])
+def get_client_jobs_details(request, page: int = Query(1, gt=0), page_size: int = Query(50, gt=0)):
+    """
+    ✅ GET /clientjobs/details/
+    Retrieves **detailed** job postings by the logged-in client.
+    """
+    # Authenticate user
+    user_id = request.session.get("_auth_user_id")
+    if not user_id:
+        return JsonResponse({"error": "User not authenticated"}, status=403)
+
+    user = get_object_or_404(User, id=user_id)
+
+    # Fetch jobs created by the authenticated client
+    qs = Job.objects.filter(client=user).order_by("-date")
+
+    # Paginate results
+    paginator = Paginator(qs, page_size)
+    try:
+        jobs_page = paginator.page(page)
+    except PageNotAnInteger:
+        jobs_page = paginator.page(1)
+    except EmptyPage:
+        jobs_page = []  # Return empty list if page is out of range
+
+    # Serialize job data
+    jobs_data = []
+    for job in jobs_page:
+        duration_hours = (
+            ((job.actual_shift_end - job.actual_shift_start).total_seconds() / 3600)
+            if job.actual_shift_start and job.actual_shift_end
+            else None
+        )
+
+        jobs_data.append({
+            "id": job.id,
+            "title": job.title,
+            "description": job.description,
+            "industry": job.industry.name if job.industry else None,
+            "subcategory": job.subcategory.name if job.subcategory else None,
+            "client_username": job.client.username,
+            "date_posted": job.created_at.strftime("%Y-%m-%d"),
+            "date": job.date.isoformat(),
+            "start_time": job.start_time.isoformat() if job.start_time else None,
+            "end_time": job.end_time.isoformat() if job.end_time else None,
+            "location": job.location,
+            "rate": str(job.rate),  # Convert Decimal to string
+            "applicants_needed": job.applicants_needed,
+            "status": job.status,
+            "payment_status": job.payment_status,
+            "total_duration_hours": round(duration_hours, 2) if duration_hours else "Not started",
+        })
+
+    return JsonResponse({
+        "jobs": jobs_data,
+        "page": page,
+        "total_pages": paginator.num_pages,
+        "total_jobs": paginator.count,
+    }, status=200)
+
+
+
+@router.get("/clientjobs/details/{client_id}/", tags=["Client Jobs"])
+def get_client_jobs_by_id(request, client_id: int, page: int = Query(1, gt=0), page_size: int = Query(50, gt=0)):
+    """
+    ✅ GET /clientjobs/details/{client_id}/
+    Retrieves **detailed** job postings by a specific client.
+    """
+    # Fetch client user object
+    client = get_object_or_404(User, id=client_id)
+
+    # Fetch jobs created by the given client
+    qs = Job.objects.filter(client=client).order_by("-date")
+
+    # Paginate results
+    paginator = Paginator(qs, page_size)
+    try:
+        jobs_page = paginator.page(page)
+    except PageNotAnInteger:
+        jobs_page = paginator.page(1)
+    except EmptyPage:
+        jobs_page = []  # Return empty list if page is out of range
+
+    # Serialize job data
+    jobs_data = []
+    for job in jobs_page:
+        duration_hours = (
+            ((job.actual_shift_end - job.actual_shift_start).total_seconds() / 3600)
+            if job.actual_shift_start and job.actual_shift_end
+            else None
+        )
+
+        jobs_data.append({
+            "id": job.id,
+            "title": job.title,
+            "description": job.description,
+            "industry": job.industry.name if job.industry else None,
+            "subcategory": job.subcategory.name if job.subcategory else None,
+            "client_username": job.client.username,
+            "date_posted": job.created_at.strftime("%Y-%m-%d"),
+            "date": job.date.isoformat(),
+            "start_time": job.start_time.isoformat() if job.start_time else None,
+            "end_time": job.end_time.isoformat() if job.end_time else None,
+            "location": job.location,
+            "rate": str(job.rate),  # Convert Decimal to string
+            "applicants_needed": job.applicants_needed,
+            "status": job.status,
+            "payment_status": job.payment_status,
+            "total_duration_hours": round(duration_hours, 2) if duration_hours else "Not started",
+        })
+
+    return JsonResponse({
+        "client_id": client.id,
+        "client_username": client.username,
+        "jobs": jobs_data,
+        "page": page,
+        "total_pages": paginator.num_pages,
+        "total_jobs": paginator.count,
+    }, status=200)
+
+
+@router.get("/client/workers/list/{client_id}/", tags=["Client Jobs"])
+def get_applicants_worked_with(request, client_id: int):
+    """
+    ✅ GET /client/workers/list/{client_id}/
+    Retrieves a list of **applicants (workers)** who have worked with a given client.
+    """
+
+    # Fetch the client user object
+    client = get_object_or_404(User, id=client_id)
+
+    # Query jobs that the client has completed (status = "completed")
+    completed_jobs = Job.objects.filter(client=client, status="completed")
+
+    # Get unique applicants who worked on these jobs
+    applicants = User.objects.filter(application__job__in=completed_jobs, application__status="accepted").distinct()
+
+    # Serialize the applicant data
+    applicants_list = [
+        {
+            "applicant_id": applicant.id,
+            "username": applicant.username,
+            "full_name": f"{applicant.first_name} {applicant.last_name}",
+            "email": applicant.email,
+            "date_joined": applicant.date_joined.strftime("%Y-%m-%d"),
+            "total_jobs_worked": Application.objects.filter(applicant=applicant, status="accepted").count(),
+        }
+        for applicant in applicants
+    ]
+
+    return JsonResponse({
+        "client_id": client.id,
+        "client_username": client.username,
+        "total_applicants": len(applicants_list),
+        "applicants": applicants_list
+    }, status=200)
+
+
+
+
+
+@router.post("/create-job", auth=None, tags=["Job Management"])
 def create_job(request, payload: CreateJobSchema):
     user_id = request.session.get("_auth_user_id")
     if not user_id:
@@ -416,149 +661,87 @@ def create_job(request, payload: CreateJobSchema):
         "duration": duration_hours  # ✅ Include duration in response
     }, status=201)
 
-@router.get("/clientjobs")
-def get_client_jobs(request, page: int = Query(1, gt=0), page_size: int = Query(50, gt=0)):
-    """Retrieve jobs posted by a client with pagination"""
-    
-    # Authenticate user
-    user_id = request.session.get("_auth_user_id")
-    if not user_id:
-        # Fallback: Use first available user for testing
-        user = User.objects.first()
-        if not user:
-            return JsonResponse({"error": "No users available for testing"}, status=500)
-    else:
-        user = get_object_or_404(User, id=user_id)
-    
-    # Query jobs for the authenticated client
-    qs = Job.objects.filter(client_id=user.id).order_by("-date")
 
-    # Paginate results
-    paginator = Paginator(qs, page_size)
-    try:
-        jobs_page = paginator.page(page)
-    except PageNotAnInteger:
-        jobs_page = paginator.page(1)
-    except EmptyPage:
-        jobs_page = []  # Empty page, return empty list
 
-    # Serialize jobs manually (since duration is a computed property)
-    jobs_data = []
-    for job in jobs_page:
-        duration_hours = (
-            ((job.actual_shift_end - job.actual_shift_start).total_seconds() / 3600)
-            if job.actual_shift_start and job.actual_shift_end
-            else None
-        )
 
-        jobs_data.append({
-            "id": job.id,
-            "title": job.title,
-            "client_username": job.client.username,
-            "duration": round(duration_hours, 2) if duration_hours else "Not started",
-            "date": job.date.isoformat(),
-            "start_time": job.start_time.isoformat() if job.start_time else None,
-            "end_time": job.end_time.isoformat() if job.end_time else None,
-            "location": job.location,
-            "rate": str(job.rate),  # Convert Decimal to string for JSON compatibility
-            "applicants_needed": job.applicants_needed,
-            "status": job.status,
-            "payment_status": job.payment_status,
-        })
-    
+@router.put("/job/cancel/{job_id}/", tags=["Job Management"])
+def cancel_job(request, job_id: int):
+    """
+    ✅ PUT /job/cancel/{job_id}/
+    Updates the status of a job to 'canceled'.
+    """
+
+    user = request.user
+
+    if not user.is_authenticated:
+        return JsonResponse({"error": "User not authenticated"}, status=403)
+
+    # Get the job and check if the user is the owner (client)
+    job = get_object_or_404(Job, id=job_id)
+
+    if job.client != user:
+        return JsonResponse({"error": "You do not have permission to cancel this job"}, status=403)
+
+    # Ensure the job can be canceled (it shouldn't be completed or already canceled)
+    if job.status in ["completed", "canceled"]:
+        return JsonResponse({"error": f"Job is already {job.status}"}, status=400)
+
+    # Update job status to 'canceled'
+    job.status = "canceled"
+    job.save()
+
     return JsonResponse({
-        "jobs": jobs_data,
-        "page": page,
-        "total_pages": paginator.num_pages,
-        "total_jobs": paginator.count,
-    })
+        "message": "Job has been successfully canceled",
+        "job_id": job.id,
+        "new_status": job.status
+    }, status=200)
 
-@router.get("/alljobs")
-def get_jobs(request):
-    jobs = Job.objects.all()
-    return {"jobs": list(jobs.values("id", "title", "client__username", "duration", "date", "start_time", "end_time", "location", "rate", "applicants_needed"))}
 
-# ====================================================
 
-def serialize_job(job, include_extra=False):
-    """Serialize job object into a dictionary with optional extra fields"""
-    base_data = {
-        "id": job.id,
-        "title": job.title,
-        "description": job.description,
-        "status": job.status,
-        "date": job.date if job.date else None,
-        "start_time": job.start_time if job.start_time else None,
-        "end_time": job.end_time if job.end_time else None,
-        "duration": str(job.duration),  # Ensuring it remains a string
-        "rate": str(job.rate),
-        "location": job.location,
-        "latitude": job.latitude if job.latitude else None,
-        "longitude": job.longitude if job.longitude else None,
-        "is_shift_ongoing": job.is_shift_ongoing,
-        "employer_name": job.client.first_name if job.client else "Anonymous",
-        "date_posted": job.created_at if job.created_at else None,
-        "updated_at": job.updated_at if job.updated_at else None,
-        "applicants_needed": job.applicants_needed,
-        "job_type": job.job_type,
-        "shift_type": job.shift_type,
-        "payment_status": job.payment_status,
-        "total_amount": str(job.total_amount),
-        "service_fee": str(job.service_fee),
-        "start_date": job.date if job.date else None,
-        "start_time_str": str(job.start_time) if job.start_time else None,
-        "end_time_str": str(job.end_time) if job.end_time else None
-    }
 
-    return base_data
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # ----------------------------------------------------------------------
 # Saved Jobs Endpoints
 # ----------------------------------------------------------------------
-@router.post("/save-job/{job_id}", tags=["Jobs"])
-def save_job(request, job_id: str):
-    """POST /jobs/save-job/<job_id> - Saves a job for the current user"""
-    user, error = authenticated_user_or_error(request)
 
-    job, error = get_related_object(Job, "pk", job_id)  # ✅ Fix: Removed extra argument
 
-    if error:
-        return error
-    
-    saved_job, created = SavedJob.objects.get_or_create(user=user, job=job)
-    message = "Job saved successfully" if created else "Job is already saved"
-    return Response({"message": message}, status=201 if created else 200)
 
-@router.delete("/save-job/{job_id}", tags=["Jobs"])
-def unsave_job(request, job_id: int):
-    """DELETE /jobs/save-job/<job_id> - Removes a job from user's saved list"""
-    user, error = authenticated_user_or_error(request, "You must be logged in to unsave jobs")
-    if error:
-        return error
-
-    try:
-        saved_record = SavedJob.objects.get(user=user, job_id=job_id)
-        saved_record.delete()
-        return Response({"message": "Job unsaved successfully"}, status=200)
-    except SavedJob.DoesNotExist:
-        return Response({"error": "You haven't saved this job yet"}, status=404)
-    except Exception as e:
-        return Response({"error": "An unexpected error occurred"}, status=500)
-
-@router.get("/saved-jobs", tags=["Jobs"])
+# ✅ Get all saved jobs
+@router.get("/saved-jobs/", tags=["Saved Jobs"])
 def user_saved_jobs(request):
-    """
-    GET /jobs/saved-jobs - Lists all saved jobs for the authenticated user.
-    """
-    user_id = request.session.get("_auth_user_id")
-    if not user_id:
-        user = User.objects.first()  # Use a test user if session is missing
-        if not user:
-            return JsonResponse({"error": "No users available for testing"}, status=500)
-    else:
-        user = get_object_or_404(User, id=user_id)
-    # Use the authenticated user (from session) in the query
+    """GET /api/saved-jobs/ - Lists all saved jobs for the authenticated user."""
+    user = request.user
+
+    if not user.is_authenticated:
+        return JsonResponse({"error": "User not authenticated"}, status=403)
+
     saved_records = SavedJob.objects.filter(user=user).select_related("job")
 
     saved_jobs_list = [
@@ -566,6 +749,7 @@ def user_saved_jobs(request):
             "saved_job_id": record.id,
             "saved_at": record.saved_at.strftime("%Y-%m-%d %H:%M:%S"),
             "job": {
+                "id": record.job.id,
                 "title": record.job.title,
                 "industry": record.job.industry.name if record.job.industry else None,
                 "subcategory": record.job.subcategory.name if record.job.subcategory else None,
@@ -581,48 +765,69 @@ def user_saved_jobs(request):
     return JsonResponse({"saved_jobs": saved_jobs_list}, status=200)
 
 
-@router.get("/accepted-list", tags=["Jobs"])
-def list_accepted_applications(request):
-    """GET /jobs/accepted-list - Returns accepted applications with job details"""
-    apps_qs = Application.objects.filter(is_accepted=True).select_related("job", "applicant")
-    return [{
-        "application_id": app.id,
-        "applicant_name": app.applicant.first_name,
-        "is_accepted": app.is_accepted,
-        "applied_at": str(app.applied_at),
-        "job": serialize_job(app.job),
-        "client_name": app.job.client.first_name if app.job.client else "Unknown Client",
-        "date_posted": "2 days ago",
-        "no_of_application": app.job.no_of_application
-    } for app in apps_qs]
 
 
+# ✅ Save a job
+@router.post("/saved-jobs/add/{job_id}/", tags=["Saved Jobs"])
+def save_job(request, job_id: int):
+    """
+    ✅ POST /jobs/saved-jobs/add/{job_id}/
+    Saves a job for the authenticated user.
+    """
+    user = request.user
+    if not user.is_authenticated:
+        return Response({"error": "User not authenticated"}, status=403)  
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-@router.get("/{job_id}", response=JobDetailSchema)  # Dynamic route after
-def job_detail(request, job_id: int):
-    """GET /jobs/<job_id> - Returns details for a single job"""
     job = get_object_or_404(Job, id=job_id)
-    return serialize_job(job, include_extra=True)
+
+    if SavedJob.objects.filter(user=user, job=job).exists():
+        return Response({"error": "Job already saved"}, status=400)  
+
+    SavedJob.objects.create(user=user, job=job)
+    return Response({"message": "Job saved successfully"}, status=201)
+
+
+# ✅ Delete a saved job
+@router.delete("/saved-jobs/delete/{job_id}/", tags=["Saved Jobs"])
+def unsave_job(request, job_id: int):
+    """DELETE /api/saved-jobs/delete/{job_id}/ - Removes a job from user's saved list"""
+    user = request.user
+
+    if not user.is_authenticated:
+        return Response({"error": "User not authenticated"}, status=403)
+
+    try:
+        saved_record = SavedJob.objects.get(user=user, job_id=job_id)
+        saved_record.delete()
+        return Response({"message": "Job unsaved successfully"}, status=200)
+    except SavedJob.DoesNotExist:
+        return Response({"error": "You haven't saved this job yet"}, status=404)
+    except Exception as e:
+        return Response({"error": "An unexpected error occurred"}, status=500)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # ----------------------------------------------------------------------
 # Review Endpoints
 # ----------------------------------------------------------------------
 
 
-# router = Router(tags=["Jobs"])  # attach the router to "Jobs" or "Ratings"
+
+
 @router.post("/ratings", tags=["Review"], )
 def create_rating(request, payload: ReviewCreateSchema):
     """
@@ -649,8 +854,40 @@ def create_rating(request, payload: ReviewCreateSchema):
     }
 
 
+@router.get("/applicant/reviews/{applicant_id}/", tags=["Review"])
+def get_applicant_reviews(request, applicant_id: int):
+    """
+    ✅ GET /applicant/reviews/{applicant_id}/
+    Retrieves all **ratings & reviews** for a specific applicant.
+    """
 
+    # Fetch the applicant user object
+    applicant = get_object_or_404(User, id=applicant_id)
 
+    # Get all reviews where this applicant was reviewed
+    reviews = Review.objects.filter(reviewed=applicant).select_related("reviewer")
+
+    # Calculate the applicant's **average rating**
+    average_rating = reviews.aggregate(avg_rating=Avg("rating"))["avg_rating"] or 0.0
+
+    # Serialize review data
+    review_list = [
+        {
+            "reviewer": review.reviewer.username,
+            "rating": review.rating,
+            "feedback": review.feedback,
+            "created_at": review.created_at.strftime("%Y-%m-%d %H:%M:%S")
+        }
+        for review in reviews
+    ]
+
+    return JsonResponse({
+        "applicant_id": applicant.id,
+        "applicant_username": applicant.username,
+        "average_rating": round(average_rating, 2),
+        "total_reviews": reviews.count(),
+        "reviews": review_list
+    }, status=200)
 
 
 @router.get("/ratings/{user_id}", tags=["Review"])
@@ -670,6 +907,137 @@ def get_user_ratings(request, user_id: int):
             "created_at": r.created_at.isoformat()
         } for r in all_ratings]
     }
+
+
+
+
+
+# ----------------------------------------------------------------------
+# Applicant Clients Endpoints
+# ----------------------------------------------------------------------
+
+
+@router.get("/applicant/clients/list/{applicant_id}/", tags=["Applicant Clients"])
+def get_clients_worked_with(request, applicant_id: int):
+    """
+    ✅ GET /applicant/clients/list/{applicant_id}/
+    Retrieves a list of **clients** an applicant has worked with.
+    """
+
+    # Fetch the applicant user object
+    applicant = get_object_or_404(User, id=applicant_id)
+
+    # Get distinct clients the applicant has worked with based on completed jobs
+    clients = (
+        Job.objects.filter(status="completed", applications__applicant=applicant)
+        .values("client__id", "client__username", "client__first_name", "client__last_name")
+        .distinct()
+    )
+
+    # Convert the queryset to a list of dictionaries
+    clients_list = [
+        {
+            "client_id": client["client__id"],
+            "client_username": client["client__username"],
+            "client_name": f"{client['client__first_name']} {client['client__last_name']}".strip(),
+        }
+        for client in clients
+    ]
+
+    return JsonResponse({
+        "applicant_id": applicant.id,
+        "applicant_username": applicant.username,
+        "total_clients_worked_with": len(clients_list),
+        "clients": clients_list
+    }, status=200)
+
+
+@router.get("/applicant/jobs/details/{applicant_id}/", tags=["Applicant Jobs"])
+def get_jobs_applied_by_applicant(request, applicant_id: int):
+    """
+    ✅ GET /applicant/jobs/details/{applicant_id}/
+    Retrieves **all jobs an applicant has applied for**, including job details.
+    """
+
+    # Fetch the applicant user object
+    applicant = get_object_or_404(User, id=applicant_id)
+
+    # Get jobs where the applicant has submitted an application
+    applied_jobs = (
+        Job.objects.filter(applications__applicant=applicant)
+        .select_related("client", "industry", "subcategory")
+        .order_by("-date")
+    )
+
+    # Convert queryset to list of job details
+    jobs_list = [
+        {
+            "job_id": job.id,
+            "title": job.title,
+            "industry": job.industry.name if job.industry else None,
+            "subcategory": job.subcategory.name if job.subcategory else None,
+            "client_id": job.client.id,
+            "client_username": job.client.username,
+            "client_name": f"{job.client.first_name} {job.client.last_name}".strip(),
+            "date": job.date.isoformat(),
+            "start_time": job.start_time.isoformat() if job.start_time else None,
+            "end_time": job.end_time.isoformat() if job.end_time else None,
+            "location": job.location,
+            "rate": str(job.rate),  # Convert Decimal to string for JSON
+            "status": job.status,
+            "payment_status": job.payment_status,
+        }
+        for job in applied_jobs
+    ]
+
+    return JsonResponse({
+        "applicant_id": applicant.id,
+        "applicant_username": applicant.username,
+        "total_jobs_applied": len(jobs_list),
+        "jobs": jobs_list
+    }, status=200)
+
+
+
+@router.get("/applicant/jobs/count/{applicant_id}/", tags=["Applicant Jobs"])
+def get_total_jobs_taken(request, applicant_id: int):
+    """
+    ✅ GET /applicant/jobs/count/{applicant_id}/
+    Retrieves the **total number of jobs** an applicant has taken.
+    """
+
+    # Fetch the applicant user object
+    applicant = get_object_or_404(User, id=applicant_id)
+
+    # Count the number of jobs where the applicant's application was accepted
+    total_jobs_taken = Application.objects.filter(applicant=applicant, status="accepted").count()
+
+    return JsonResponse({
+        "applicant_id": applicant.id,
+        "applicant_username": applicant.username,
+        "total_jobs_taken": total_jobs_taken
+    }, status=200)
+
+
+@router.get("/accepted-list", tags=["Applicant Jobs"])
+def list_accepted_applications(request):
+    """GET /jobs/accepted-list - Returns accepted applications with job details"""
+    apps_qs = Application.objects.filter(is_accepted=True).select_related("job", "applicant")
+    return [{
+        "application_id": app.id,
+        "applicant_name": app.applicant.first_name,
+        "is_accepted": app.is_accepted,
+        "applied_at": str(app.applied_at),
+        "job": serialize_job(app.job),
+        "client_name": app.job.client.first_name if app.job.client else "Unknown Client",
+        "date_posted": "2 days ago",
+        "no_of_application": app.job.no_of_application
+    } for app in apps_qs]
+
+
+
+
+
 
 # ----------------------------------------------------------------------
 # Dispute Endpoints

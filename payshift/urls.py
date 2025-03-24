@@ -38,7 +38,7 @@ urlpatterns = [
     path("payment/", include("payment.urls")),
 
     # Ninja API endpoints
-    path("api/", api.urls),  # Main API endpoints
+    # path("api/", api.urls),  # Main API endpoints
 ]
 
 
