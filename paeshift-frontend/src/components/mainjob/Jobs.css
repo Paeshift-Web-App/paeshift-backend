@@ -1,0 +1,514 @@
+.navbar-toggler span.d-icon {
+  border: 1px solid var(--primary-purple);
+}
+
+
+
+.page_header {
+  width: 90%;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.icon-bars {
+  color: var(--primary-purple);
+}
+
+
+.page_header h1 {
+  font-weight: bold;
+}
+
+
+.searchbar-section {
+  display: flex;
+  gap: 0.5rem
+}
+
+.serachbar-notify {
+  display: flex;
+  /* box-shadow: var(--box-shadow); */
+  background-color: var(--color-text-white);
+  border-radius: 0.6rem;
+}
+
+.searchbar {
+  display: flex;
+  position: relative;
+  align-items: center;
+}
+
+.searchbar .search-icon {
+  position: absolute;
+  left: 0.9rem;
+  color: var(--color-text-ash);
+}
+
+.searchbar .searchbar-input {
+  padding: 0.625rem;
+  padding-left: 2.6rem;
+  width: 100%;
+  background-color: var(--color-text-white);
+  border: none;
+}
+
+.searchbar .searchbar-input::placeholder {
+  color: var(--color-text-ash);
+}
+
+.searchbar .searchbar-input:focus {
+  outline: none;
+}
+
+
+.notification-icon {
+  margin: 0.4rem;
+  background-color: var(--color-text-white);
+  border-left: solid 0.09rem var(--color-text-ash);
+}
+
+
+.btn-wallet {
+  border-radius: 0.6rem;
+  /* box-shadow: var(--box-shadow); */
+  background-color: var(--color-bg-light);
+  border: 0.5px solid var(--primary-purple);
+  /* font-size: 0.8rem; */
+}
+
+
+/* Modal Custom CSS  */
+/* .modal-dialog, */
+
+.come-from-modal.right .modal-header h1 {
+  font-size: 1.5rem;
+  font-family: var(--font-family-body);
+  font-weight: 700;
+  line-height: 1.8rem;
+}
+
+.come-from-modal.right .btn-close {
+  /* color: var(--primary-purple) !important; */
+  border: 1px solid var(--color-text-ash);
+  border-radius: 50%;
+  font-size: 0.625rem;
+}
+
+.come-from-modal.right .modal-body>.balance {
+  background-color: var(--color-bg-light);
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.come-from-modal.right .modal-body .balance h4 {
+  font-family: var(--font-family-body);
+  font-size: 0.875rem;
+  font-weight: bold;
+  line-height: 1.05rem;
+}
+
+.come-from-modal.right .modal-body .balance h1 {
+  font-family: var(--font-family-body);
+  font-size: 1.5rem;
+  font-weight: bold;
+  line-height: 1.8rem;
+}
+
+.come-from-modal.right .modal-body .balance p {
+  font-family: var(--font-family-body);
+  font-size: 0.625rem;
+  font-weight: 500;
+  line-height: 0.75rem;
+  color: var(--color-text-ash);
+}
+
+
+.come-from-modal.right .transactions {
+  padding: 1rem;
+  border-radius: 1.5rem;
+  background-color: var(--color-bg);
+}
+
+
+.come-from-modal.right .transactions .top_section {
+  padding: 1rem;
+  border-radius: 1.5rem;
+  background-color: var(--color-bg);
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+
+}
+
+.come-from-modal.right .transactions .top_section h3 {
+  color: var(--color-text-ash);
+  font-family: var(--font-family-body);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.2rem;
+}
+
+.come-from-modal.right .transactions .top_section a {
+  color: var(--color-text-ash);
+  font-family: var(--font-family-body);
+  font-size: 0.625rem;
+  font-weight: bold;
+  line-height: 0.75rem;
+  color: var(--primary-purple);
+}
+
+
+
+
+
+.come-from-modal.right .transactions .bottom_section {
+  height: 250px;
+  overflow-y: scroll;
+}
+
+
+
+.come-from-modal.right .transactions .bottom_section .transaction {
+  display: flex;
+  width: 100%;
+  background-color: var(--color-text-white);
+  padding: 1rem;
+  border-radius: 1rem;
+  gap: 0.5rem;
+  justify-content: space-between;
+  align-content: center;
+  margin-bottom: 1rem;
+}
+
+.come-from-modal.right .transactions .bottom_section .transaction .profile_info {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.come-from-modal.right .transactions .bottom_section .transaction .profile_info .date {
+  margin-bottom: 0;
+}
+
+.come-from-modal.right .transactions .bottom_section .transaction h3.credit-amount {
+  margin-bottom: 0;
+  padding-top: 0.6rem;
+  color: var(--color-text-green);
+  font-family: var(--font-family-body);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.2rem;
+  text-align: right;
+
+}
+
+.come-from-modal.right .transactions .bottom_section .transaction h3.debit-amount {
+  margin-bottom: 0;
+  padding-top: 0.6rem;
+  color: var(--color-text-red);
+  font-family: var(--font-family-body);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.2rem;
+  text-align: right;
+
+}
+
+.come-from-modal.right .transactions .bottom_section .transaction .profile_info .profileWrapper {
+  width: 3rem;
+  border-radius: 50%;
+  background-color: var(--color-bg-light);
+  padding: 0.2rem;
+}
+
+.come-from-modal.right .transactions .bottom_section .transaction .profile_info .profileWrapper img.prof {
+  width: 100%;
+}
+
+.come-from-modal.right .transactions .bottom_section .transaction .profile_info h4 {
+  font-size: 0.875rem;
+  line-height: 1.05rem;
+  margin-bottom: 0;
+  color: var(--primary-purple);
+  font-weight: 700;
+  font-family: var(--font-family-body);
+  font-weight: 700;
+}
+
+
+.come-from-modal.right .transactions .bottom_section .transaction .profile_info p {
+  color: var(--color-text-ash);
+  font-size: 0.6rem;
+  margin-bottom: 0;
+  font-family: var(--font-family-body);
+  font-size: 0.625rem;
+  font-weight: bold;
+  line-height: 0.75rem;
+}
+
+.come-from-modal.right .withdraw-btn {
+  background-color: var(--color-bg-light);
+  width: 100%;
+  color: var(--primary-purple);
+  padding: 1rem 1.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--primary-purple);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.filter-section {
+  /* background-color: black; */
+  /* width: 100%; */
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: scroll;
+  padding: 0.4rem;
+  scrollbar-width: none;
+}
+
+.filter-btn {
+  background-color: var(--color-text-white);
+  border-radius: 0.6rem;
+  color: var(--primary-purple);
+  padding: 0.625rem 0.8rem;
+  font-weight: bold;
+  font-size: 0.7rem;
+  /* box-shadow: var(--box-shadow); */
+  border: none;
+  outline: none;
+}
+
+/* .filter-btn:hover {
+  background-color: var(--color-bg-light);
+  color: var(--color-primary-dark);
+} */
+
+select.filter-btn {
+  /* appearance: none; */
+  padding: 0.625rem 0.4rem;
+}
+
+
+.filter-btn.active {
+  background-color: var(--primary-purple);
+  color: var(--color-text-white);
+}
+
+
+
+/* DASHBOARD STYLING  */
+.container__data {
+  margin-top: 2rem;
+  padding: 0;
+}
+
+.container__data .cards {
+  display: flex;
+  flex-flow: row wrap;
+  gap: 0.2rem;
+  width: 100%;
+  padding: 0.5rem;
+}
+
+.container__data .card {
+  width: 100%;
+  background: var(--color-text-white);
+  /* box-shadow: var(--box-shadow); */
+  margin-bottom: 0.2rem;
+  padding: 1rem;
+  border-radius: 1.5rem;
+}
+
+.container__data .card .card_top {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.container__data .card .card_top .profile_info {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.container__data .card .card_top .profile_info>span:nth-child(2) {
+  margin-top: 0.2rem;
+}
+
+.container__data .card .card_top .profile_info img.prof {
+  width: 3rem;
+}
+
+.container__data .card .card_top .profile_info h4 {
+  font-size: 0.875rem;
+  line-height: 1.05rem;
+  margin-bottom: 0;
+  color: var(--primary-purple);
+  font-weight: 700;
+}
+
+.container__data .card .card_top .profile_info .rate_score {
+  color: var(--color-text-ash);
+  font-size: 0.6rem;
+}
+
+.container__data .card .card_top .profile_info .rate_score {
+  color: var(--color-text-ash);
+  font-size: 0.625rem;
+}
+
+.container__data .card .card_top .top_cta button {
+  border-radius: 0.5rem;
+  color: var(--color-text-ash);
+  border: none;
+  padding: 0.625rem 1rem;
+  font-size: 0.625rem;
+  border: 1px solid #a7a7a727;
+}
+
+
+.container__data .card .card_top .top_cta button.upcoming {
+  border-radius: 0.7rem;
+  background-color: var(--color-bg-light);
+  color: var(--primary-purple);
+}
+
+.container__data .card .card_top .top_cta button.ongoing {
+  border-radius: 0.7rem;
+  background-color: var(--color-light-yellow);
+  color: var(--color-text-yellow);
+}
+
+.container__data .card .card_top .top_cta button.completed {
+  border-radius: 0.7rem;
+  background-color: var(--color-light-green);
+  color: var(--color-text-green);
+}
+
+.container__data .card .card_top .top_cta button.canceled {
+  border-radius: 0.7rem;
+  background-color: var(--color-light-red);
+  color: var(--color-text-red);
+}
+
+
+
+.container__data .card .row .col-12 h2 {
+  font-size: 1rem;
+  font-weight: bold;
+  margin: 0;
+  font-family: var(--font-family-body);
+  line-height: 1.35rem;
+  margin-bottom: 1rem;
+}
+
+
+.container__data .jobs .card h4 {
+  font-size: 0.725rem;
+  font-weight: 700;
+  line-height: 1.05rem;
+  text-align: right;
+}
+
+.container__data .card p {
+  font-size: 0.725rem;
+  font-weight: 700;
+  line-height: 1.05rem;
+  font-family: var(--font-family-body);
+  color: var(--color-text-ash);
+}
+
+.container__data .card span.address {
+  background-color: var(--color-bg);
+  font-size: 0.58rem;
+  font-weight: 500;
+  line-height: 0.75rem;
+  text-align: center;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  color: var(--color-text-ash);
+}
+
+
+.container__data .card .bottom {
+  border-top: 1px solid var(--color-text-ash);
+  padding-top: 1rem;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 0.4rem;
+  font-family: var(--font-family-text);
+}
+
+.container__data .card .bottom button {
+  border-radius: 0.5rem;
+  border: none;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--font-family-body);
+}
+
+.container__data .card .bottom .track-btn{
+    padding: 0.75rem 1.7rem;
+    background-color: var(--primary-purple);
+    color: var(--color-text-white);
+  }
+
+.container__data .card .bottom button.cancel {
+  padding: 0.75rem 2rem;
+  background-color: var(--color-bg-light);
+  color: var(--primary-purple);
+}
+
+
+.container__data .card .bottom a.track-btn:hover,
+.container__data .card .bottom button:hover {
+  background-color: var(--color-bg-light);
+  color: var(--primary-purple);
+  border: 1px solid var(--primary-purple);
+}
+
+.container__data .card .bottom span h6 {
+  font-size: 0.75rem;
+  font-family: var(--font-family-text);
+  font-weight: 700;
+}
+
+.container__data .card .bottom span p {
+  font-size: 0.5rem;
+  color: var(--color-text-ash);
+  font-weight: 500;
+}
+
+
+/* .container__data .cards .card .card-body .dash-icon {
+  font-size: 2rem;
+  margin-bottom: 0.2rem;
+} */
+
+
+
+.dashboard_container {
+  padding: 1rem;
+}

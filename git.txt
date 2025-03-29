@@ -1,6 +1,6 @@
 
 git add .
-git commit -m "Fulfulling apis required by frontend developer , attanging and tagging"
+git commit -m "frontend pull"
 git push origin main
 
 

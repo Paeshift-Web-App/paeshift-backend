@@ -50,8 +50,6 @@ class UserSchema(Schema):
 # -------------------------------------------------------
 # 4) Job Schemas
 # -------------------------------------------------------
-
-
 # ✅ Job Schema for structured API responses
 class JobListSchema(Schema):
     id: int

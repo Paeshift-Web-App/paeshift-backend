@@ -55,7 +55,7 @@ def geocode_address(address):
 
 
 
-@router.post("/update-location", tags=["Location"])
+@router.post("/update-location")
 def update_location(request, lat: float, lng: float):
     """Update the user's location."""
     user = request.user

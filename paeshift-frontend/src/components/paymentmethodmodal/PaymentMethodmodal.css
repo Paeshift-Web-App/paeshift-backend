@@ -1,0 +1,94 @@
+/* Modal Custom CSS  */
+/* .modal-dialog, */
+#paymentMethodModal.come-from-modal.right .modal-header h1 {
+  font-size: 1.5rem;
+  font-family: var(--font-family-body);
+  font-weight: 700;
+  line-height: 1.8rem;
+}
+
+#paymentMethodModal.come-from-modal.right .btn-close {
+  border: 1px solid var(--color-text-ash);
+  border-radius: 50%;
+  font-size: 0.625rem;
+}
+
+
+.title h3 {
+  color: var(--color-text-ash);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 19.2px;
+}
+
+
+
+
+#paymentMethodModal.come-from-modal.right .applicants {
+  width: 100%;
+  background: var(--color-bg);
+  margin-bottom: 0.2rem;
+  padding: 1rem;
+  padding-bottom: 0.5rem;
+  border-radius: 1rem;
+}
+
+#paymentMethodModal.come-from-modal.right .applicants h3 {
+  font-weight: bold;
+  font-size: 1rem;
+  line-height: 1.05rem;
+}
+
+#paymentMethodModal.come-from-modal.right .applicants .card_top {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+
+
+
+#paymentMethodModal.come-from-modal.right .payment_btn img.prof {
+  width: 3rem;
+}
+
+#paymentMethodModal.come-from-modal.right .payment_btn h4 {
+  font-size: 1rem;
+  line-height: 1.05rem;
+  margin-bottom: 0;
+  color: var(--primary-purple);
+  font-weight: 700;
+}
+
+#paymentMethodModal.come-from-modal.right .applicants .card_top .payment_btn .rate_score {
+  color: var(--color-text-ash);
+  font-size: 0.6rem;
+}
+
+#paymentMethodModal.come-from-modal.right .applicants,
+#paymentMethodModal.come-from-modal.right .applicants .card_top {
+  background-color: transparent;
+  
+}
+
+#paymentMethodModal.come-from-modal.right button {
+  font-weight: bold;
+  background-color: var(--color-bg);
+  font-size: 0.625rem;
+  margin-top: 0.5rem;
+  border-radius: 0.7rem;
+}
+
+#paymentMethodModal.come-from-modal.right .applicants .card_top .top_cta button .icon-saved {
+  font-size: 0.625rem;
+}
+
+
+#paymentMethodModal.come-from-modal.right  button:hover {
+  background-color: var(--color-bg-light);
+  color: var(--primary-purple);
+}
+
+
+
