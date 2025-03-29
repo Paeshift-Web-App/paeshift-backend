@@ -10,4 +10,19 @@ Currently, two official plugins are available:
 
 
 
+Pages and Line numbers to see the implemented end points
+
+Home page (Applicant)
+
+Line 67 to save job
+Line 81 to Get all saved job
+
+
+
+Jobs Page
+
+Feedback endpoint can be found in feedback modal component
+
+
+Settings Page
 
