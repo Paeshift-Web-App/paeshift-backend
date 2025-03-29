@@ -218,7 +218,7 @@ def signup_view(request, payload: SignupSchema):
         login(request, user)  # Automatically logs in the user
         Profile.objects.create(user=user, role=payload.role)  # Assign a role
 
-        return JsonResponse({"message": "Signup successful"}, status=200)
+        return JsonResponse({"message": "success"}, status=200)
     except IntegrityError:
         return JsonResponse({"error": "Email already exists"}, status=400)
     except Exception as e:

@@ -113,7 +113,8 @@ const Signup = () => {
                       // use the typed email to check if the email already exist
                       if (!isUnique) {
                         let result = await Axios.post("http://127.0.0.1:8000/jobs/signup", userdata);
-                        result = result.data.message;
+                        // result = result.data.message;
+                        console.log (result)
 
 
                         if (result === "success") {

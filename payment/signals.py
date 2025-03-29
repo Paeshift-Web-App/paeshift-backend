@@ -17,6 +17,6 @@ def create_wallet_and_profile(sender, instance, created, **kwargs):
 
 
         # ✅ Assign initial rating
-        Rating.objects.create(reviewed=instance, reviewer=instance, rating=5.0)
+        # Rating.objects.create(reviewed=instance, reviewer=instance, rating=5.0)
 
         print(f"✅ Wallet & Profile created for {instance.email}")
